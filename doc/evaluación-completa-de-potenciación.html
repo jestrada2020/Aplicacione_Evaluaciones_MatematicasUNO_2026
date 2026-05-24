@@ -1,0 +1,2120 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Capítulo 3 Evaluación Completa de Potenciación | Planteamiento y Solución de Problemas: Álgebra y Geometría Analítica</title>
+  <meta name="description" content="Capítulo 3 Evaluación Completa de Potenciación | Planteamiento y Solución de Problemas: Álgebra y Geometría Analítica" />
+  <meta name="generator" content="bookdown 0.46 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Capítulo 3 Evaluación Completa de Potenciación | Planteamiento y Solución de Problemas: Álgebra y Geometría Analítica" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Capítulo 3 Evaluación Completa de Potenciación | Planteamiento y Solución de Problemas: Álgebra y Geometría Analítica" />
+  
+  
+  
+
+<meta name="author" content="SIM01" />
+
+
+<meta name="date" content="2026-05-24" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="simulacro-de-evaluación-uno.html"/>
+<link rel="next" href="evaluación-de-álgebra-expresiones-racionales-caso-4.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<style>
+.learnr-question-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  background: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+.learnr-question-text {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+.learnr-answers {
+  margin-bottom: 1rem;
+}
+.learnr-option {
+  padding: 0.5rem 0.75rem;
+  margin: 0.4rem 0;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  transition: background 0.2s, border-color 0.2s;
+  cursor: pointer;
+}
+.learnr-option:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+.learnr-option input {
+  margin-right: 0.6rem;
+  cursor: pointer;
+}
+.learnr-option label {
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  margin: 0;
+  font-weight: 400;
+}
+.learnr-option.correct-answer {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+.learnr-option.wrong-answer {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+.learnr-option.missed-answer {
+  background: #fef9c3;
+  border-color: #fde047;
+}
+.learnr-submit-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+.learnr-submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99,102,241,0.35);
+}
+.learnr-submit-btn:active {
+  transform: translateY(0);
+}
+.learnr-reset-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s;
+  margin-bottom: 2rem;
+}
+.learnr-reset-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16,185,129,0.35);
+}
+.learnr-reset-btn:active {
+  transform: translateY(0);
+}
+.learnr-feedback {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.learnr-feedback.correct-fb {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+.learnr-feedback.incorrect-fb {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* Score report styles */
+.score-report-box {
+  background: white;
+  border: 1px solid #eef2f6;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  margin-top: 1rem;
+}
+.score-report-box h3 {
+  margin-top: 0;
+  font-family: "Outfit", sans-serif;
+  font-weight: 700;
+  color: #1e2638;
+}
+.score-stat-box {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.75rem;
+  border-radius: 10px;
+  text-align: center;
+}
+.score-stat-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: block;
+}
+.score-stat-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+.score-rec-box {
+  padding: 1rem;
+  border-left: 5px solid;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+</style>
+
+<script>
+function shuffleArray(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+  while (0 !== currentIndex) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+  return array;
+}
+
+function shuffleAllOptions() {
+  document.querySelectorAll('.learnr-answers').forEach(function(container) {
+    var options = Array.from(container.querySelectorAll('.learnr-option'));
+    if (options.length <= 1) return;
+    shuffleArray(options);
+    options.forEach(function(opt) {
+      container.appendChild(opt);
+    });
+  });
+}
+
+function checkLearnrQuestion(qid) {
+  var box = document.getElementById(qid);
+  if (!box) return;
+  var inputs = box.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+  var correct = true;
+  var anyChecked = false;
+  
+  inputs.forEach(function(input) {
+    if (input.checked) {
+      anyChecked = true;
+      if (input.getAttribute('data-correct') !== 'true') {
+        correct = false;
+      }
+    } else {
+      if (input.getAttribute('data-correct') === 'true') {
+        correct = false;
+      }
+    }
+  });
+  
+  if (!anyChecked) {
+    alert('Por favor selecciona al menos una respuesta.');
+    return;
+  }
+  
+  var feedbackDiv = box.querySelector('.learnr-feedback');
+  var allowRetry = box.querySelector('.learnr-data-allowretry').textContent.trim() === 'true';
+  var btn = box.querySelector('.learnr-submit-btn');
+  
+  // Resetear estilos de opciones
+  box.querySelectorAll('.learnr-option').forEach(function(opt) {
+    opt.classList.remove('correct-answer', 'wrong-answer', 'missed-answer');
+  });
+  
+  // Guardar estado para el reporte global
+  box.setAttribute('data-answered', 'true');
+  box.setAttribute('data-answered-correctly', correct ? 'true' : 'false');
+  
+  if (correct) {
+    feedbackDiv.innerHTML = box.querySelector('.learnr-data-correct').innerHTML;
+    feedbackDiv.className = 'learnr-feedback correct-fb';
+    feedbackDiv.style.display = 'block';
+    btn.style.display = 'none';
+    // Marcar correctas
+    inputs.forEach(function(input) {
+      if (input.getAttribute('data-correct') === 'true') {
+        input.closest('.learnr-option').classList.add('correct-answer');
+      }
+    });
+  } else {
+    feedbackDiv.innerHTML = box.querySelector('.learnr-data-incorrect').innerHTML;
+    feedbackDiv.className = 'learnr-feedback incorrect-fb';
+    feedbackDiv.style.display = 'block';
+    
+    // Pintar opciones
+    inputs.forEach(function(input) {
+      var opt = input.closest('.learnr-option');
+      if (input.checked && input.getAttribute('data-correct') !== 'true') {
+        opt.classList.add('wrong-answer');
+      }
+      if (!input.checked && input.getAttribute('data-correct') === 'true') {
+        opt.classList.add('missed-answer');
+      }
+      if (input.checked && input.getAttribute('data-correct') === 'true') {
+        opt.classList.add('correct-answer');
+      }
+    });
+    
+    if (allowRetry) {
+      btn.textContent = box.querySelector('.learnr-data-retry').textContent || 'Intentar de nuevo';
+      btn.onclick = function() { resetLearnrQuestion(qid); };
+    } else {
+      btn.style.display = 'none';
+    }
+  }
+}
+
+function resetLearnrQuestion(qid) {
+  var box = document.getElementById(qid);
+  if (!box) return;
+  var inputs = box.querySelectorAll('input');
+  inputs.forEach(function(input) { input.checked = false; });
+  
+  var feedbackDiv = box.querySelector('.learnr-feedback');
+  feedbackDiv.style.display = 'none';
+  feedbackDiv.className = 'learnr-feedback';
+  
+  box.querySelectorAll('.learnr-option').forEach(function(opt) {
+    opt.classList.remove('correct-answer', 'wrong-answer', 'missed-answer');
+  });
+  
+  // Limpiar estado
+  box.removeAttribute('data-answered');
+  box.removeAttribute('data-answered-correctly');
+  
+  var btn = box.querySelector('.learnr-submit-btn');
+  btn.style.display = 'inline-block';
+  btn.textContent = 'Enviar Respuesta';
+  btn.onclick = function() { checkLearnrQuestion(qid); };
+}
+
+function resetAllQuestions() {
+  document.querySelectorAll('.learnr-question-box').forEach(function(box) {
+    var qid = box.id;
+    if (qid) resetLearnrQuestion(qid);
+  });
+  // Re-mezclar opciones para nuevo orden aleatorio
+  shuffleAllOptions();
+}
+
+function showScoreReport(reportId, totalQuestions, recHigh, recMed, recLow) {
+  var reportBox = document.getElementById(reportId);
+  if (!reportBox) return;
+  
+  var questions = document.querySelectorAll('.learnr-question-box');
+  var answered = 0;
+  var correctCount = 0;
+  
+  questions.forEach(function(q) {
+    if (q.getAttribute('data-answered') === 'true') {
+      answered++;
+      if (q.getAttribute('data-answered-correctly') === 'true') {
+        correctCount++;
+      }
+    }
+  });
+  
+  var failed = answered - correctCount;
+  var unanswered = totalQuestions - answered;
+  var percent = Math.round((correctCount / totalQuestions) * 100);
+  
+  var iconEmoji, styleClass, recommendation, borderColor, bgColor, titleColor;
+  if (percent >= 85) {
+    iconEmoji = "🏆";
+    styleClass = "alert-success";
+    borderColor = "#86efac";
+    bgColor = "#f0fdf4";
+    titleColor = "#166534";
+    recommendation = recHigh;
+  } else if (percent >= 60) {
+    iconEmoji = "📚";
+    styleClass = "alert-warning";
+    borderColor = "#fde047";
+    bgColor = "#fef9c3";
+    titleColor = "#92400e";
+    recommendation = recMed;
+  } else {
+    iconEmoji = "🚨";
+    styleClass = "alert-danger";
+    borderColor = "#fca5a5";
+    bgColor = "#fee2e2";
+    titleColor = "#991b1b";
+    recommendation = recLow;
+  }
+  
+  var html = 
+    '<div class="score-report-box">' +
+    '  <h3>Resumen de tu Desempeño ' + iconEmoji + '</h3>' +
+    '  <hr style="border-top: 1px solid #eef2f6; margin-bottom: 1.25rem; margin-top: 0.5rem;">' +
+    '  <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">' +
+    '    <div class="score-stat-box" style="background: #f0fdf4; border: 1px solid #bbf7d0;">' +
+    '      <span class="score-stat-label" style="color: #166534;">Correctas</span>' +
+    '      <span class="score-stat-value" style="color: #15803d;">' + correctCount + '</span>' +
+    '    </div>' +
+    '    <div class="score-stat-box" style="background: #fef2f2; border: 1px solid #fecaca;">' +
+    '      <span class="score-stat-label" style="color: #991b1b;">Incorrectas / Fallidas</span>' +
+    '      <span class="score-stat-value" style="color: #b91c1c;">' + failed + '</span>' +
+    '    </div>' +
+    '    <div class="score-stat-box" style="background: #fef3c7; border: 1px solid #fde68a;">' +
+    '      <span class="score-stat-label" style="color: #92400e;">Sin Responder</span>' +
+    '      <span class="score-stat-value" style="color: #b45309;">' + unanswered + '</span>' +
+    '    </div>' +
+    '    <div class="score-stat-box" style="background: #eef2ff; border: 1px solid #c7d2fe;">' +
+    '      <span class="score-stat-label" style="color: #3730a3;">Puntaje Total</span>' +
+    '      <span class="score-stat-value" style="color: #4f46e5;">' + percent + '%</span>' +
+    '    </div>' +
+    '  </div>' +
+    '  <div class="score-rec-box" style="background: ' + bgColor + '; border-color: ' + borderColor + ';">' +
+    '    <h4 style="margin-top: 0; font-weight: 700; font-family: &quot;Outfit&quot;, sans-serif; color: ' + titleColor + ';">Recomendación Personalizada:</h4>' +
+    '    <p style="margin-bottom: 0; font-size: 0.95rem; line-height: 1.4;">' + recommendation + '</p>' +
+    '  </div>' +
+    '</div>';
+  
+  reportBox.innerHTML = html;
+  reportBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Mezclar opciones aleatoriamente al cargar cada página
+  shuffleAllOptions();
+  
+  // Agregar botón de reinicio global si hay preguntas en la página
+  var questions = document.querySelectorAll('.learnr-question-box');
+  if (questions.length > 0) {
+    var h1 = document.querySelector('.book-body h1') || document.querySelector('h1');
+    if (h1) {
+      var resetBtn = document.createElement('button');
+      resetBtn.type = 'button';
+      resetBtn.className = 'learnr-reset-btn';
+      resetBtn.innerHTML = '🔄 Reiniciar Cuestionario (Nuevo Orden)';
+      resetBtn.onclick = function() {
+        if (confirm('¿Estás seguro de que quieres reiniciar todas las preguntas? Se borrarán tus respuestas y el orden de las opciones cambiará.')) {
+          resetAllQuestions();
+        }
+      };
+      h1.parentNode.insertBefore(resetBtn, h1.nextSibling);
+    }
+  }
+});
+</script>
+
+
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Proyecto Cuestionarios</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Prefacio</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#contenido"><i class="fa fa-check"></i>Contenido</a></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html"><i class="fa fa-check"></i><b>1</b> Simulacro de Evaluación Uno (Respaldo)</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#introducci%C3%B3n"><i class="fa fa-check"></i><b>1.1</b> Introducción</a></li>
+<li class="chapter" data-level="1.2" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#bloque-1-ecuaciones-cuadr%C3%A1ticas"><i class="fa fa-check"></i><b>1.2</b> Bloque 1: Ecuaciones Cuadráticas</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#pregunta-1"><i class="fa fa-check"></i><b>1.2.1</b> Pregunta 1</a></li>
+<li class="chapter" data-level="1.2.2" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#pregunta-2"><i class="fa fa-check"></i><b>1.2.2</b> Pregunta 2</a></li>
+<li class="chapter" data-level="1.2.3" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#pregunta-3"><i class="fa fa-check"></i><b>1.2.3</b> Pregunta 3</a></li>
+<li class="chapter" data-level="1.2.4" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#pregunta-4"><i class="fa fa-check"></i><b>1.2.4</b> Pregunta 4</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#bloque-2-par%C3%A1bolas-y-rectas"><i class="fa fa-check"></i><b>1.3</b> Bloque 2: Parábolas y Rectas</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#pregunta-5"><i class="fa fa-check"></i><b>1.3.1</b> Pregunta 5</a></li>
+<li class="chapter" data-level="1.3.2" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#pregunta-6"><i class="fa fa-check"></i><b>1.3.2</b> Pregunta 6</a></li>
+<li class="chapter" data-level="1.3.3" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#pregunta-7"><i class="fa fa-check"></i><b>1.3.3</b> Pregunta 7</a></li>
+<li class="chapter" data-level="1.3.4" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#pregunta-8"><i class="fa fa-check"></i><b>1.3.4</b> Pregunta 8</a></li>
+<li class="chapter" data-level="1.3.5" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#pregunta-9"><i class="fa fa-check"></i><b>1.3.5</b> Pregunta 9</a></li>
+<li class="chapter" data-level="1.3.6" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#pregunta-10"><i class="fa fa-check"></i><b>1.3.6</b> Pregunta 10</a></li>
+<li class="chapter" data-level="1.3.7" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#pregunta-11"><i class="fa fa-check"></i><b>1.3.7</b> Pregunta 11</a></li>
+<li class="chapter" data-level="1.3.8" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#pregunta-12"><i class="fa fa-check"></i><b>1.3.8</b> Pregunta 12</a></li>
+</ul></li>
+<li class="chapter" data-level="1.4" data-path="simulacro-de-evaluación-uno-respaldo.html"><a href="simulacro-de-evaluación-uno-respaldo.html#resultados-de-la-evaluaci%C3%B3n"><i class="fa fa-check"></i><b>1.4</b> Resultados de la Evaluación</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="simulacro-de-evaluación-uno.html"><a href="simulacro-de-evaluación-uno.html"><i class="fa fa-check"></i><b>2</b> Simulacro de Evaluación Uno</a></li>
+<li class="chapter" data-level="3" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html"><i class="fa fa-check"></i><b>3</b> Evaluación Completa de Potenciación</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#introducci%C3%B3n-1"><i class="fa fa-check"></i><b>3.1</b> Introducción</a></li>
+<li class="chapter" data-level="3.2" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#bloque-1-leyes-de-exponentes-b%C3%A1sicas"><i class="fa fa-check"></i><b>3.2</b> Bloque 1: Leyes de Exponentes Básicas</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-1-seleccionar-verdaderas"><i class="fa fa-check"></i><b>3.2.1</b> Pregunta 1 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="3.2.2" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-2-seleccionar-falsas"><i class="fa fa-check"></i><b>3.2.2</b> Pregunta 2 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="3.2.3" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-3-seleccionar-verdaderas"><i class="fa fa-check"></i><b>3.2.3</b> Pregunta 3 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="3.2.4" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-4-seleccionar-falsas"><i class="fa fa-check"></i><b>3.2.4</b> Pregunta 4 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="3.2.5" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-5-seleccionar-verdaderas"><i class="fa fa-check"></i><b>3.2.5</b> Pregunta 5 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="3.2.6" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-6-seleccionar-falsas"><i class="fa fa-check"></i><b>3.2.6</b> Pregunta 6 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="3.2.7" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-7-seleccionar-verdaderas"><i class="fa fa-check"></i><b>3.2.7</b> Pregunta 7 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="3.2.8" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-8-seleccionar-falsas"><i class="fa fa-check"></i><b>3.2.8</b> Pregunta 8 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="3.2.9" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-9-seleccionar-verdaderas"><i class="fa fa-check"></i><b>3.2.9</b> Pregunta 9 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="3.2.10" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-10-seleccionar-falsas"><i class="fa fa-check"></i><b>3.2.10</b> Pregunta 10 (Seleccionar Falsas)</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#bloque-2-potenciaci%C3%B3n-avanzada-y-radicales"><i class="fa fa-check"></i><b>3.3</b> Bloque 2: Potenciación Avanzada y Radicales</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-11-seleccionar-verdaderas"><i class="fa fa-check"></i><b>3.3.1</b> Pregunta 11 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="3.3.2" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-12-seleccionar-falsas"><i class="fa fa-check"></i><b>3.3.2</b> Pregunta 12 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="3.3.3" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-13-seleccionar-verdaderas"><i class="fa fa-check"></i><b>3.3.3</b> Pregunta 13 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="3.3.4" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-14-seleccionar-falsas"><i class="fa fa-check"></i><b>3.3.4</b> Pregunta 14 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="3.3.5" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-15-seleccionar-verdaderas"><i class="fa fa-check"></i><b>3.3.5</b> Pregunta 15 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="3.3.6" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-16-seleccionar-falsas"><i class="fa fa-check"></i><b>3.3.6</b> Pregunta 16 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="3.3.7" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-17-seleccionar-verdaderas"><i class="fa fa-check"></i><b>3.3.7</b> Pregunta 17 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="3.3.8" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-18-seleccionar-falsas"><i class="fa fa-check"></i><b>3.3.8</b> Pregunta 18 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="3.3.9" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-19-seleccionar-verdaderas"><i class="fa fa-check"></i><b>3.3.9</b> Pregunta 19 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="3.3.10" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#pregunta-20-seleccionar-falsas"><i class="fa fa-check"></i><b>3.3.10</b> Pregunta 20 (Seleccionar Falsas)</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="evaluación-completa-de-potenciación.html"><a href="evaluación-completa-de-potenciación.html#resultados-de-la-evaluaci%C3%B3n-1"><i class="fa fa-check"></i><b>3.4</b> Resultados de la Evaluación</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><i class="fa fa-check"></i><b>4</b> Evaluación de Álgebra: Expresiones Racionales (Caso 4)</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#introducci%C3%B3n-2"><i class="fa fa-check"></i><b>4.1</b> Introducción</a></li>
+<li class="chapter" data-level="4.2" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#bloque-1-preguntas-de-la-1-a-la-7"><i class="fa fa-check"></i><b>4.2</b> Bloque 1: Preguntas de la 1 a la 7</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#pregunta-1-seleccionar-verdaderas-1"><i class="fa fa-check"></i><b>4.2.1</b> Pregunta 1 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="4.2.2" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#pregunta-2-seleccionar-falsas-1"><i class="fa fa-check"></i><b>4.2.2</b> Pregunta 2 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="4.2.3" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#pregunta-3-seleccionar-verdaderas-1"><i class="fa fa-check"></i><b>4.2.3</b> Pregunta 3 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="4.2.4" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#pregunta-4-seleccionar-falsas-1"><i class="fa fa-check"></i><b>4.2.4</b> Pregunta 4 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="4.2.5" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#pregunta-5-seleccionar-verdaderas-1"><i class="fa fa-check"></i><b>4.2.5</b> Pregunta 5 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="4.2.6" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#pregunta-6-seleccionar-falsas-1"><i class="fa fa-check"></i><b>4.2.6</b> Pregunta 6 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="4.2.7" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#pregunta-7-seleccionar-verdaderas-1"><i class="fa fa-check"></i><b>4.2.7</b> Pregunta 7 (Seleccionar Verdaderas)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#bloque-2-preguntas-de-la-8-a-la-14"><i class="fa fa-check"></i><b>4.3</b> Bloque 2: Preguntas de la 8 a la 14</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#pregunta-8-seleccionar-falsas-1"><i class="fa fa-check"></i><b>4.3.1</b> Pregunta 8 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="4.3.2" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#pregunta-9-seleccionar-verdaderas-1"><i class="fa fa-check"></i><b>4.3.2</b> Pregunta 9 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="4.3.3" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#pregunta-10-seleccionar-falsas-1"><i class="fa fa-check"></i><b>4.3.3</b> Pregunta 10 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="4.3.4" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#pregunta-11-seleccionar-verdaderas-1"><i class="fa fa-check"></i><b>4.3.4</b> Pregunta 11 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="4.3.5" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#pregunta-12-seleccionar-falsas-1"><i class="fa fa-check"></i><b>4.3.5</b> Pregunta 12 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="4.3.6" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#pregunta-13-seleccionar-verdaderas-1"><i class="fa fa-check"></i><b>4.3.6</b> Pregunta 13 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="4.3.7" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#pregunta-14-seleccionar-falsas-1"><i class="fa fa-check"></i><b>4.3.7</b> Pregunta 14 (Seleccionar Falsas)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="evaluación-de-álgebra-expresiones-racionales-caso-4.html"><a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html#resultados-de-la-evaluaci%C3%B3n-2"><i class="fa fa-check"></i><b>4.4</b> Resultados de la Evaluación</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><i class="fa fa-check"></i><b>5</b> Evaluación de Álgebra: Despeje de Variables (Caso 5)</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#introducci%C3%B3n-3"><i class="fa fa-check"></i><b>5.1</b> Introducción</a></li>
+<li class="chapter" data-level="5.2" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#bloque-1-despejes-del-1-al-11"><i class="fa fa-check"></i><b>5.2</b> Bloque 1: Despejes del 1 al 11</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-1-seleccionar-verdaderas-2"><i class="fa fa-check"></i><b>5.2.1</b> Pregunta 1 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="5.2.2" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-2-seleccionar-falsas-2"><i class="fa fa-check"></i><b>5.2.2</b> Pregunta 2 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="5.2.3" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-3-seleccionar-verdaderas-2"><i class="fa fa-check"></i><b>5.2.3</b> Pregunta 3 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="5.2.4" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-4-seleccionar-falsas-2"><i class="fa fa-check"></i><b>5.2.4</b> Pregunta 4 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="5.2.5" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-5-seleccionar-verdaderas-2"><i class="fa fa-check"></i><b>5.2.5</b> Pregunta 5 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="5.2.6" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-6-seleccionar-falsas-2"><i class="fa fa-check"></i><b>5.2.6</b> Pregunta 6 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="5.2.7" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-7-seleccionar-verdaderas-2"><i class="fa fa-check"></i><b>5.2.7</b> Pregunta 7 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="5.2.8" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-8-seleccionar-falsas-2"><i class="fa fa-check"></i><b>5.2.8</b> Pregunta 8 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="5.2.9" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-9-seleccionar-verdaderas-2"><i class="fa fa-check"></i><b>5.2.9</b> Pregunta 9 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="5.2.10" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-10-seleccionar-falsas-2"><i class="fa fa-check"></i><b>5.2.10</b> Pregunta 10 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="5.2.11" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-11-seleccionar-verdaderas-2"><i class="fa fa-check"></i><b>5.2.11</b> Pregunta 11 (Seleccionar Verdaderas)</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#bloque-2-despejes-del-12-al-22"><i class="fa fa-check"></i><b>5.3</b> Bloque 2: Despejes del 12 al 22</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-12-seleccionar-falsas-2"><i class="fa fa-check"></i><b>5.3.1</b> Pregunta 12 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="5.3.2" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-13-seleccionar-verdaderas-2"><i class="fa fa-check"></i><b>5.3.2</b> Pregunta 13 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="5.3.3" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-14-seleccionar-falsas-2"><i class="fa fa-check"></i><b>5.3.3</b> Pregunta 14 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="5.3.4" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-15-seleccionar-verdaderas-1"><i class="fa fa-check"></i><b>5.3.4</b> Pregunta 15 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="5.3.5" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-16-seleccionar-falsas-1"><i class="fa fa-check"></i><b>5.3.5</b> Pregunta 16 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="5.3.6" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-17-seleccionar-verdaderas-1"><i class="fa fa-check"></i><b>5.3.6</b> Pregunta 17 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="5.3.7" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-18-seleccionar-falsas-1"><i class="fa fa-check"></i><b>5.3.7</b> Pregunta 18 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="5.3.8" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-19-seleccionar-verdaderas-1"><i class="fa fa-check"></i><b>5.3.8</b> Pregunta 19 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="5.3.9" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-20-seleccionar-falsas-1"><i class="fa fa-check"></i><b>5.3.9</b> Pregunta 20 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="5.3.10" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-21-seleccionar-verdaderas"><i class="fa fa-check"></i><b>5.3.10</b> Pregunta 21 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="5.3.11" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-22-seleccionar-falsas"><i class="fa fa-check"></i><b>5.3.11</b> Pregunta 22 (Seleccionar Falsas)</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="evaluación-de-álgebra-despeje-de-variables-caso-5.html"><a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#resultados-de-la-evaluaci%C3%B3n-3"><i class="fa fa-check"></i><b>5.4</b> Resultados de la Evaluación</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><i class="fa fa-check"></i><b>6</b> Evaluación de Álgebra: Resolución de Ecuaciones (Caso 6)</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#introducci%C3%B3n-4"><i class="fa fa-check"></i><b>6.1</b> Introducción</a></li>
+<li class="chapter" data-level="6.2" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#bloque-1-preguntas-de-la-1-a-la-12"><i class="fa fa-check"></i><b>6.2</b> Bloque 1: Preguntas de la 1 a la 12</a>
+<ul>
+<li class="chapter" data-level="6.2.1" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-1-seleccionar-verdaderas-3"><i class="fa fa-check"></i><b>6.2.1</b> Pregunta 1 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.2.2" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-2-seleccionar-falsas-3"><i class="fa fa-check"></i><b>6.2.2</b> Pregunta 2 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.2.3" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-3-seleccionar-verdaderas-3"><i class="fa fa-check"></i><b>6.2.3</b> Pregunta 3 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.2.4" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-4-seleccionar-falsas-3"><i class="fa fa-check"></i><b>6.2.4</b> Pregunta 4 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.2.5" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-5-seleccionar-verdaderas-3"><i class="fa fa-check"></i><b>6.2.5</b> Pregunta 5 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.2.6" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-6-seleccionar-falsas-3"><i class="fa fa-check"></i><b>6.2.6</b> Pregunta 6 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.2.7" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-7-seleccionar-verdaderas-3"><i class="fa fa-check"></i><b>6.2.7</b> Pregunta 7 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.2.8" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-8-seleccionar-falsas-3"><i class="fa fa-check"></i><b>6.2.8</b> Pregunta 8 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.2.9" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-9-seleccionar-verdaderas-3"><i class="fa fa-check"></i><b>6.2.9</b> Pregunta 9 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.2.10" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-10-seleccionar-falsas-3"><i class="fa fa-check"></i><b>6.2.10</b> Pregunta 10 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.2.11" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-11-seleccionar-verdaderas-3"><i class="fa fa-check"></i><b>6.2.11</b> Pregunta 11 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.2.12" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-12-seleccionar-falsas-3"><i class="fa fa-check"></i><b>6.2.12</b> Pregunta 12 (Seleccionar Falsas)</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#bloque-2-preguntas-de-la-13-a-la-24"><i class="fa fa-check"></i><b>6.3</b> Bloque 2: Preguntas de la 13 a la 24</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-13-seleccionar-verdaderas-3"><i class="fa fa-check"></i><b>6.3.1</b> Pregunta 13 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.3.2" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-14-seleccionar-falsas-3"><i class="fa fa-check"></i><b>6.3.2</b> Pregunta 14 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.3.3" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-15-seleccionar-verdaderas-2"><i class="fa fa-check"></i><b>6.3.3</b> Pregunta 15 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.3.4" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-16-seleccionar-falsas-2"><i class="fa fa-check"></i><b>6.3.4</b> Pregunta 16 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.3.5" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-17-seleccionar-verdaderas-2"><i class="fa fa-check"></i><b>6.3.5</b> Pregunta 17 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.3.6" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-18-seleccionar-falsas-2"><i class="fa fa-check"></i><b>6.3.6</b> Pregunta 18 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.3.7" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-19-seleccionar-verdaderas-2"><i class="fa fa-check"></i><b>6.3.7</b> Pregunta 19 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.3.8" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-20-seleccionar-falsas-2"><i class="fa fa-check"></i><b>6.3.8</b> Pregunta 20 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.3.9" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-21-seleccionar-verdaderas-1"><i class="fa fa-check"></i><b>6.3.9</b> Pregunta 21 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.3.10" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-22-seleccionar-falsas-1"><i class="fa fa-check"></i><b>6.3.10</b> Pregunta 22 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.3.11" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-23-seleccionar-verdaderas"><i class="fa fa-check"></i><b>6.3.11</b> Pregunta 23 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.3.12" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-24-seleccionar-falsas"><i class="fa fa-check"></i><b>6.3.12</b> Pregunta 24 (Seleccionar Falsas)</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#bloque-3-preguntas-de-la-25-a-la-35"><i class="fa fa-check"></i><b>6.4</b> Bloque 3: Preguntas de la 25 a la 35</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-25-seleccionar-verdaderas"><i class="fa fa-check"></i><b>6.4.1</b> Pregunta 25 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.4.2" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-26-seleccionar-falsas"><i class="fa fa-check"></i><b>6.4.2</b> Pregunta 26 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.4.3" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-27-seleccionar-verdaderas"><i class="fa fa-check"></i><b>6.4.3</b> Pregunta 27 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.4.4" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-28-seleccionar-falsas"><i class="fa fa-check"></i><b>6.4.4</b> Pregunta 28 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.4.5" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-29-seleccionar-verdaderas"><i class="fa fa-check"></i><b>6.4.5</b> Pregunta 29 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.4.6" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-30-seleccionar-falsas"><i class="fa fa-check"></i><b>6.4.6</b> Pregunta 30 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.4.7" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-31-seleccionar-verdaderas"><i class="fa fa-check"></i><b>6.4.7</b> Pregunta 31 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.4.8" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-32-seleccionar-falsas"><i class="fa fa-check"></i><b>6.4.8</b> Pregunta 32 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.4.9" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-33-seleccionar-verdaderas"><i class="fa fa-check"></i><b>6.4.9</b> Pregunta 33 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="6.4.10" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-34-seleccionar-falsas"><i class="fa fa-check"></i><b>6.4.10</b> Pregunta 34 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="6.4.11" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#pregunta-35-seleccionar-verdaderas"><i class="fa fa-check"></i><b>6.4.11</b> Pregunta 35 (Seleccionar Verdaderas)</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html"><a href="evaluación-de-álgebra-resolución-de-ecuaciones-caso-6.html#resultados-de-la-evaluaci%C3%B3n-4"><i class="fa fa-check"></i><b>6.5</b> Resultados de la Evaluación</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html"><i class="fa fa-check"></i><b>7</b> Evaluación de Desigualdades (Caso 2)</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#introducci%C3%B3n-5"><i class="fa fa-check"></i><b>7.1</b> Introducción</a></li>
+<li class="chapter" data-level="7.2" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#bloque-1-desigualdades-del-1-al-8"><i class="fa fa-check"></i><b>7.2</b> Bloque 1: Desigualdades del 1 al 8</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-1-seleccionar-verdaderas-4"><i class="fa fa-check"></i><b>7.2.1</b> Pregunta 1 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="7.2.2" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-2-seleccionar-falsas-4"><i class="fa fa-check"></i><b>7.2.2</b> Pregunta 2 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="7.2.3" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-3-seleccionar-verdaderas-4"><i class="fa fa-check"></i><b>7.2.3</b> Pregunta 3 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="7.2.4" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-4-seleccionar-falsas-4"><i class="fa fa-check"></i><b>7.2.4</b> Pregunta 4 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="7.2.5" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-5-seleccionar-verdaderas-4"><i class="fa fa-check"></i><b>7.2.5</b> Pregunta 5 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="7.2.6" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-6-seleccionar-falsas-4"><i class="fa fa-check"></i><b>7.2.6</b> Pregunta 6 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="7.2.7" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-7-seleccionar-verdaderas-4"><i class="fa fa-check"></i><b>7.2.7</b> Pregunta 7 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="7.2.8" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-8-seleccionar-falsas-4"><i class="fa fa-check"></i><b>7.2.8</b> Pregunta 8 (Seleccionar Falsas)</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#bloque-2-desigualdades-del-9-al-16"><i class="fa fa-check"></i><b>7.3</b> Bloque 2: Desigualdades del 9 al 16</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-9-seleccionar-verdaderas-4"><i class="fa fa-check"></i><b>7.3.1</b> Pregunta 9 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="7.3.2" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-10-seleccionar-falsas-4"><i class="fa fa-check"></i><b>7.3.2</b> Pregunta 10 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="7.3.3" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-11-seleccionar-verdaderas-4"><i class="fa fa-check"></i><b>7.3.3</b> Pregunta 11 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="7.3.4" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-12-seleccionar-falsas-4"><i class="fa fa-check"></i><b>7.3.4</b> Pregunta 12 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="7.3.5" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-13-seleccionar-verdaderas-4"><i class="fa fa-check"></i><b>7.3.5</b> Pregunta 13 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="7.3.6" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-14-seleccionar-falsas-4"><i class="fa fa-check"></i><b>7.3.6</b> Pregunta 14 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="7.3.7" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-15-seleccionar-verdaderas-3"><i class="fa fa-check"></i><b>7.3.7</b> Pregunta 15 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="7.3.8" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#pregunta-16-seleccionar-falsas-3"><i class="fa fa-check"></i><b>7.3.8</b> Pregunta 16 (Seleccionar Falsas)</a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="evaluación-de-desigualdades-caso-2.html"><a href="evaluación-de-desigualdades-caso-2.html#resultados-de-la-evaluaci%C3%B3n-5"><i class="fa fa-check"></i><b>7.4</b> Resultados de la Evaluación</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html"><i class="fa fa-check"></i><b>8</b> Evaluación de Desigualdades (Caso 3)</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#introducci%C3%B3n-6"><i class="fa fa-check"></i><b>8.1</b> Introducción</a></li>
+<li class="chapter" data-level="8.2" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#bloque-1-desigualdades-del-1-al-8-1"><i class="fa fa-check"></i><b>8.2</b> Bloque 1: Desigualdades del 1 al 8</a>
+<ul>
+<li class="chapter" data-level="8.2.1" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-1-seleccionar-verdaderas-5"><i class="fa fa-check"></i><b>8.2.1</b> Pregunta 1 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="8.2.2" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-2-seleccionar-falsas-5"><i class="fa fa-check"></i><b>8.2.2</b> Pregunta 2 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="8.2.3" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-3-seleccionar-verdaderas-5"><i class="fa fa-check"></i><b>8.2.3</b> Pregunta 3 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="8.2.4" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-4-seleccionar-falsas-5"><i class="fa fa-check"></i><b>8.2.4</b> Pregunta 4 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="8.2.5" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-5-seleccionar-verdaderas-5"><i class="fa fa-check"></i><b>8.2.5</b> Pregunta 5 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="8.2.6" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-6-seleccionar-verdaderas"><i class="fa fa-check"></i><b>8.2.6</b> Pregunta 6 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="8.2.7" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-7-seleccionar-falsas"><i class="fa fa-check"></i><b>8.2.7</b> Pregunta 7 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="8.2.8" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-8-seleccionar-verdaderas"><i class="fa fa-check"></i><b>8.2.8</b> Pregunta 8 (Seleccionar Verdaderas)</a></li>
+</ul></li>
+<li class="chapter" data-level="8.3" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#bloque-2-desigualdades-del-9-al-15"><i class="fa fa-check"></i><b>8.3</b> Bloque 2: Desigualdades del 9 al 15</a>
+<ul>
+<li class="chapter" data-level="8.3.1" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-9-seleccionar-verdaderas-5"><i class="fa fa-check"></i><b>8.3.1</b> Pregunta 9 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="8.3.2" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-10-seleccionar-falsas-5"><i class="fa fa-check"></i><b>8.3.2</b> Pregunta 10 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="8.3.3" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-11-seleccionar-verdaderas-5"><i class="fa fa-check"></i><b>8.3.3</b> Pregunta 11 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="8.3.4" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-12-seleccionar-verdaderas"><i class="fa fa-check"></i><b>8.3.4</b> Pregunta 12 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="8.3.5" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-13-seleccionar-falsas"><i class="fa fa-check"></i><b>8.3.5</b> Pregunta 13 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="8.3.6" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-14-seleccionar-verdaderas"><i class="fa fa-check"></i><b>8.3.6</b> Pregunta 14 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="8.3.7" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#pregunta-15-seleccionar-verdaderas-4"><i class="fa fa-check"></i><b>8.3.7</b> Pregunta 15 (Seleccionar Verdaderas)</a></li>
+</ul></li>
+<li class="chapter" data-level="8.4" data-path="evaluación-de-desigualdades-caso-3.html"><a href="evaluación-de-desigualdades-caso-3.html#resultados-de-la-evaluaci%C3%B3n-6"><i class="fa fa-check"></i><b>8.4</b> Resultados de la Evaluación</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="evaluación-de-desigualdades-caso-4.html"><a href="evaluación-de-desigualdades-caso-4.html"><i class="fa fa-check"></i><b>9</b> Evaluación de Desigualdades (Caso 4)</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="evaluación-de-desigualdades-caso-4.html"><a href="evaluación-de-desigualdades-caso-4.html#introducci%C3%B3n-7"><i class="fa fa-check"></i><b>9.1</b> Introducción</a></li>
+<li class="chapter" data-level="9.2" data-path="evaluación-de-desigualdades-caso-4.html"><a href="evaluación-de-desigualdades-caso-4.html#bloque-%C3%BAnico-simplificaci%C3%B3n-de-valores-absolutos"><i class="fa fa-check"></i><b>9.2</b> Bloque Único: Simplificación de Valores Absolutos</a>
+<ul>
+<li class="chapter" data-level="9.2.1" data-path="evaluación-de-desigualdades-caso-4.html"><a href="evaluación-de-desigualdades-caso-4.html#pregunta-1-seleccionar-verdaderas-6"><i class="fa fa-check"></i><b>9.2.1</b> Pregunta 1 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="9.2.2" data-path="evaluación-de-desigualdades-caso-4.html"><a href="evaluación-de-desigualdades-caso-4.html#pregunta-2-seleccionar-falsas-6"><i class="fa fa-check"></i><b>9.2.2</b> Pregunta 2 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="9.2.3" data-path="evaluación-de-desigualdades-caso-4.html"><a href="evaluación-de-desigualdades-caso-4.html#pregunta-3-seleccionar-verdaderas-6"><i class="fa fa-check"></i><b>9.2.3</b> Pregunta 3 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="9.2.4" data-path="evaluación-de-desigualdades-caso-4.html"><a href="evaluación-de-desigualdades-caso-4.html#pregunta-4-seleccionar-falsas-6"><i class="fa fa-check"></i><b>9.2.4</b> Pregunta 4 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="9.2.5" data-path="evaluación-de-desigualdades-caso-4.html"><a href="evaluación-de-desigualdades-caso-4.html#pregunta-5-seleccionar-verdaderas-6"><i class="fa fa-check"></i><b>9.2.5</b> Pregunta 5 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="9.2.6" data-path="evaluación-de-desigualdades-caso-4.html"><a href="evaluación-de-desigualdades-caso-4.html#pregunta-6-seleccionar-falsas-5"><i class="fa fa-check"></i><b>9.2.6</b> Pregunta 6 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="9.2.7" data-path="evaluación-de-desigualdades-caso-4.html"><a href="evaluación-de-desigualdades-caso-4.html#pregunta-7-seleccionar-verdaderas-5"><i class="fa fa-check"></i><b>9.2.7</b> Pregunta 7 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="9.2.8" data-path="evaluación-de-desigualdades-caso-4.html"><a href="evaluación-de-desigualdades-caso-4.html#pregunta-8-seleccionar-falsas-5"><i class="fa fa-check"></i><b>9.2.8</b> Pregunta 8 (Seleccionar Falsas)</a></li>
+</ul></li>
+<li class="chapter" data-level="9.3" data-path="evaluación-de-desigualdades-caso-4.html"><a href="evaluación-de-desigualdades-caso-4.html#resultados-de-la-evaluaci%C3%B3n-7"><i class="fa fa-check"></i><b>9.3</b> Resultados de la Evaluación</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><i class="fa fa-check"></i><b>10</b> Evaluación de Desigualdades (Sin y Con Valor Absoluto)</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#introducci%C3%B3n-8"><i class="fa fa-check"></i><b>10.1</b> Introducción</a></li>
+<li class="chapter" data-level="10.2" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#bloque-1-desigualdades-sin-valor-absoluto"><i class="fa fa-check"></i><b>10.2</b> Bloque 1: Desigualdades sin Valor Absoluto</a>
+<ul>
+<li class="chapter" data-level="10.2.1" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-1-seleccionar-verdaderas-7"><i class="fa fa-check"></i><b>10.2.1</b> Pregunta 1 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="10.2.2" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-2-seleccionar-falsas-7"><i class="fa fa-check"></i><b>10.2.2</b> Pregunta 2 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="10.2.3" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-3-seleccionar-verdaderas-7"><i class="fa fa-check"></i><b>10.2.3</b> Pregunta 3 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="10.2.4" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-4-seleccionar-falsas-7"><i class="fa fa-check"></i><b>10.2.4</b> Pregunta 4 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="10.2.5" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-5-seleccionar-verdaderas-7"><i class="fa fa-check"></i><b>10.2.5</b> Pregunta 5 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="10.2.6" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-6-seleccionar-falsas-6"><i class="fa fa-check"></i><b>10.2.6</b> Pregunta 6 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="10.2.7" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-7-seleccionar-verdaderas-6"><i class="fa fa-check"></i><b>10.2.7</b> Pregunta 7 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="10.2.8" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-8-seleccionar-falsas-6"><i class="fa fa-check"></i><b>10.2.8</b> Pregunta 8 (Seleccionar Falsas)</a></li>
+</ul></li>
+<li class="chapter" data-level="10.3" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#bloque-2-desigualdades-con-valor-absoluto"><i class="fa fa-check"></i><b>10.3</b> Bloque 2: Desigualdades con Valor Absoluto</a>
+<ul>
+<li class="chapter" data-level="10.3.1" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-9-seleccionar-verdaderas-6"><i class="fa fa-check"></i><b>10.3.1</b> Pregunta 9 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="10.3.2" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-10-seleccionar-falsas-6"><i class="fa fa-check"></i><b>10.3.2</b> Pregunta 10 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="10.3.3" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-11-seleccionar-verdaderas-6"><i class="fa fa-check"></i><b>10.3.3</b> Pregunta 11 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="10.3.4" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-12-seleccionar-falsas-5"><i class="fa fa-check"></i><b>10.3.4</b> Pregunta 12 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="10.3.5" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-13-seleccionar-verdaderas-5"><i class="fa fa-check"></i><b>10.3.5</b> Pregunta 13 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="10.3.6" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-14-seleccionar-falsas-5"><i class="fa fa-check"></i><b>10.3.6</b> Pregunta 14 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="10.3.7" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-15-seleccionar-verdaderas-5"><i class="fa fa-check"></i><b>10.3.7</b> Pregunta 15 (Seleccionar Verdaderas)</a></li>
+<li class="chapter" data-level="10.3.8" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-16-seleccionar-falsas-4"><i class="fa fa-check"></i><b>10.3.8</b> Pregunta 16 (Seleccionar Falsas)</a></li>
+<li class="chapter" data-level="10.3.9" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-17-seleccionar-verdaderas-3"><i class="fa fa-check"></i><b>10.3.9</b> Pregunta 17 (Seleccionar Verdaderas)</a></li>
+</ul></li>
+<li class="chapter" data-level="10.4" data-path="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html"><a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#resultados-de-la-evaluaci%C3%B3n-8"><i class="fa fa-check"></i><b>10.4</b> Resultados de la Evaluación</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><i class="fa fa-check"></i><b>11</b> Evaluación de Álgebra: Sistemas de Ecuaciones (Ev_SistemasEc1)</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#introducci%C3%B3n-9"><i class="fa fa-check"></i><b>11.1</b> Introducción</a></li>
+<li class="chapter" data-level="11.2" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#bloque-1-sistemas-lineales"><i class="fa fa-check"></i><b>11.2</b> Bloque 1: Sistemas Lineales</a>
+<ul>
+<li class="chapter" data-level="11.2.1" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-1-problema-geom%C3%A9trico-de-los-tres-v%C3%A9rtices"><i class="fa fa-check"></i><b>11.2.1</b> Pregunta 1 (Problema Geométrico de los Tres Vértices)</a></li>
+<li class="chapter" data-level="11.2.2" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-2-sistema-lineal-2-times-2"><i class="fa fa-check"></i><b>11.2.2</b> Pregunta 2 (Sistema Lineal <span class="math inline">\(2 \times 2\)</span>)</a></li>
+<li class="chapter" data-level="11.2.3" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-3-sistema-lineal-2-times-2-sin-soluci%C3%B3n"><i class="fa fa-check"></i><b>11.2.3</b> Pregunta 3 (Sistema Lineal <span class="math inline">\(2 \times 2\)</span> sin solución)</a></li>
+<li class="chapter" data-level="11.2.4" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-4-sistema-lineal-2-times-2"><i class="fa fa-check"></i><b>11.2.4</b> Pregunta 4 (Sistema Lineal <span class="math inline">\(2 \times 2\)</span>)</a></li>
+<li class="chapter" data-level="11.2.5" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-5-sistema-lineal-2-times-2-con-infinitas-soluciones"><i class="fa fa-check"></i><b>11.2.5</b> Pregunta 5 (Sistema Lineal <span class="math inline">\(2 \times 2\)</span> con infinitas soluciones)</a></li>
+<li class="chapter" data-level="11.2.6" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-6-sistema-lineal-3-times-3"><i class="fa fa-check"></i><b>11.2.6</b> Pregunta 6 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span>)</a></li>
+<li class="chapter" data-level="11.2.7" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-7-sistema-lineal-3-times-3"><i class="fa fa-check"></i><b>11.2.7</b> Pregunta 7 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span>)</a></li>
+<li class="chapter" data-level="11.2.8" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-8-sistema-lineal-3-times-3"><i class="fa fa-check"></i><b>11.2.8</b> Pregunta 8 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span>)</a></li>
+<li class="chapter" data-level="11.2.9" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-9-sistema-lineal-3-times-3-sin-soluci%C3%B3n"><i class="fa fa-check"></i><b>11.2.9</b> Pregunta 9 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span> sin solución)</a></li>
+<li class="chapter" data-level="11.2.10" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-10-sistema-lineal-3-times-3"><i class="fa fa-check"></i><b>11.2.10</b> Pregunta 10 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span>)</a></li>
+<li class="chapter" data-level="11.2.11" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-11-sistema-lineal-3-times-3-con-infinitas-soluciones"><i class="fa fa-check"></i><b>11.2.11</b> Pregunta 11 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span> con infinitas soluciones)</a></li>
+<li class="chapter" data-level="11.2.12" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-12-sistema-lineal-3-times-3"><i class="fa fa-check"></i><b>11.2.12</b> Pregunta 12 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span>)</a></li>
+<li class="chapter" data-level="11.2.13" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-13-sistema-lineal-3-times-3-sin-soluci%C3%B3n"><i class="fa fa-check"></i><b>11.2.13</b> Pregunta 13 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span> sin solución)</a></li>
+<li class="chapter" data-level="11.2.14" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-14-sistema-lineal-3-times-3"><i class="fa fa-check"></i><b>11.2.14</b> Pregunta 14 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span>)</a></li>
+</ul></li>
+<li class="chapter" data-level="11.3" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#bloque-2-sistemas-no-lineales"><i class="fa fa-check"></i><b>11.3</b> Bloque 2: Sistemas No Lineales</a>
+<ul>
+<li class="chapter" data-level="11.3.1" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-15-sistema-no-lineal"><i class="fa fa-check"></i><b>11.3.1</b> Pregunta 15 (Sistema No Lineal)</a></li>
+<li class="chapter" data-level="11.3.2" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-16-sistema-no-lineal"><i class="fa fa-check"></i><b>11.3.2</b> Pregunta 16 (Sistema No Lineal)</a></li>
+<li class="chapter" data-level="11.3.3" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-17-sistema-no-lineal"><i class="fa fa-check"></i><b>11.3.3</b> Pregunta 17 (Sistema No Lineal)</a></li>
+<li class="chapter" data-level="11.3.4" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-18-sistema-no-lineal-sin-soluci%C3%B3n-real"><i class="fa fa-check"></i><b>11.3.4</b> Pregunta 18 (Sistema No Lineal sin solución real)</a></li>
+<li class="chapter" data-level="11.3.5" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-19-sistema-no-lineal-con-soluci%C3%B3n-%C3%BAnica"><i class="fa fa-check"></i><b>11.3.5</b> Pregunta 19 (Sistema No Lineal con solución única)</a></li>
+<li class="chapter" data-level="11.3.6" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-20-sistema-no-lineal"><i class="fa fa-check"></i><b>11.3.6</b> Pregunta 20 (Sistema No Lineal)</a></li>
+<li class="chapter" data-level="11.3.7" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-21-sistema-no-lineal"><i class="fa fa-check"></i><b>11.3.7</b> Pregunta 21 (Sistema No Lineal)</a></li>
+<li class="chapter" data-level="11.3.8" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-22-sistema-no-lineal"><i class="fa fa-check"></i><b>11.3.8</b> Pregunta 22 (Sistema No Lineal)</a></li>
+<li class="chapter" data-level="11.3.9" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-23-sistema-no-lineal"><i class="fa fa-check"></i><b>11.3.9</b> Pregunta 23 (Sistema No Lineal)</a></li>
+<li class="chapter" data-level="11.3.10" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-24-sistema-no-lineal---multiplicadores-de-lagrange"><i class="fa fa-check"></i><b>11.3.10</b> Pregunta 24 (Sistema No Lineal - Multiplicadores de Lagrange)</a></li>
+<li class="chapter" data-level="11.3.11" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-25-sistema-no-lineal---multiplicadores-de-lagrange"><i class="fa fa-check"></i><b>11.3.11</b> Pregunta 25 (Sistema No Lineal - Multiplicadores de Lagrange)</a></li>
+<li class="chapter" data-level="11.3.12" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-26-sistema-no-lineal---multiplicadores-de-lagrange"><i class="fa fa-check"></i><b>11.3.12</b> Pregunta 26 (Sistema No Lineal - Multiplicadores de Lagrange)</a></li>
+</ul></li>
+<li class="chapter" data-level="11.4" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#bloque-3-aplicaciones"><i class="fa fa-check"></i><b>11.4</b> Bloque 3: Aplicaciones</a>
+<ul>
+<li class="chapter" data-level="11.4.1" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-27-fracciones-parciales-primer-caso"><i class="fa fa-check"></i><b>11.4.1</b> Pregunta 27 (Fracciones Parciales: Primer Caso)</a></li>
+<li class="chapter" data-level="11.4.2" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-28-fracciones-parciales-segundo-caso"><i class="fa fa-check"></i><b>11.4.2</b> Pregunta 28 (Fracciones Parciales: Segundo Caso)</a></li>
+<li class="chapter" data-level="11.4.3" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-29-enunciados-de-fracciones-parciales-propias"><i class="fa fa-check"></i><b>11.4.3</b> Pregunta 29 (Enunciados de Fracciones Parciales Propias)</a></li>
+<li class="chapter" data-level="11.4.4" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-30-balanceo-de-ecuaciones-qu%C3%ADmicas"><i class="fa fa-check"></i><b>11.4.4</b> Pregunta 30 (Balanceo de Ecuaciones Químicas)</a></li>
+<li class="chapter" data-level="11.4.5" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-31-ajuste-de-funci%C3%B3n-cuadr%C3%A1tica"><i class="fa fa-check"></i><b>11.4.5</b> Pregunta 31 (Ajuste de Función Cuadrática)</a></li>
+<li class="chapter" data-level="11.4.6" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-32-ajuste-de-coeficientes-de-un-plano"><i class="fa fa-check"></i><b>11.4.6</b> Pregunta 32 (Ajuste de Coeficientes de un Plano)</a></li>
+</ul></li>
+<li class="chapter" data-level="11.5" data-path="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html"><a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#reporte-final-de-calificaci%C3%B3n"><i class="fa fa-check"></i><b>11.5</b> Reporte Final de Calificación</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><i class="fa fa-check"></i><b>12</b> Evaluación de Funciones: Exponenciales y Logarítmicas (Ev_conceptoFuncionExp_v1)</a>
+<ul>
+<li class="chapter" data-level="12.1" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#introducci%C3%B3n-10"><i class="fa fa-check"></i><b>12.1</b> Introducción</a></li>
+<li class="chapter" data-level="12.2" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#bloque-1-lectura-gr%C3%A1fica-y-composici%C3%B3n-de-funciones"><i class="fa fa-check"></i><b>12.2</b> Bloque 1: Lectura Gráfica y Composición de Funciones</a>
+<ul>
+<li class="chapter" data-level="12.2.1" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-1-lectura-de-f-y-g-en-el-mismo-plano"><i class="fa fa-check"></i><b>12.2.1</b> Pregunta 1 (Lectura de f y g en el mismo plano)</a></li>
+<li class="chapter" data-level="12.2.2" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-2-composici%C3%B3n-en-formato-tabla"><i class="fa fa-check"></i><b>12.2.2</b> Pregunta 2 (Composición en formato tabla)</a></li>
+<li class="chapter" data-level="12.2.3" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-3-composici%C3%B3n-gr%C3%A1fica---enunciado109"><i class="fa fa-check"></i><b>12.2.3</b> Pregunta 3 (Composición gráfica - enunciado109)</a></li>
+</ul></li>
+<li class="chapter" data-level="12.3" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#bloque-2-propiedades-leyes-simplificaci%C3%B3n-y-ecuaciones"><i class="fa fa-check"></i><b>12.3</b> Bloque 2: Propiedades, Leyes, Simplificación y Ecuaciones</a>
+<ul>
+<li class="chapter" data-level="12.3.1" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-4-deducir-funci%C3%B3n-exponencial-fxbx"><i class="fa fa-check"></i><b>12.3.1</b> Pregunta 4 (Deducir función exponencial <span class="math inline">\(f(x)=b^x\)</span>)</a></li>
+<li class="chapter" data-level="12.3.2" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-5-resolver-desigualdades-exponenciales"><i class="fa fa-check"></i><b>12.3.2</b> Pregunta 5 (Resolver desigualdades exponenciales)</a></li>
+<li class="chapter" data-level="12.3.3" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-6-relaciones-exponenciales-con-2ta-y-6tb"><i class="fa fa-check"></i><b>12.3.3</b> Pregunta 6 (Relaciones exponenciales con <span class="math inline">\(2^t=a\)</span> y <span class="math inline">\(6^t=b\)</span>)</a></li>
+<li class="chapter" data-level="12.3.4" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-7-c%C3%A1lculo-de-logaritmo-con-bases-gen%C3%A9ricas"><i class="fa fa-check"></i><b>12.3.4</b> Pregunta 7 (Cálculo de logaritmo con bases genéricas)</a></li>
+<li class="chapter" data-level="12.3.5" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-8-simplificar-y-escribir-como-un-solo-logaritmo"><i class="fa fa-check"></i><b>12.3.5</b> Pregunta 8 (Simplificar y escribir como un solo logaritmo)</a></li>
+<li class="chapter" data-level="12.3.6" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-9-reformular-de-exponencial-a-logar%C3%ADtmica"><i class="fa fa-check"></i><b>12.3.6</b> Pregunta 9 (Reformular de exponencial a logarítmica)</a></li>
+<li class="chapter" data-level="12.3.7" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-10-reformular-de-logar%C3%ADtmica-a-exponencial"><i class="fa fa-check"></i><b>12.3.7</b> Pregunta 10 (Reformular de logarítmica a exponencial)</a></li>
+<li class="chapter" data-level="12.3.8" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-11-valor-exacto-de-log_100.0000001"><i class="fa fa-check"></i><b>12.3.8</b> Pregunta 11 (Valor exacto de <span class="math inline">\(\log_{10}(0.0000001)\)</span>)</a></li>
+<li class="chapter" data-level="12.3.9" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-12-valor-exacto-de-25log_5-8"><i class="fa fa-check"></i><b>12.3.9</b> Pregunta 12 (Valor exacto de <span class="math inline">\(25^{\log_5 8}\)</span>)</a></li>
+<li class="chapter" data-level="12.3.10" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-13-valor-exacto-de-e-ln7"><i class="fa fa-check"></i><b>12.3.10</b> Pregunta 13 (Valor exacto de <span class="math inline">\(e^{-\ln(7)}\)</span>)</a></li>
+<li class="chapter" data-level="12.3.11" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-14-leyes-de-logaritmos---caso-1"><i class="fa fa-check"></i><b>12.3.11</b> Pregunta 14 (Leyes de logaritmos - Caso 1)</a></li>
+<li class="chapter" data-level="12.3.12" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-15-leyes-de-logaritmos---caso-2"><i class="fa fa-check"></i><b>12.3.12</b> Pregunta 15 (Leyes de logaritmos - Caso 2)</a></li>
+<li class="chapter" data-level="12.3.13" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-16-leyes-de-logaritmos---caso-3"><i class="fa fa-check"></i><b>12.3.13</b> Pregunta 16 (Leyes de logaritmos - Caso 3)</a></li>
+<li class="chapter" data-level="12.3.14" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-17-resuelva-para-k-e10k7"><i class="fa fa-check"></i><b>12.3.14</b> Pregunta 17 (Resuelva para <span class="math inline">\(k\)</span>: <span class="math inline">\(e^{10k}=7\)</span>)</a></li>
+<li class="chapter" data-level="12.3.15" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-18-resuelva-para-x-2x-38x1"><i class="fa fa-check"></i><b>12.3.15</b> Pregunta 18 (Resuelva para <span class="math inline">\(x\)</span>: <span class="math inline">\(2^{x-3}=8^{x+1}\)</span>)</a></li>
+<li class="chapter" data-level="12.3.16" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-19-resuelva-para-x-72x2343"><i class="fa fa-check"></i><b>12.3.16</b> Pregunta 19 (Resuelva para <span class="math inline">\(x\)</span>: <span class="math inline">\(7^{2x+2}=343\)</span>)</a></li>
+<li class="chapter" data-level="12.3.17" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-20-resuelva-para-x-ln2ln4x-1ln2x5"><i class="fa fa-check"></i><b>12.3.17</b> Pregunta 20 (Resuelva para <span class="math inline">\(x\)</span>: <span class="math inline">\(\ln(2)+\ln(4x-1)=\ln(2x+5)\)</span>)</a></li>
+<li class="chapter" data-level="12.3.18" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-21-resuelva-para-x-e2x3x-4"><i class="fa fa-check"></i><b>12.3.18</b> Pregunta 21 (Resuelva para <span class="math inline">\(x\)</span>: <span class="math inline">\(e^{2x}=3^{x-4}\)</span>)</a></li>
+<li class="chapter" data-level="12.3.19" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-22-resuelva-para-x-5x-5-x2"><i class="fa fa-check"></i><b>12.3.19</b> Pregunta 22 (Resuelva para <span class="math inline">\(x\)</span>: <span class="math inline">\(5^x-5^{-x}=2\)</span>)</a></li>
+</ul></li>
+<li class="chapter" data-level="12.4" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#bloque-3-aplicaciones-y-sistemas-no-lineales"><i class="fa fa-check"></i><b>12.4</b> Bloque 3: Aplicaciones y Sistemas No Lineales</a>
+<ul>
+<li class="chapter" data-level="12.4.1" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-23-crecimiento-bacteriano-de-e.-coli"><i class="fa fa-check"></i><b>12.4.1</b> Pregunta 23 (Crecimiento bacteriano de E. coli)</a></li>
+<li class="chapter" data-level="12.4.2" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-24-decaimiento-de-radio"><i class="fa fa-check"></i><b>12.4.2</b> Pregunta 24 (Decaimiento de Radio)</a></li>
+<li class="chapter" data-level="12.4.3" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-25-ph-de-la-sangre-humana"><i class="fa fa-check"></i><b>12.4.3</b> Pregunta 25 (pH de la sangre humana)</a></li>
+<li class="chapter" data-level="12.4.4" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-26-cantidad-inicial-de-bacterias-en-un-cultivo"><i class="fa fa-check"></i><b>12.4.4</b> Pregunta 26 (Cantidad inicial de bacterias en un cultivo)</a></li>
+<li class="chapter" data-level="12.4.5" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-27-sistema-lineal-de-logaritmos"><i class="fa fa-check"></i><b>12.4.5</b> Pregunta 27 (Sistema lineal de logaritmos)</a></li>
+<li class="chapter" data-level="12.4.6" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-28-sistema-no-lineal-con-logaritmos"><i class="fa fa-check"></i><b>12.4.6</b> Pregunta 28 (Sistema no lineal con logaritmos)</a></li>
+<li class="chapter" data-level="12.4.7" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-29-sistema-exponencial-logar%C3%ADtmico"><i class="fa fa-check"></i><b>12.4.7</b> Pregunta 29 (Sistema exponencial-logarítmico)</a></li>
+</ul></li>
+<li class="chapter" data-level="12.5" data-path="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html"><a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#reporte-final-de-calificaci%C3%B3n-1"><i class="fa fa-check"></i><b>12.5</b> Reporte Final de Calificación</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><i class="fa fa-check"></i><b>13</b> Evaluación Interactiva: Trigonometría (Ev_Trigo_v1)</a>
+<ul>
+<li class="chapter" data-level="13.1" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#introducci%C3%B3n-11"><i class="fa fa-check"></i><b>13.1</b> Introducción</a></li>
+<li class="chapter" data-level="13.2" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#bloque-1-identidades-ecuaciones-y-conceptos-b%C3%A1sicos"><i class="fa fa-check"></i><b>13.2</b> Bloque 1: Identidades, Ecuaciones y Conceptos Básicos</a>
+<ul>
+<li class="chapter" data-level="13.2.1" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-1-1"><i class="fa fa-check"></i><b>13.2.1</b> Pregunta 1</a></li>
+<li class="chapter" data-level="13.2.2" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-2-1"><i class="fa fa-check"></i><b>13.2.2</b> Pregunta 2</a></li>
+<li class="chapter" data-level="13.2.3" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-3-1"><i class="fa fa-check"></i><b>13.2.3</b> Pregunta 3</a></li>
+<li class="chapter" data-level="13.2.4" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-4-1"><i class="fa fa-check"></i><b>13.2.4</b> Pregunta 4</a></li>
+<li class="chapter" data-level="13.2.5" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-5-1"><i class="fa fa-check"></i><b>13.2.5</b> Pregunta 5</a></li>
+<li class="chapter" data-level="13.2.6" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-6-1"><i class="fa fa-check"></i><b>13.2.6</b> Pregunta 6</a></li>
+<li class="chapter" data-level="13.2.7" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-7-1"><i class="fa fa-check"></i><b>13.2.7</b> Pregunta 7</a></li>
+<li class="chapter" data-level="13.2.8" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-8-1"><i class="fa fa-check"></i><b>13.2.8</b> Pregunta 8</a></li>
+<li class="chapter" data-level="13.2.9" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-9-1"><i class="fa fa-check"></i><b>13.2.9</b> Pregunta 9</a></li>
+<li class="chapter" data-level="13.2.10" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-10-1"><i class="fa fa-check"></i><b>13.2.10</b> Pregunta 10</a></li>
+<li class="chapter" data-level="13.2.11" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-11-1"><i class="fa fa-check"></i><b>13.2.11</b> Pregunta 11</a></li>
+<li class="chapter" data-level="13.2.12" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-12-1"><i class="fa fa-check"></i><b>13.2.12</b> Pregunta 12</a></li>
+</ul></li>
+<li class="chapter" data-level="13.3" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#bloque-2-aplicaciones-pr%C3%A1cticas-y-tri%C3%A1ngulos-rect%C3%A1ngulos"><i class="fa fa-check"></i><b>13.3</b> Bloque 2: Aplicaciones Prácticas y Triángulos Rectángulos</a>
+<ul>
+<li class="chapter" data-level="13.3.1" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-13"><i class="fa fa-check"></i><b>13.3.1</b> Pregunta 13</a></li>
+<li class="chapter" data-level="13.3.2" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-14"><i class="fa fa-check"></i><b>13.3.2</b> Pregunta 14</a></li>
+<li class="chapter" data-level="13.3.3" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-15"><i class="fa fa-check"></i><b>13.3.3</b> Pregunta 15</a></li>
+<li class="chapter" data-level="13.3.4" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-16"><i class="fa fa-check"></i><b>13.3.4</b> Pregunta 16</a></li>
+<li class="chapter" data-level="13.3.5" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-17"><i class="fa fa-check"></i><b>13.3.5</b> Pregunta 17</a></li>
+<li class="chapter" data-level="13.3.6" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-18"><i class="fa fa-check"></i><b>13.3.6</b> Pregunta 18</a></li>
+<li class="chapter" data-level="13.3.7" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-19"><i class="fa fa-check"></i><b>13.3.7</b> Pregunta 19</a></li>
+<li class="chapter" data-level="13.3.8" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-20"><i class="fa fa-check"></i><b>13.3.8</b> Pregunta 20</a></li>
+<li class="chapter" data-level="13.3.9" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-21"><i class="fa fa-check"></i><b>13.3.9</b> Pregunta 21</a></li>
+<li class="chapter" data-level="13.3.10" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-22"><i class="fa fa-check"></i><b>13.3.10</b> Pregunta 22</a></li>
+<li class="chapter" data-level="13.3.11" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-23"><i class="fa fa-check"></i><b>13.3.11</b> Pregunta 23</a></li>
+<li class="chapter" data-level="13.3.12" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-24"><i class="fa fa-check"></i><b>13.3.12</b> Pregunta 24</a></li>
+<li class="chapter" data-level="13.3.13" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-25"><i class="fa fa-check"></i><b>13.3.13</b> Pregunta 25</a></li>
+<li class="chapter" data-level="13.3.14" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-26"><i class="fa fa-check"></i><b>13.3.14</b> Pregunta 26</a></li>
+<li class="chapter" data-level="13.3.15" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-27"><i class="fa fa-check"></i><b>13.3.15</b> Pregunta 27</a></li>
+<li class="chapter" data-level="13.3.16" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-28"><i class="fa fa-check"></i><b>13.3.16</b> Pregunta 28</a></li>
+<li class="chapter" data-level="13.3.17" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-29"><i class="fa fa-check"></i><b>13.3.17</b> Pregunta 29</a></li>
+</ul></li>
+<li class="chapter" data-level="13.4" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#bloque-3-ley-de-senos-cosenos-y-modelamiento-trigonom%C3%A9trico"><i class="fa fa-check"></i><b>13.4</b> Bloque 3: Ley de Senos, Cosenos y Modelamiento Trigonométrico</a>
+<ul>
+<li class="chapter" data-level="13.4.1" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-30"><i class="fa fa-check"></i><b>13.4.1</b> Pregunta 30</a></li>
+<li class="chapter" data-level="13.4.2" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-31"><i class="fa fa-check"></i><b>13.4.2</b> Pregunta 31</a></li>
+<li class="chapter" data-level="13.4.3" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-32"><i class="fa fa-check"></i><b>13.4.3</b> Pregunta 32</a></li>
+<li class="chapter" data-level="13.4.4" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-33"><i class="fa fa-check"></i><b>13.4.4</b> Pregunta 33</a></li>
+<li class="chapter" data-level="13.4.5" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-34"><i class="fa fa-check"></i><b>13.4.5</b> Pregunta 34</a></li>
+<li class="chapter" data-level="13.4.6" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-35"><i class="fa fa-check"></i><b>13.4.6</b> Pregunta 35</a></li>
+<li class="chapter" data-level="13.4.7" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-36"><i class="fa fa-check"></i><b>13.4.7</b> Pregunta 36</a></li>
+<li class="chapter" data-level="13.4.8" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-37"><i class="fa fa-check"></i><b>13.4.8</b> Pregunta 37</a></li>
+<li class="chapter" data-level="13.4.9" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-38"><i class="fa fa-check"></i><b>13.4.9</b> Pregunta 38</a></li>
+<li class="chapter" data-level="13.4.10" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-39"><i class="fa fa-check"></i><b>13.4.10</b> Pregunta 39</a></li>
+<li class="chapter" data-level="13.4.11" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#pregunta-40"><i class="fa fa-check"></i><b>13.4.11</b> Pregunta 40</a></li>
+</ul></li>
+<li class="chapter" data-level="13.5" data-path="evaluación-interactiva-trigonometría-ev_trigo_v1.html"><a href="evaluación-interactiva-trigonometría-ev_trigo_v1.html#calificaci%C3%B3n"><i class="fa fa-check"></i><b>13.5</b> Calificación</a></li>
+</ul></li>
+<li class="chapter" data-level="14" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><i class="fa fa-check"></i><b>14</b> Planteamiento y Solución de Problemas: Álgebra y Geometría Analítica</a>
+<ul>
+<li class="chapter" data-level="14.1" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#introducci%C3%B3n-12"><i class="fa fa-check"></i><b>14.1</b> Introducción</a></li>
+<li class="chapter" data-level="14.2" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#bloque-1-reglas-de-tres"><i class="fa fa-check"></i><b>14.2</b> Bloque 1: Reglas de Tres</a>
+<ul>
+<li class="chapter" data-level="14.2.1" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-1-a-6-regla-de-tres-simple"><i class="fa fa-check"></i><b>14.2.1</b> Preguntas 1 a 6 (Regla de Tres Simple)</a></li>
+<li class="chapter" data-level="14.2.2" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-7-a-9-regla-de-tres-simple-inversa"><i class="fa fa-check"></i><b>14.2.2</b> Preguntas 7 a 9 (Regla de Tres Simple Inversa)</a></li>
+<li class="chapter" data-level="14.2.3" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-10-a-13-regla-de-tres-compuesta"><i class="fa fa-check"></i><b>14.2.3</b> Preguntas 10 a 13 (Regla de Tres Compuesta)</a></li>
+</ul></li>
+<li class="chapter" data-level="14.3" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#bloque-2-problemas-algebraicos-mezclas-y-trabajo"><i class="fa fa-check"></i><b>14.3</b> Bloque 2: Problemas Algebraicos, Mezclas y Trabajo</a>
+<ul>
+<li class="chapter" data-level="14.3.1" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-14-a-19-geometr%C3%ADa-b%C3%A1sica-y-n%C3%BAmeros"><i class="fa fa-check"></i><b>14.3.1</b> Preguntas 14 a 19 (Geometría Básica y Números)</a></li>
+<li class="chapter" data-level="14.3.2" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#proporci%C3%B3n-%C3%A1urea"><i class="fa fa-check"></i><b>14.3.2</b> Proporción Áurea</a></li>
+<li class="chapter" data-level="14.3.3" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-20-a-22-velocidades-y-tiempos-de-viaje"><i class="fa fa-check"></i><b>14.3.3</b> Preguntas 20 a 22 (Velocidades y Tiempos de Viaje)</a></li>
+<li class="chapter" data-level="14.3.4" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-23-a-28-%C3%A1rea-coordenada-y-mezclas"><i class="fa fa-check"></i><b>14.3.4</b> Preguntas 23 a 28 (Área Coordenada y Mezclas)</a></li>
+<li class="chapter" data-level="14.3.5" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#%C3%A1rea-del-tri%C3%A1ngulo"><i class="fa fa-check"></i><b>14.3.5</b> Área del Triángulo</a></li>
+<li class="chapter" data-level="14.3.6" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#mezcla-del-radiador-v1"><i class="fa fa-check"></i><b>14.3.6</b> Mezcla del Radiador V1</a></li>
+<li class="chapter" data-level="14.3.7" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#mezcla-qu%C3%ADmica-de-%C3%A1cido-v1"><i class="fa fa-check"></i><b>14.3.7</b> Mezcla Química de Ácido V1</a></li>
+<li class="chapter" data-level="14.3.8" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-29-a-31-visualizaciones-y-cercados"><i class="fa fa-check"></i><b>14.3.8</b> Preguntas 29 a 31 (Visualizaciones y Cercados)</a></li>
+<li class="chapter" data-level="14.3.9" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#medici%C3%B3n-del-%C3%A1rbol-aserrador"><i class="fa fa-check"></i><b>14.3.9</b> Medición del Árbol (Aserrador)</a></li>
+<li class="chapter" data-level="14.3.10" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#campo-de-cercado"><i class="fa fa-check"></i><b>14.3.10</b> Campo de Cercado</a></li>
+<li class="chapter" data-level="14.3.11" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-32-a-36-tasas-de-trabajo-y-per%C3%ADmetro"><i class="fa fa-check"></i><b>14.3.11</b> Preguntas 32 a 36 (Tasas de Trabajo y Perímetro)</a></li>
+<li class="chapter" data-level="14.3.12" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-37-a-41-enunciados-nuevos-avanzados"><i class="fa fa-check"></i><b>14.3.12</b> Preguntas 37 a 41 (Enunciados Nuevos Avanzados)</a></li>
+<li class="chapter" data-level="14.3.13" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#mezcla-del-fabricante-de-refrescos"><i class="fa fa-check"></i><b>14.3.13</b> Mezcla del Fabricante de Refrescos</a></li>
+<li class="chapter" data-level="14.3.14" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#vuelo-de-p%C3%A1jaros"><i class="fa fa-check"></i><b>14.3.14</b> Vuelo de Pájaros</a></li>
+<li class="chapter" data-level="14.3.15" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-42-a-44-fabricaci%C3%B3n-de-recipiente-y-demostraciones"><i class="fa fa-check"></i><b>14.3.15</b> Preguntas 42 a 44 (Fabricación de Recipiente y Demostraciones)</a></li>
+<li class="chapter" data-level="14.3.16" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#hoja-de-esta%C3%B1o"><i class="fa fa-check"></i><b>14.3.16</b> Hoja de Estaño</a></li>
+<li class="chapter" data-level="14.3.17" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#demostraci%C3%B3n-teorema-de-pit%C3%A1goras"><i class="fa fa-check"></i><b>14.3.17</b> Demostración Teorema de Pitágoras</a></li>
+<li class="chapter" data-level="14.3.18" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#pedazo-de-tela-cortada"><i class="fa fa-check"></i><b>14.3.18</b> Pedazo de Tela Cortada</a></li>
+</ul></li>
+<li class="chapter" data-level="14.4" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#bloque-3-rectas-tangentes-secantes-curvas-y-c%C3%ADrculos"><i class="fa fa-check"></i><b>14.4</b> Bloque 3: Rectas Tangentes, Secantes, Curvas y Círculos</a>
+<ul>
+<li class="chapter" data-level="14.4.1" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-45-a-47-l%C3%ADneas-curvas-y-proyectiles"><i class="fa fa-check"></i><b>14.4.1</b> Preguntas 45 a 47 (Líneas Curvas y Proyectiles)</a></li>
+<li class="chapter" data-level="14.4.2" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#recta-secante-a-par%C3%A1bola"><i class="fa fa-check"></i><b>14.4.2</b> Recta Secante a Parábola</a></li>
+<li class="chapter" data-level="14.4.3" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#recta-tangente-a-c%C3%ADrculo"><i class="fa fa-check"></i><b>14.4.3</b> Recta Tangente a Círculo</a></li>
+<li class="chapter" data-level="14.4.4" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#tiro-parab%C3%B3lico-del-proyectil"><i class="fa fa-check"></i><b>14.4.4</b> Tiro Parabólico del Proyectil</a></li>
+<li class="chapter" data-level="14.4.5" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-48-a-52-derivaci%C3%B3n-y-tangentes-de-elipses"><i class="fa fa-check"></i><b>14.4.5</b> Preguntas 48 a 52 (Derivación y Tangentes de Elipses)</a></li>
+<li class="chapter" data-level="14.4.6" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-53-a-58-c%C3%A1lculo-de-tangentes-avanzadas"><i class="fa fa-check"></i><b>14.4.6</b> Preguntas 53 a 58 (Cálculo de Tangentes Avanzadas)</a></li>
+<li class="chapter" data-level="14.4.7" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#circunferencia-y-recta-v4"><i class="fa fa-check"></i><b>14.4.7</b> Circunferencia y Recta V4</a></li>
+<li class="chapter" data-level="14.4.8" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#circunferencia-y-recta-v5"><i class="fa fa-check"></i><b>14.4.8</b> Circunferencia y Recta V5</a></li>
+</ul></li>
+<li class="chapter" data-level="14.5" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#bloque-4-aplicaciones-varias-de-funciones-y-desigualdades"><i class="fa fa-check"></i><b>14.5</b> Bloque 4: Aplicaciones Varias de Funciones y Desigualdades</a>
+<ul>
+<li class="chapter" data-level="14.5.1" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-59-a-64-aplicaciones-en-ingenier%C3%ADa-y-f%C3%ADsica"><i class="fa fa-check"></i><b>14.5.1</b> Preguntas 59 a 64 (Aplicaciones en Ingeniería y Física)</a></li>
+<li class="chapter" data-level="14.5.2" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#avi%C3%B3n-s%C3%B3nico-n%C3%BAmero-de-mach"><i class="fa fa-check"></i><b>14.5.2</b> Avión Sónico (Número de Mach)</a></li>
+<li class="chapter" data-level="14.5.3" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#desigualdad-del-rect%C3%A1ngulo"><i class="fa fa-check"></i><b>14.5.3</b> Desigualdad del Rectángulo</a></li>
+<li class="chapter" data-level="14.5.4" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#cilindro-inscrito-en-esfera"><i class="fa fa-check"></i><b>14.5.4</b> Cilindro Inscrito en Esfera</a></li>
+<li class="chapter" data-level="14.5.5" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#arco-parab%C3%B3lico-del-puente"><i class="fa fa-check"></i><b>14.5.5</b> Arco Parabólico del Puente</a></li>
+<li class="chapter" data-level="14.5.6" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#preguntas-65-a-69-geometr%C3%ADa-del-cubo-c%C3%ADrculos-y-gas-ideal"><i class="fa fa-check"></i><b>14.5.6</b> Preguntas 65 a 69 (Geometría del Cubo, Círculos y Gas Ideal)</a></li>
+<li class="chapter" data-level="14.5.7" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#diagonal-del-cubo"><i class="fa fa-check"></i><b>14.5.7</b> Diagonal del Cubo</a></li>
+<li class="chapter" data-level="14.5.8" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#%C3%A1rea-del-c%C3%ADrculo-sombreado"><i class="fa fa-check"></i><b>14.5.8</b> Área del Círculo Sombreado</a></li>
+<li class="chapter" data-level="14.5.9" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#%C3%A1rea-entre-cuatro-c%C3%ADrculos"><i class="fa fa-check"></i><b>14.5.9</b> Área entre Cuatro Círculos</a></li>
+</ul></li>
+<li class="chapter" data-level="14.6" data-path="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html"><a href="planteamiento-y-solución-de-problemas-álgebra-y-geometría-analítica.html#reporte-final-de-calificaci%C3%B3n-2"><i class="fa fa-check"></i><b>14.6</b> Reporte Final de Calificación</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Publicado con bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Planteamiento y Solución de Problemas: Álgebra y Geometría Analítica</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="evaluación-completa-de-potenciación" class="section level1 hasAnchor" number="3">
+<h1><span class="header-section-number">Capítulo 3</span> Evaluación Completa de Potenciación<a href="evaluación-completa-de-potenciación.html#evaluaci%C3%B3n-completa-de-potenciaci%C3%B3n" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<style>
+/* Estilos Premium para la Evaluación de Potenciación */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f7f9fc;
+  color: #2e384d;
+}
+
+h1, h2, h3, h4, .tutorial-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  color: #1e2638;
+}
+
+.tutorial-title {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: white;
+  padding: 2.5rem 2rem;
+  border-radius: 16px;
+  text-align: center;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.3);
+  font-size: 2.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.section.level2 {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid #eef2f6;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.section.level2:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.08);
+}
+
+/* Estilo para las preguntas de learnr */
+.tutorial-question {
+  background-color: #fafbfc;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border-left: 5px solid #6366f1;
+  margin-top: 1rem;
+}
+
+.tutorial-question-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1e2638;
+  margin-bottom: 1rem;
+}
+
+/* Opciones de respuesta */
+.answer-option {
+  background: white !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  padding: 0.75rem 1rem !important;
+  margin-bottom: 0.5rem !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer;
+}
+
+.answer-option:hover {
+  border-color: #a855f7 !important;
+  background-color: #faf5ff !important;
+  transform: translateX(4px);
+}
+
+.answer-option.selected {
+  background-color: #eef2ff !important;
+  border-color: #6366f1 !important;
+}
+
+/* Botones */
+.btn-primary, .btn-submit, .btn-action {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 600 !important;
+  font-family: 'Outfit', sans-serif !important;
+  padding: 0.6rem 1.5rem !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
+}
+
+.btn-primary:hover, .btn-submit:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3) !important;
+  opacity: 0.95;
+}
+
+/* Alertas de retroalimentación */
+.alert-success {
+  background-color: #ecfdf5 !important;
+  border-color: #10b981 !important;
+  color: #065f46 !important;
+  border-radius: 8px !important;
+}
+
+.alert-danger {
+  background-color: #fef2f2 !important;
+  border-color: #ef4444 !important;
+  color: #991b1b !important;
+  border-radius: 8px !important;
+}
+
+/* Insignias de Verdadero/Falso */
+.badge-true {
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.badge-false {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+</style>
+<div id="introducción-1" class="section level2 hasAnchor" number="3.1">
+<h2><span class="header-section-number">3.1</span> Introducción<a href="evaluación-completa-de-potenciación.html#introducci%C3%B3n-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Bienvenido a la <strong>Evaluación Completa de Potenciación</strong>. Este examen consta de <strong>20 preguntas interactivas</strong> divididas en dos grandes bloques:
+1. <strong>Leyes Fundamentales</strong>: Ejercicios de operaciones de potencias básicas con misma base.
+2. <strong>Potenciación Avanzada y Radicales</strong>: Ejercicios con exponentes fraccionarios, simplificación algebraica compleja y radicales.</p>
+<blockquote>
+<p><strong>Instrucciones:</strong>
+* Presta mucha atención al enunciado de cada pregunta.
+* El <strong>50% de las preguntas (10 preguntas)</strong> te pedirá seleccionar las <strong>afirmaciones verdaderas</strong>.
+* El otro <strong>50% de las preguntas (10 preguntas)</strong> te pedirá seleccionar <strong>únicamente las afirmaciones falsas</strong>.
+* ¡Mucho éxito!</p>
+</blockquote>
+<hr />
+</div>
+<div id="bloque-1-leyes-de-exponentes-básicas" class="section level2 hasAnchor" number="3.2">
+<h2><span class="header-section-number">3.2</span> Bloque 1: Leyes de Exponentes Básicas<a href="evaluación-completa-de-potenciación.html#bloque-1-leyes-de-exponentes-b%C3%A1sicas" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>En esta primera sección evaluaremos la simplificación de productos y cocientes algebraicos y numéricos aplicando las leyes fundamentales de los exponentes.</p>
+<div id="pregunta-1-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.2.1">
+<h3><span class="header-section-number">3.2.1</span> Pregunta 1 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-1-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
+<div id="q17796512932882991" class="learnr-question-box">
+<div class="learnr-question-text">
+Analiza el enunciado matemático: <span class="math display">\[3^2 \cdot 3\]</span> e identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512932882991" value="1" data-correct="true" > Es equivalente a <span class="math inline">\(3^3\)</span> debido a que se suman los exponentes (2 + 1).</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512932882991" value="2" data-correct="true" > Su valor simplificado es igual a 27.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512932882991" value="3" data-correct="true" > Es equivalente a realizar la multiplicación tradicional <span class="math inline">\(9 \cdot 3\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512932882991" value="4" data-correct="true" > Representa un producto de potencias con la misma base.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512932882991" value="5" data-correct="false" > Su valor simplificado es igual a 9.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512932882991" value="6" data-correct="false" > Es equivalente a <span class="math inline">\(3^6\)</span> (multiplicando los exponentes).</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512932882991" value="7" data-correct="false" > Su valor simplificado es igual a 18.</label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512932882991&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Excelente! Has identificado correctamente todas las afirmaciones verdaderas.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto, revisa las leyes de exponentes y vuelve a intentarlo.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-2-seleccionar-falsas" class="section level3 hasAnchor" number="3.2.2">
+<h3><span class="header-section-number">3.2.2</span> Pregunta 2 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-2-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
+<div id="q17796512933017970" class="learnr-question-box">
+<div class="learnr-question-text">
+Analiza el enunciado algebraico: <span class="math display">\[a^2 \cdot a^3 \cdot a^5\]</span> e identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933017970" value="1" data-correct="true" > Es equivalente a <span class="math inline">\(a^{30}\)</span> ya que se deben multiplicar los exponentes.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933017970" value="2" data-correct="true" > El exponente final se calcula multiplicando <span class="math inline">\(2 \cdot 3 \cdot 5\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933017970" value="3" data-correct="true" > Es equivalente a la expresión <span class="math inline">\(3a^{10}\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933017970" value="4" data-correct="false" > Es equivalente a la expresión <span class="math inline">\(a^{10}\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933017970" value="5" data-correct="false" > La regla aplicada consiste en conservar la base común y sumar todos sus exponentes.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933017970" value="6" data-correct="false" > Si asignamos el valor de <span class="math inline">\(a = 2\)</span>, el resultado de evaluar la expresión simplificada es 1024.</label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933017970&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Perfecto! Seleccionaste con éxito todas las afirmaciones falsas.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Recuerda que debes seleccionar aquellas afirmaciones que sean matemáticamente incorrectas.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-3-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.2.3">
+<h3><span class="header-section-number">3.2.3</span> Pregunta 3 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-3-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
+<div id="q17796512933103018" class="learnr-question-box">
+<div class="learnr-question-text">
+Analiza la expresión con coeficientes y variables: <span class="math display">\[2m \cdot 3m \cdot m^6\]</span> e identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933103018" value="1" data-correct="true" > El coeficiente numérico de la expresión simplificada es 6.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933103018" value="2" data-correct="true" > La expresión simplificada resultante es equivalente a <span class="math inline">\(6m^8\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933103018" value="3" data-correct="true" > El exponente final de la variable <span class="math inline">\(m\)</span> se obtiene de la suma <span class="math inline">\(1 + 1 + 6\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933103018" value="4" data-correct="true" > Si asignamos <span class="math inline">\(m = 1\)</span>, el valor numérico de la expresión es 6.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933103018" value="5" data-correct="false" > La expresión simplificada es equivalente a <span class="math inline">\(5m^6\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933103018" value="6" data-correct="false" > La expresión simplificada es equivalente a <span class="math inline">\(6m^6\)</span>.</label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933103018&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Excelente trabajo! Todo está correcto.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Recuerda sumar los exponentes implícitos de valor 1 para las variables que no lo muestran visiblemente.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-4-seleccionar-falsas" class="section level3 hasAnchor" number="3.2.4">
+<h3><span class="header-section-number">3.2.4</span> Pregunta 4 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-4-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
+<div id="q17796512933191304" class="learnr-question-box">
+<div class="learnr-question-text">
+Analiza el enunciado numérico: <span class="math display">\[2^2 \cdot 2^3 \cdot 2^4\]</span> e identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933191304" value="1" data-correct="true" > Es equivalente a <span class="math inline">\(2^{24}\)</span> al multiplicar directamente los exponentes.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933191304" value="2" data-correct="true" > Su valor final simplificado es igual a 48.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933191304" value="3" data-correct="true" > Es equivalente a la potencia <span class="math inline">\(8^9\)</span> que resulta de multiplicar las bases.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933191304" value="4" data-correct="false" > Es equivalente a la potencia simplificada <span class="math inline">\(2^9\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933191304" value="5" data-correct="false" > Su valor final evaluado es igual a 512.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933191304" value="6" data-correct="false" > Representa la multiplicación de los valores individuales <span class="math inline">\(4 \cdot 8 \cdot 16\)</span>.</label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933191304&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Magnífico! Has reconocido los errores más frecuentes de potenciación.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Recuerda que las afirmaciones falsas corresponden a errores comunes de multiplicación de bases o exponentes.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-5-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.2.5">
+<h3><span class="header-section-number">3.2.5</span> Pregunta 5 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-5-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
+<div id="q17796512933289692" class="learnr-question-box">
+<div class="learnr-question-text">
+Analiza la expresión con exponentes algebraicos: <span class="math display">\[4a \cdot a^x \cdot 5a^2\]</span> e identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933289692" value="1" data-correct="true" > La expresión completamente simplificada equivale a <span class="math inline">\(20a^{x+3}\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933289692" value="2" data-correct="true" > El coeficiente numérico resultante de la expresión es 20.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933289692" value="3" data-correct="true" > El exponente final se obtiene mediante la suma algebraica de los exponentes: <span class="math inline">\(1 + x + 2\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933289692" value="4" data-correct="true" > Si <span class="math inline">\(x = 1\)</span>, la expresión resultante simplificada equivale a <span class="math inline">\(20a^4\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933289692" value="5" data-correct="false" > La expresión simplificada equivale a <span class="math inline">\(9a^{2x}\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933289692" value="6" data-correct="false" > La expresión simplificada equivale a <span class="math inline">\(20a^{3x}\)</span>.</label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933289692&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Perfecto! Manejas muy bien las propiedades algebraicas.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Ten cuidado al operar las constantes numéricas y al agrupar los términos de los exponentes.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-6-seleccionar-falsas" class="section level3 hasAnchor" number="3.2.6">
+<h3><span class="header-section-number">3.2.6</span> Pregunta 6 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-6-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
+<div id="q17796512933434234" class="learnr-question-box">
+<div class="learnr-question-text">
+Analiza el producto continuo de potencias: <span class="math display">\[3 \cdot 3^2 \cdot 3^3 \cdot 3^4\]</span> e identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933434234" value="1" data-correct="true" > Es equivalente a la potencia <span class="math inline">\(3^9\)</span> (al omitir el exponente implícito de valor 1 del primer término).</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933434234" value="2" data-correct="true" > Es equivalente a la potencia <span class="math inline">\(3^{24}\)</span> que resulta de multiplicar los exponentes.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933434234" value="3" data-correct="true" > Su valor final simplificado es igual a <span class="math inline">\(12^{10}\)</span> al multiplicar las bases.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933434234" value="4" data-correct="false" > La expresión simplificada en una sola potencia equivale a <span class="math inline">\(3^{10}\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933434234" value="5" data-correct="false" > Su valor final simplificado evaluado numéricamente es 59049.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933434234" value="6" data-correct="false" > Representa una multiplicación de potencias que comparten la base 3.</label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933434234&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Impecable! Detectaste todos los conceptos incorrectos exitosamente.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Asegúrate de identificar las propiedades incorrectas referentes a la base y los exponentes.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-7-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.2.7">
+<h3><span class="header-section-number">3.2.7</span> Pregunta 7 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-7-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
+<div id="q17796512933527093" class="learnr-question-box">
+<div class="learnr-question-text">
+Analiza el enunciado con variables mixtas en el exponente: <span class="math display">\[5 \cdot 5^2 \cdot 5^m\]</span> e identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933527093" value="1" data-correct="true" > La expresión simplificada final equivale a <span class="math inline">\(5^{m+3}\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933527093" value="2" data-correct="true" > La base de la potencia resultante se mantiene igual a 5.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933527093" value="3" data-correct="true" > El exponente final se obtiene mediante la suma directa de los exponentes <span class="math inline">\(1 + 2 + m\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933527093" value="4" data-correct="true" > Si el valor de <span class="math inline">\(m\)</span> es igual a 1, el valor simplificado final del número es 625.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933527093" value="5" data-correct="false" > La expresión simplificada equivale a <span class="math inline">\(125^m\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933527093" value="6" data-correct="false" > La expresión simplificada equivale a <span class="math inline">\(5^{2m}\)</span>.</label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933527093&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Fantástico! Las propiedades se aplicaron de forma correcta.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Recuerda aplicar correctamente la suma de monomios y números enteros en los exponentes.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-8-seleccionar-falsas" class="section level3 hasAnchor" number="3.2.8">
+<h3><span class="header-section-number">3.2.8</span> Pregunta 8 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-8-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
+<div id="q17796512933617010" class="learnr-question-box">
+<div class="learnr-question-text">
+Analiza el cociente algebraico simple: <span class="math display">\[a^3 \div a\]</span> e identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933617010" value="1" data-correct="true" > Es equivalente a <span class="math inline">\(a^3\)</span> al suponer incorrectamente que el divisor tiene exponente 0.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933617010" value="2" data-correct="true" > Es equivalente a <span class="math inline">\(a^4\)</span> al realizar una suma de exponentes en lugar de una resta.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933617010" value="3" data-correct="true" > Es equivalente a la constante 3 cancelando la variable <span class="math inline">\(a\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933617010" value="4" data-correct="false" > Es equivalente a la potencia simplificada <span class="math inline">\(a^2\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933617010" value="5" data-correct="false" > El exponente final se calcula restando el exponente del numerador menos el del denominador (3 - 1).</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933617010" value="6" data-correct="false" > Si asignamos <span class="math inline">\(a = 5\)</span>, el valor final simplificado es igual a 25.</label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933617010&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Excelente! Has identificado con éxito los errores conceptuales.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Repasa la regla de la división de potencias de igual base y selecciona las afirmaciones incorrectas.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-9-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.2.9">
+<h3><span class="header-section-number">3.2.9</span> Pregunta 9 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-9-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
+<div id="q17796512933713871" class="learnr-question-box">
+<div class="learnr-question-text">
+Analiza el cociente algebraico: <span class="math display">\[a^6 \div a^4\]</span> e identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933713871" value="1" data-correct="true" > La expresión reducida equivale a <span class="math inline">\(a^2\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933713871" value="2" data-correct="true" > Para resolver la división de potencias de igual base se resta el exponente inferior al superior.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933713871" value="3" data-correct="true" > Esta expresión es geométricamente equivalente al área de un cuadrado de lado <span class="math inline">\(a\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933713871" value="4" data-correct="true" > Si asignamos <span class="math inline">\(a = -3\)</span>, el valor evaluado de la expresión simplificada es 9.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933713871" value="5" data-correct="false" > La expresión reducida equivale a <span class="math inline">\(a^{1.5}\)</span> (dividiendo los exponentes).</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933713871" value="6" data-correct="false" > La expresión reducida equivale a <span class="math inline">\(a^{10}\)</span>.</label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933713871&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Excelente! Comprendes de manera óptima las bases de la división algebraica.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Revisa las reglas de división y el comportamiento de números negativos elevados a exponentes pares.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-10-seleccionar-falsas" class="section level3 hasAnchor" number="3.2.10">
+<h3><span class="header-section-number">3.2.10</span> Pregunta 10 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-10-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
+<div id="q17796512933807319" class="learnr-question-box">
+<div class="learnr-question-text">
+Analiza el cociente de potencias idénticas: <span class="math display">\[3^5 \div 3^5\]</span> e identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933807319" value="1" data-correct="true" > El resultado final simplificado es igual a 0.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933807319" value="2" data-correct="true" > Es equivalente a la potencia <span class="math inline">\(3^{10}\)</span> al sumar erróneamente los exponentes.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933807319" value="3" data-correct="true" > El resultado final simplificado de la operación es igual a 3.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933807319" value="4" data-correct="false" > Es equivalente a la potencia <span class="math inline">\(3^0\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933807319" value="5" data-correct="false" > El valor simplificado evaluado equivale al número entero 1.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933807319" value="6" data-correct="false" > Representa un número real distinto de cero dividido entre sí mismo, lo cual siempre es igual a 1.</label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933807319&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Excelente! Finalizaste la evaluación identificando todos los conceptos erróneos de manera precisa.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Recuerda qué sucede cuando se resta el mismo exponente y cuál es el valor de cualquier base elevada a la cero.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+<hr />
+</div>
+</div>
+<div id="bloque-2-potenciación-avanzada-y-radicales" class="section level2 hasAnchor" number="3.3">
+<h2><span class="header-section-number">3.3</span> Bloque 2: Potenciación Avanzada y Radicales<a href="evaluación-completa-de-potenciación.html#bloque-2-potenciaci%C3%B3n-avanzada-y-radicales" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>En este bloque evaluaremos el uso de exponentes fraccionarios, racionalización y simplificación algebraica avanzada basándonos en la guía de evaluación avanzada.</p>
+<div id="pregunta-11-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.3.1">
+<h3><span class="header-section-number">3.3.1</span> Pregunta 11 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-11-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
+<div id="q17796512933898338" class="learnr-question-box">
+<div class="learnr-question-text">
+Usar propiedades de potenciación e identificar afirmaciones <strong>verdaderas</strong> sobre la expresión: <span class="math display">\[\left(-8\right)^{\frac{1}{3}}\]</span>
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933898338" value="1" data-correct="true" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\sqrt[3]{-8}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933898338" value="2" data-correct="true" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\sqrt[3]{-2^{3}}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933898338" value="3" data-correct="true" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\left(-2^3\right)^{\frac{1}{3}}= \sqrt[3]{2^{3}} \sqrt[3]{-1}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933898338" value="4" data-correct="true" > Su resultado es exactamente igual a el número entero <span class="math inline">\(-2\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933898338" value="5" data-correct="false" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\sqrt[3]{8}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933898338" value="6" data-correct="false" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\sqrt[3]{2^{3}}\]</span></label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933898338&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Excelente! Has resuelto la potencia con base negativa correctamente.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto, analiza detenidamente el signo y las bases cúbicas.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-12-seleccionar-falsas" class="section level3 hasAnchor" number="3.3.2">
+<h3><span class="header-section-number">3.3.2</span> Pregunta 12 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-12-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
+<div id="q17796512933986928" class="learnr-question-box">
+<div class="learnr-question-text">
+Usar propiedades de potenciación e identificar únicamente las afirmaciones <strong>falsas</strong> sobre la expresión: <span class="math display">\[\left(-64\right)^{\frac{1}{5}}\]</span>
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933986928" value="1" data-correct="true" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\sqrt[3]{64}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933986928" value="2" data-correct="true" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\sqrt[5]{2^{6}}\]</span> (falta signo negativo en la base)</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933986928" value="3" data-correct="true" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\left(-2^3\right)^{\frac{1}{5}}= \sqrt[5]{2^{3}}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933986928" value="4" data-correct="false" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\sqrt[5]{-2^6}= -2 \sqrt[5]{2}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512933986928" value="5" data-correct="false" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\sqrt[5]{-2^{6}}\]</span></label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933986928&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Excelente! Identificaste los errores de bases y exponentes con precisión.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Selecciona sólo las representaciones que sean matemáticamente incorrectas.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-13-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.3.3">
+<h3><span class="header-section-number">3.3.3</span> Pregunta 13 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-13-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
+<div id="q17796512934073851" class="learnr-question-box">
+<div class="learnr-question-text">
+Usar propiedades de potenciación e identificar afirmaciones <strong>verdaderas</strong> sobre la expresión: <span class="math display">\[\left(512\right)^{\frac{1}{4}}\]</span>
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934073851" value="1" data-correct="true" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=\sqrt[4]{2^4(32)}=2 \sqrt[4]{32}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934073851" value="2" data-correct="true" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=2^2\sqrt[4]{2}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934073851" value="3" data-correct="true" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=\sqrt[4]{2^9}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934073851" value="4" data-correct="true" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=4\sqrt[4]{2}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934073851" value="5" data-correct="false" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=\sqrt[4]{-2^{9}}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934073851" value="6" data-correct="false" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=\sqrt[4]{2^4(16)}\]</span></label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934073851&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Excelente! Manejas muy bien las equivalencias radicales.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Realiza la descomposición factorial de 512 en base 2.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-14-seleccionar-falsas" class="section level3 hasAnchor" number="3.3.4">
+<h3><span class="header-section-number">3.3.4</span> Pregunta 14 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-14-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
+<div id="q17796512934165305" class="learnr-question-box">
+<div class="learnr-question-text">
+Usar propiedades de potenciación e identificar únicamente las afirmaciones <strong>falsas</strong> sobre la expresión: <span class="math display">\[\left(-216\right)^{\frac{1}{3}}\]</span>
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934165305" value="1" data-correct="true" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=\sqrt[4]{2^4(16)}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934165305" value="2" data-correct="true" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=\sqrt[4]{-2^{9}}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934165305" value="3" data-correct="true" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=\left(-2^9\right)^{\frac{1}{3}}= 4\sqrt[5]{-2^{3}}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934165305" value="4" data-correct="false" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=-\sqrt[3]{12(18)}=- \sqrt[3]{8(27)}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934165305" value="5" data-correct="false" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=-2(3)=-6\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934165305" value="6" data-correct="false" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=\sqrt[3]{-216}\]</span></label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934165305&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Perfecto! Identificaste los errores conceptuales de manera óptima.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Ubica los planteamientos erróneos de la raíz cúbica de -216.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-15-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.3.5">
+<h3><span class="header-section-number">3.3.5</span> Pregunta 15 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-15-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
+<div id="q17796512934254632" class="learnr-question-box">
+<div class="learnr-question-text">
+Usar propiedades de potenciación e identificar afirmaciones <strong>verdaderas</strong> sobre la expresión: <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}\]</span>
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934254632" value="1" data-correct="true" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=\left(\frac{10}{2}\right)^7=5^7\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934254632" value="2" data-correct="true" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=\left(\frac{4}{100}\right)^{-\frac{7}{2}}=\left(\frac{100}{4}\right)^{\frac{7}{2}}=25^{\frac{7}{2}}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934254632" value="3" data-correct="true" > El valor final simplificado es igual a la constante entera 78125.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934254632" value="4" data-correct="true" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=\sqrt{0.04^{-7}}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934254632" value="5" data-correct="false" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=\sqrt[2]{-2^{9}}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934254632" value="6" data-correct="false" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=5^{-7}\]</span></label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934254632&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Magnífico! Has operado la potencia decimal negativa correctamente.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Recuerda pasar el decimal 0.04 a fracción (4/100) y aplicar las leyes de los exponentes negativos.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-16-seleccionar-falsas" class="section level3 hasAnchor" number="3.3.6">
+<h3><span class="header-section-number">3.3.6</span> Pregunta 16 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-16-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
+<div id="q17796512934349817" class="learnr-question-box">
+<div class="learnr-question-text">
+Usar propiedades de potenciación e identificar únicamente las afirmaciones <strong>falsas</strong> sobre la expresión: <span class="math display">\[\left(-32\right)^{\frac{1}{5}}\]</span>
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934349817" value="1" data-correct="true" > <span class="math display">\[\left(-32\right)^{\frac{1}{5}}=\sqrt[2]{2^4(16)}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934349817" value="2" data-correct="true" > <span class="math display">\[\left(-32\right)^{\frac{1}{5}}=\sqrt[2]{-2^{9}3^3}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934349817" value="3" data-correct="true" > Su resultado simplificado equivale al número real positivo 2.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934349817" value="4" data-correct="false" > <span class="math display">\[\left(-32\right)^{\frac{1}{5}}= \sqrt[5]{(-1)^52^{5}}=-2\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934349817" value="5" data-correct="false" > <span class="math display">\[\left(-32\right)^{\frac{1}{5}}=\left(-2^5\right)^{\frac{1}{5}}=(-2)^1\]</span></label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934349817&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Espectacular! Has completado el ejercicio descartando los fallos comunes.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Busca cuáles afirmaciones contienen fallos aritméticos elementales.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-17-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.3.7">
+<h3><span class="header-section-number">3.3.7</span> Pregunta 17 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-17-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
+<div id="q17796512934422741" class="learnr-question-box">
+<div class="learnr-question-text">
+Usar propiedades de potenciación e identificar afirmaciones <strong>verdaderas</strong> sobre la expresión: <span class="math display">\[\sqrt[n]{\dfrac{4^{n}.6}{4^{2n+1}+2^{4n+1}}}\]</span>
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934422741" value="1" data-correct="true" > <span class="math display">\[\sqrt[n]{\dfrac{4^{n}.6}{4^{2n+1}+2^{4n+1}}}=\sqrt[n]{\dfrac{2^{2n}.(2).(3)}{2^{4n+2}+2^{4n+1}}}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934422741" value="2" data-correct="true" > <span class="math display">\[\sqrt[n]{\dfrac{4^{n}.6}{4^{2n+1}+2^{4n+1}}}=\sqrt[n]{\dfrac{2^{2n}.(2).(3)}{2^{4n}2^2+2^{4n}2^1}}=\sqrt[n]{\dfrac{2^{2n}.(2).(3)}{2^{4n}(2^2+2^1)}}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934422741" value="3" data-correct="true" > <span class="math display">\[\sqrt[n]{\dfrac{4^{n}.6}{4^{2n+1}+2^{4n+1}}}=\sqrt[n]{\dfrac{2^{2n}.(2).(3)}{2^{4n}(6)}}=\sqrt[n]{\dfrac{2^{2n}}{2^{4n}}}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934422741" value="4" data-correct="true" > El resultado final de simplificar toda la expresión radical es exactamente <span class="math inline">\(\frac{1}{4}\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934422741" value="5" data-correct="true" > <span class="math display">\[\sqrt[n]{\dfrac{4^{n}.6}{4^{2n+1}+2^{4n+1}}}=\sqrt[n]{\left( \dfrac{1}{2^2} \right)^n}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934422741" value="6" data-correct="false" > El resultado final de la expresión simplificada es igual a 2.</label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934422741&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Perfecto! Dominas la factorización exponencial avanzada.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Realiza la simplificación algebraica factorizando <span class="math inline">\(2^{4n}\)</span> en el denominador.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-18-seleccionar-falsas" class="section level3 hasAnchor" number="3.3.8">
+<h3><span class="header-section-number">3.3.8</span> Pregunta 18 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-18-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
+<div id="q17796512934525656" class="learnr-question-box">
+<div class="learnr-question-text">
+Usar propiedades de potenciación e identificar únicamente las afirmaciones <strong>falsas</strong> sobre la expresión: <span class="math display">\[\dfrac{2^{n+3}-2^{n}+7}{2^{n+1}-2^{n}+1}\]</span>
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934525656" value="1" data-correct="true" > <span class="math display">\[\dfrac{2^{n+3}-2^{n}+7}{2^{n+1}-2^{n}+1}=\dfrac{1}{7}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934525656" value="2" data-correct="true" > <span class="math display">\[\dfrac{2^{n+3}-2^{n}+7}{2^{n+1}-2^{n}+1}=\dfrac{2^n(2^3-1)+7}{2^n(2^1-1)+1}=\frac{1}{7}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934525656" value="3" data-correct="true" > El resultado final simplificado para cualquier valor de <span class="math inline">\(n\)</span> es la fracción <span class="math inline">\(\frac{7}{2}\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934525656" value="4" data-correct="false" > <span class="math display">\[\dfrac{2^{n+3}-2^{n}+7}{2^{n+1}-2^{n}+1}=\dfrac{2^n2^3-2^{n}+7}{2^n2-2^{n}+1}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934525656" value="5" data-correct="false" > <span class="math display">\[\dfrac{2^{n+3}-2^{n}+7}{2^{n+1}-2^{n}+1}=\dfrac{2^n(2^3-1)+7}{2^n(2^1-1)+1}=\dfrac{7(2^n+1)}{2^n+1}=7\]</span></label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934525656&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Impecable! Has reconocido los desvíos matemáticos erróneos.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Identifica las operaciones algebraicas erróneas referentes a la factorización de <span class="math inline">\(2^n\)</span>.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-19-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.3.9">
+<h3><span class="header-section-number">3.3.9</span> Pregunta 19 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-19-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
+<div id="q17796512934604915" class="learnr-question-box">
+<div class="learnr-question-text">
+Usar propiedades de potenciación e identificar afirmaciones <strong>verdaderas</strong> sobre la expresión: <span class="math display">\[\dfrac{2.2^{3n}-4.4^{n}}{(2.2^{n})^{3}-8.2^{2n+1}}\]</span>
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934604915" value="1" data-correct="true" > <span class="math display">\[\dfrac{2.2^{3n}-4.4^{n}}{(2.2^{n})^{3}-8.2^{2n+1}}=\dfrac{2.2^{3n}-2^2.2^{2n}}{2^3.2^{3n}-2^3.2^{2n+1}}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934604915" value="2" data-correct="true" > <span class="math display">\[\dfrac{2.2^{3n}-4.4^{n}}{(2.2^{n})^{3}-8.2^{2n+1}}=\dfrac{2.2^{2n}(2^n-2)}{2^3.2^{2n}(2^n-2)}=\dfrac{2.2^{2n}}{2^3.2^{2n}}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934604915" value="3" data-correct="true" > El resultado simplificado final de toda la expresión es la constante racional <span class="math inline">\(\frac{1}{4}\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934604915" value="4" data-correct="true" > <span class="math display">\[\dfrac{2.2^{3n}-4.4^{n}}{(2.2^{n})^{3}-8.2^{2n+1}}=\dfrac{2.2^{2n}}{2^3.2^{2n}}=\dfrac{2}{2^3}=\dfrac{2}{8}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934604915" value="5" data-correct="false" > El resultado simplificado final es igual a <span class="math inline">\(\frac{1}{8}\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934604915" value="6" data-correct="false" > El resultado simplificado final es igual a 2.</label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934604915&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Fantástico! Resuelto con completa pericia matemática.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Recuerda reescribir <span class="math inline">\(4\)</span> como <span class="math inline">\(2^2\)</span> y <span class="math inline">\(8\)</span> como <span class="math inline">\(2^3\)</span> para trabajar con bases iguales.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+<div id="pregunta-20-seleccionar-falsas" class="section level3 hasAnchor" number="3.3.10">
+<h3><span class="header-section-number">3.3.10</span> Pregunta 20 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-20-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
+<div id="q17796512934703664" class="learnr-question-box">
+<div class="learnr-question-text">
+Usar propiedades de potenciación e identificar únicamente las afirmaciones <strong>falsas</strong> sobre la expresión: <span class="math display">\[\left(\dfrac{8x}{y^4}\right)^{\frac{1}{5}}.\left(\dfrac{4x^4}{y}\right)^{\frac{1}{5}}\]</span>
+</div>
+<div class="learnr-answers">
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934703664" value="1" data-correct="true" > <span class="math display">\[\left(\dfrac{8x}{y^4}\right)^{\frac{1}{5}}.\left(\dfrac{4x^4}{y}\right)^{\frac{1}{5}}=\left(\dfrac{(8)(4)(8)xx^4}{y^4y}\right)^{\frac{1}{5}}\]</span> (se multiplicaron las constantes erróneamente)</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934703664" value="2" data-correct="true" > <span class="math display">\[\left(\dfrac{8x}{y^4}\right)^{\frac{1}{5}}.\left(\dfrac{4x^4}{y}\right)^{\frac{1}{5}}=\sqrt[5]{\left(\dfrac{2^5x^5}{y^5}\right)}=\dfrac{2y}{x}\]</span> (las variables están invertidas)</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934703664" value="3" data-correct="true" > El resultado simplificado final equivale a <span class="math inline">\(\dfrac{y}{2x}\)</span>.</label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934703664" value="4" data-correct="false" > <span class="math display">\[\left(\dfrac{8x}{y^4}\right)^{\frac{1}{5}}.\left(\dfrac{4x^4}{y}\right)^{\frac{1}{5}}=\left(\dfrac{32x^5}{y^5}\right)^{\frac{1}{5}}=\dfrac{2x}{y}\]</span></label>
+</div>
+<div class="learnr-option">
+<label><input type="checkbox" name="q17796512934703664" value="5" data-correct="false" > <span class="math display">\[\left(\dfrac{8x}{y^4}\right)^{\frac{1}{5}}.\left(\dfrac{4x^4}{y}\right)^{\frac{1}{5}}=\sqrt[5]{\left(\dfrac{2^5x^5}{y^5}\right)}=\dfrac{2x}{y}\]</span></label>
+</div>
+</div>
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934703664&#39;)">
+Enviar Respuesta
+</button>
+<div class="learnr-feedback" style="display:none;">
+
+</div>
+<div class="learnr-data-correct" style="display:none;">
+¡Excelente! Has finalizado toda la evaluación detectando todos los errores algebraicos con éxito.
+</div>
+<div class="learnr-data-incorrect" style="display:none;">
+Incorrecto. Fíjate en los exponentes y la posición de las variables reducidas.
+</div>
+<div class="learnr-data-retry" style="display:none;">
+Intentar de nuevo
+</div>
+<div class="learnr-data-allowretry" style="display:none;">
+true
+</div>
+</div>
+</div>
+</div>
+<div id="resultados-de-la-evaluación-1" class="section level2 hasAnchor" number="3.4">
+<h2><span class="header-section-number">3.4</span> Resultados de la Evaluación<a href="evaluación-completa-de-potenciación.html#resultados-de-la-evaluaci%C3%B3n-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Para ver el análisis de tu desempeño en esta prueba, haz clic en el siguiente botón. El sistema evaluará tus respuestas y te proporcionará recomendaciones personalizadas.</p>
+<button type="button" class="learnr-submit-btn" style="margin-bottom:1rem;" onclick="showScoreReport(&#39;sr17796512934917578&#39;, 20, &#39;&lt;strong&gt;¡Espectacular!&lt;/strong&gt; Tienes un dominio sobresaliente de las leyes de potenciación y radicales. Has alcanzado un nivel excelente. ¡Sigue así, estás listo para retos aún mayores!&#39;, &#39;&lt;strong&gt;¡Buen intento!&lt;/strong&gt; Has aprobado la evaluación, pero aún hay conceptos que puedes pulir. Te sugerimos repasar la ley de cociente de potencias ($a^m \\div a^n = a^{m-n}$) y la simplificación de exponentes fraccionarios con bases negativas. ¡Con un poco más de práctica lograrás la excelencia!&#39;, &#39;&lt;strong&gt;Se recomienda más práctica.&lt;/strong&gt; Has tenido varias respuestas incorrectas o preguntas sin responder. Te sugerimos repasar a fondo las propiedades básicas de la potenciación (suma de exponentes en el producto y resta en la división) y resolver de nuevo los ejercicios sencillos antes de intentar los de nivel avanzado. ¡No te desanimes, la práctica hace al maestro!&#39;)">
+Calcular Mis Resultados
+</button>
+<div id="sr17796512934917578">
+
+</div>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="simulacro-de-evaluación-uno.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="evaluación-de-álgebra-expresiones-racionales-caso-4.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": false,
+    "twitter": false,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": null,
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": null,
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  },
+  "info": true
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
