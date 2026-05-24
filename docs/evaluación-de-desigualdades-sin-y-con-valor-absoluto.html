@@ -306,8 +306,10 @@ function resetLearnrQuestion(qid) {
   inputs.forEach(function(input) { input.checked = false; });
   
   var feedbackDiv = box.querySelector('.learnr-feedback');
-  feedbackDiv.style.display = 'none';
-  feedbackDiv.className = 'learnr-feedback';
+  if (feedbackDiv) {
+    feedbackDiv.style.display = 'none';
+    feedbackDiv.className = 'learnr-feedback';
+  }
   
   box.querySelectorAll('.learnr-option').forEach(function(opt) {
     opt.classList.remove('correct-answer', 'wrong-answer', 'missed-answer');
@@ -318,17 +320,26 @@ function resetLearnrQuestion(qid) {
   box.removeAttribute('data-answered-correctly');
   
   var btn = box.querySelector('.learnr-submit-btn');
-  btn.style.display = 'inline-block';
-  btn.textContent = 'Enviar Respuesta';
-  btn.onclick = function() { checkLearnrQuestion(qid); };
+  if (btn) {
+    btn.style.display = 'inline-block';
+    btn.textContent = 'Enviar Respuesta';
+    btn.onclick = function() { checkLearnrQuestion(qid); };
+  }
 }
 
 function resetAllQuestions() {
+  // 1. Limpiar cada pregunta
   document.querySelectorAll('.learnr-question-box').forEach(function(box) {
     var qid = box.id;
     if (qid) resetLearnrQuestion(qid);
   });
-  // Re-mezclar opciones para nuevo orden aleatorio
+  
+  // 2. Limpiar reportes de puntaje
+  document.querySelectorAll('.score-report-box').forEach(function(report) {
+    report.remove();
+  });
+  
+  // 3. Re-mezclar opciones para nuevo orden aleatorio
   shuffleAllOptions();
 }
 
@@ -409,15 +420,23 @@ function showScoreReport(reportId, totalQuestions, recHigh, recMed, recLow) {
   reportBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Mezclar opciones aleatoriamente al cargar cada página
+/* ==========================================================================
+   Inyección del botón de reinicio y mezcla de opciones
+   Bookdown gitbook carga capítulos vía AJAX, por lo que usamos
+   múltiples estrategias para detectar cuando cambia el contenido.
+   ========================================================================== */
+
+function initLearnrPage() {
+  // 1. Mezclar opciones aleatoriamente
   shuffleAllOptions();
   
-  // Agregar botón de reinicio global si hay preguntas en la página
-  var questions = document.querySelectorAll('.learnr-question-box');
-  if (questions.length > 0) {
-    var h1 = document.querySelector('.book-body h1') || document.querySelector('h1');
-    if (h1) {
+  // 2. Agregar botón de reinicio si hay preguntas y aún no existe
+  var pageInner = document.querySelector('.page-inner') || document.body;
+  var questions = pageInner.querySelectorAll('.learnr-question-box');
+  
+  if (questions.length > 0 && !pageInner.querySelector('.learnr-reset-btn')) {
+    var h1 = pageInner.querySelector('h1');
+    if (h1 && h1.parentNode) {
       var resetBtn = document.createElement('button');
       resetBtn.type = 'button';
       resetBtn.className = 'learnr-reset-btn';
@@ -429,6 +448,50 @@ document.addEventListener('DOMContentLoaded', function() {
       };
       h1.parentNode.insertBefore(resetBtn, h1.nextSibling);
     }
+  }
+}
+
+// Estrategia 1: DOMContentLoaded
+document.addEventListener('DOMContentLoaded', initLearnrPage);
+
+// Estrategia 2: window.load (todo incluyendo imágenes está listo)
+window.addEventListener('load', initLearnrPage);
+
+// Estrategia 3: Polling periódico durante los primeros 10 segundos
+// Esto cubre la carga dinámica de gitbook y cualquier retraso en el DOM
+var learnrInitAttempts = 0;
+var learnrInitInterval = setInterval(function() {
+  initLearnrPage();
+  learnrInitAttempts++;
+  if (learnrInitAttempts >= 20) {
+    clearInterval(learnrInitInterval);
+  }
+}, 500);
+
+// Estrategia 4: MutationObserver sobre document.body (más robusto que .page-inner)
+// Si gitbook reemplaza .page-inner completamente, body sigue existiendo.
+document.addEventListener('DOMContentLoaded', function() {
+  var observer = new MutationObserver(function(mutations) {
+    // Solo re-inicializar si detectamos que aparecieron nuevas preguntas
+    // o si desapareció el botón de reinicio
+    var pageInner = document.querySelector('.page-inner') || document.body;
+    var hasQuestions = pageInner.querySelectorAll('.learnr-question-box').length > 0;
+    var hasResetBtn = !!pageInner.querySelector('.learnr-reset-btn');
+    if (hasQuestions && !hasResetBtn) {
+      setTimeout(initLearnrPage, 100);
+    }
+  });
+  
+  observer.observe(document.body, { childList: true, subtree: true });
+});
+
+// Estrategia 5: Evento nativo de gitbook SPA (si está disponible)
+// gitbook dispara 'page.change' cuando se carga un nuevo capítulo vía AJAX.
+window.addEventListener('load', function() {
+  if (typeof gitbook !== 'undefined' && gitbook.events) {
+    gitbook.events.bind('page.change', function() {
+      setTimeout(initLearnrPage, 200);
+    });
   }
 });
 </script>
@@ -1099,31 +1162,31 @@ h1, h2, h3, h4, .tutorial-title {
 <div id="pregunta-1-seleccionar-verdaderas-7" class="section level3 hasAnchor" number="10.2.1">
 <h3><span class="header-section-number">10.2.1</span> Pregunta 1 (Seleccionar Verdaderas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-1-seleccionar-verdaderas-7" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796513019927005" class="learnr-question-box">
+<div id="q17796553045442356" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad: <span class="math inline">\(\dfrac{3(x-4)}{2} \geq \frac{5}{4}\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513019927005" value="1" data-correct="true" > <span class="math inline">\(x \geq \frac{29}{6}\)</span></label>
+<label><input type="checkbox" name="q17796553045442356" value="1" data-correct="true" > <span class="math inline">\(x \geq \frac{29}{6}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513019927005" value="2" data-correct="true" > El extremo inferior <span class="math inline">\(\frac{29}{6}\)</span> está incluido en el conjunto solución.</label>
+<label><input type="checkbox" name="q17796553045442356" value="2" data-correct="true" > El extremo inferior <span class="math inline">\(\frac{29}{6}\)</span> está incluido en el conjunto solución.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513019927005" value="3" data-correct="true" > El número real <span class="math inline">\(0\)</span> no satisface la desigualdad.</label>
+<label><input type="checkbox" name="q17796553045442356" value="3" data-correct="true" > El número real <span class="math inline">\(0\)</span> no satisface la desigualdad.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513019927005" value="4" data-correct="false" > <span class="math inline">\(x &gt; \frac{29}{6}\)</span></label>
+<label><input type="checkbox" name="q17796553045442356" value="4" data-correct="false" > <span class="math inline">\(x &gt; \frac{29}{6}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513019927005" value="5" data-correct="false" > <span class="math inline">\(x \leq \frac{29}{6}\)</span></label>
+<label><input type="checkbox" name="q17796553045442356" value="5" data-correct="false" > <span class="math inline">\(x \leq \frac{29}{6}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513019927005" value="6" data-correct="false" > <span class="math inline">\(x \geq \frac{23}{6}\)</span></label>
+<label><input type="checkbox" name="q17796553045442356" value="6" data-correct="false" > <span class="math inline">\(x \geq \frac{23}{6}\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513019927005&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553045442356&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1146,31 +1209,31 @@ true
 <div id="pregunta-2-seleccionar-falsas-7" class="section level3 hasAnchor" number="10.2.2">
 <h3><span class="header-section-number">10.2.2</span> Pregunta 2 (Seleccionar Falsas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-2-seleccionar-falsas-7" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796513020041059" class="learnr-question-box">
+<div id="q17796553045567065" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad: <span class="math inline">\(5x-4 &lt; 3x+5\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020041059" value="1" data-correct="true" > <span class="math inline">\(x \geq \frac{9}{2}\)</span></label>
+<label><input type="checkbox" name="q17796553045567065" value="1" data-correct="true" > <span class="math inline">\(x \geq \frac{9}{2}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020041059" value="2" data-correct="true" > La variable <span class="math inline">\(x\)</span> puede tomar de forma válida el valor real <span class="math inline">\(4.5\)</span>.</label>
+<label><input type="checkbox" name="q17796553045567065" value="2" data-correct="true" > La variable <span class="math inline">\(x\)</span> puede tomar de forma válida el valor real <span class="math inline">\(4.5\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020041059" value="3" data-correct="true" > Representa un intervalo cerrado denotado por <span class="math inline">\((-\infty, 4.5]\)</span>.</label>
+<label><input type="checkbox" name="q17796553045567065" value="3" data-correct="true" > Representa un intervalo cerrado denotado por <span class="math inline">\((-\infty, 4.5]\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020041059" value="4" data-correct="false" > <span class="math inline">\(x &lt; \frac{9}{2}\)</span></label>
+<label><input type="checkbox" name="q17796553045567065" value="4" data-correct="false" > <span class="math inline">\(x &lt; \frac{9}{2}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020041059" value="5" data-correct="false" > Representa un intervalo completamente abierto en la recta real.</label>
+<label><input type="checkbox" name="q17796553045567065" value="5" data-correct="false" > Representa un intervalo completamente abierto en la recta real.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020041059" value="6" data-correct="false" > El valor entero <span class="math inline">\(x = 4\)</span> satisface de forma correcta la condición.</label>
+<label><input type="checkbox" name="q17796553045567065" value="6" data-correct="false" > El valor entero <span class="math inline">\(x = 4\)</span> satisface de forma correcta la condición.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513020041059&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553045567065&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1193,31 +1256,31 @@ true
 <div id="pregunta-3-seleccionar-verdaderas-7" class="section level3 hasAnchor" number="10.2.3">
 <h3><span class="header-section-number">10.2.3</span> Pregunta 3 (Seleccionar Verdaderas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-3-seleccionar-verdaderas-7" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796513020123410" class="learnr-question-box">
+<div id="q17796553045648983" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad: <span class="math inline">\(\frac{x-5}{3} + \frac{x+4}{2} \leq \frac{x+3}{6}\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020123410" value="1" data-correct="true" > <span class="math inline">\(x \leq \frac{1}{4}\)</span></label>
+<label><input type="checkbox" name="q17796553045648983" value="1" data-correct="true" > <span class="math inline">\(x \leq \frac{1}{4}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020123410" value="2" data-correct="true" > El valor decimal <span class="math inline">\(x = 0.25\)</span> satisface plenamente la desigualdad.</label>
+<label><input type="checkbox" name="q17796553045648983" value="2" data-correct="true" > El valor decimal <span class="math inline">\(x = 0.25\)</span> satisface plenamente la desigualdad.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020123410" value="3" data-correct="true" > El conjunto solución está representado por el intervalo semi-infinito <span class="math inline">\((-\infty, 0.25]\)</span>.</label>
+<label><input type="checkbox" name="q17796553045648983" value="3" data-correct="true" > El conjunto solución está representado por el intervalo semi-infinito <span class="math inline">\((-\infty, 0.25]\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020123410" value="4" data-correct="false" > <span class="math inline">\(x \geq \frac{1}{4}\)</span></label>
+<label><input type="checkbox" name="q17796553045648983" value="4" data-correct="false" > <span class="math inline">\(x \geq \frac{1}{4}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020123410" value="5" data-correct="false" > <span class="math inline">\(x &lt; 0\)</span> (excluye incorrectamente las soluciones positivas)</label>
+<label><input type="checkbox" name="q17796553045648983" value="5" data-correct="false" > <span class="math inline">\(x &lt; 0\)</span> (excluye incorrectamente las soluciones positivas)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020123410" value="6" data-correct="false" > <span class="math inline">\(x \leq \frac{5}{4}\)</span></label>
+<label><input type="checkbox" name="q17796553045648983" value="6" data-correct="false" > <span class="math inline">\(x \leq \frac{5}{4}\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513020123410&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553045648983&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1240,31 +1303,31 @@ true
 <div id="pregunta-4-seleccionar-falsas-7" class="section level3 hasAnchor" number="10.2.4">
 <h3><span class="header-section-number">10.2.4</span> Pregunta 4 (Seleccionar Falsas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-4-seleccionar-falsas-7" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796513020205527" class="learnr-question-box">
+<div id="q17796553045712965" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad: <span class="math inline">\(\frac{2x-1}{5} - \frac{3x+1}{3} \geq \frac{x-5}{15}\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020205527" value="1" data-correct="true" > <span class="math inline">\(x \geq -\frac{3}{10}\)</span></label>
+<label><input type="checkbox" name="q17796553045712965" value="1" data-correct="true" > <span class="math inline">\(x \geq -\frac{3}{10}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020205527" value="2" data-correct="true" > Al resolver, el sentido de la desigualdad permanece sin cambios.</label>
+<label><input type="checkbox" name="q17796553045712965" value="2" data-correct="true" > Al resolver, el sentido de la desigualdad permanece sin cambios.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020205527" value="3" data-correct="true" > <span class="math inline">\(x \leq -\frac{13}{10}\)</span></label>
+<label><input type="checkbox" name="q17796553045712965" value="3" data-correct="true" > <span class="math inline">\(x \leq -\frac{13}{10}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020205527" value="4" data-correct="false" > <span class="math inline">\(x \leq -\frac{3}{10}\)</span></label>
+<label><input type="checkbox" name="q17796553045712965" value="4" data-correct="false" > <span class="math inline">\(x \leq -\frac{3}{10}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020205527" value="5" data-correct="false" > El sentido de la desigualdad se invierte al dividir por la constante negativa <span class="math inline">\(-10\)</span>.</label>
+<label><input type="checkbox" name="q17796553045712965" value="5" data-correct="false" > El sentido de la desigualdad se invierte al dividir por la constante negativa <span class="math inline">\(-10\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020205527" value="6" data-correct="false" > El valor real <span class="math inline">\(x = -0.3\)</span> está incluido de manera válida en la solución.</label>
+<label><input type="checkbox" name="q17796553045712965" value="6" data-correct="false" > El valor real <span class="math inline">\(x = -0.3\)</span> está incluido de manera válida en la solución.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513020205527&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553045712965&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1287,31 +1350,31 @@ true
 <div id="pregunta-5-seleccionar-verdaderas-7" class="section level3 hasAnchor" number="10.2.5">
 <h3><span class="header-section-number">10.2.5</span> Pregunta 5 (Seleccionar Verdaderas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-5-seleccionar-verdaderas-7" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796513020281387" class="learnr-question-box">
+<div id="q17796553045798557" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad racional: <span class="math inline">\(\dfrac{x-3}{x+2} &lt; 0\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020281387" value="1" data-correct="true" > <span class="math inline">\(x \in (-2, 3)\)</span> o <span class="math inline">\(-2 &lt; x &lt; 3\)</span></label>
+<label><input type="checkbox" name="q17796553045798557" value="1" data-correct="true" > <span class="math inline">\(x \in (-2, 3)\)</span> o <span class="math inline">\(-2 &lt; x &lt; 3\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020281387" value="2" data-correct="true" > El extremo <span class="math inline">\(x = -2\)</span> se excluye obligatoriamente porque causa una división por cero.</label>
+<label><input type="checkbox" name="q17796553045798557" value="2" data-correct="true" > El extremo <span class="math inline">\(x = -2\)</span> se excluye obligatoriamente porque causa una división por cero.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020281387" value="3" data-correct="true" > El conjunto de soluciones representa un intervalo completamente abierto y finito.</label>
+<label><input type="checkbox" name="q17796553045798557" value="3" data-correct="true" > El conjunto de soluciones representa un intervalo completamente abierto y finito.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020281387" value="4" data-correct="false" > <span class="math inline">\(x \in [-2, 3]\)</span></label>
+<label><input type="checkbox" name="q17796553045798557" value="4" data-correct="false" > <span class="math inline">\(x \in [-2, 3]\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020281387" value="5" data-correct="false" > <span class="math inline">\(x &lt; -2\)</span> o <span class="math inline">\(x &gt; 3\)</span></label>
+<label><input type="checkbox" name="q17796553045798557" value="5" data-correct="false" > <span class="math inline">\(x &lt; -2\)</span> o <span class="math inline">\(x &gt; 3\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020281387" value="6" data-correct="false" > La variable <span class="math inline">\(x\)</span> puede tomar el valor real <span class="math inline">\(-3\)</span>.</label>
+<label><input type="checkbox" name="q17796553045798557" value="6" data-correct="false" > La variable <span class="math inline">\(x\)</span> puede tomar el valor real <span class="math inline">\(-3\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513020281387&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553045798557&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1334,31 +1397,31 @@ true
 <div id="pregunta-6-seleccionar-falsas-6" class="section level3 hasAnchor" number="10.2.6">
 <h3><span class="header-section-number">10.2.6</span> Pregunta 6 (Seleccionar Falsas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-6-seleccionar-falsas-6" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796513020428711" class="learnr-question-box">
+<div id="q17796553045935170" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad racional: <span class="math inline">\(\dfrac{2x+4}{x-2} &gt; 0\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020428711" value="1" data-correct="true" > <span class="math inline">\(-2 &lt; x &lt; 2\)</span></label>
+<label><input type="checkbox" name="q17796553045935170" value="1" data-correct="true" > <span class="math inline">\(-2 &lt; x &lt; 2\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020428711" value="2" data-correct="true" > La variable <span class="math inline">\(x\)</span> puede tomar de forma válida el valor real <span class="math inline">\(0\)</span>.</label>
+<label><input type="checkbox" name="q17796553045935170" value="2" data-correct="true" > La variable <span class="math inline">\(x\)</span> puede tomar de forma válida el valor real <span class="math inline">\(0\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020428711" value="3" data-correct="true" > <span class="math inline">\(x \leq -2\)</span> o <span class="math inline">\(x \geq 2\)</span> (se incluyen de manera incorrecta los extremos)</label>
+<label><input type="checkbox" name="q17796553045935170" value="3" data-correct="true" > <span class="math inline">\(x \leq -2\)</span> o <span class="math inline">\(x \geq 2\)</span> (se incluyen de manera incorrecta los extremos)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020428711" value="4" data-correct="false" > <span class="math inline">\(x &lt; -2\)</span> o <span class="math inline">\(x &gt; 2\)</span></label>
+<label><input type="checkbox" name="q17796553045935170" value="4" data-correct="false" > <span class="math inline">\(x &lt; -2\)</span> o <span class="math inline">\(x &gt; 2\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020428711" value="5" data-correct="false" > Representa la unión de dos intervalos abiertos e infinitos en los extremos.</label>
+<label><input type="checkbox" name="q17796553045935170" value="5" data-correct="false" > Representa la unión de dos intervalos abiertos e infinitos en los extremos.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020428711" value="6" data-correct="false" > El valor de <span class="math inline">\(x = -2.5\)</span> pertenece al conjunto solución.</label>
+<label><input type="checkbox" name="q17796553045935170" value="6" data-correct="false" > El valor de <span class="math inline">\(x = -2.5\)</span> pertenece al conjunto solución.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513020428711&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553045935170&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1381,31 +1444,31 @@ true
 <div id="pregunta-7-seleccionar-verdaderas-6" class="section level3 hasAnchor" number="10.2.7">
 <h3><span class="header-section-number">10.2.7</span> Pregunta 7 (Seleccionar Verdaderas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-7-seleccionar-verdaderas-6" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796513020529155" class="learnr-question-box">
+<div id="q17796553046018556" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad racional: <span class="math inline">\(\dfrac{x-4}{x-3} \geq 2\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020529155" value="1" data-correct="true" > <span class="math inline">\(x \in [2, 3)\)</span> o <span class="math inline">\(2 \leq x &lt; 3\)</span></label>
+<label><input type="checkbox" name="q17796553046018556" value="1" data-correct="true" > <span class="math inline">\(x \in [2, 3)\)</span> o <span class="math inline">\(2 \leq x &lt; 3\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020529155" value="2" data-correct="true" > El extremo <span class="math inline">\(x = 3\)</span> se excluye porque indefine la fracción, mientras que <span class="math inline">\(x = 2\)</span> se incluye por ser desigualdad no estricta.</label>
+<label><input type="checkbox" name="q17796553046018556" value="2" data-correct="true" > El extremo <span class="math inline">\(x = 3\)</span> se excluye porque indefine la fracción, mientras que <span class="math inline">\(x = 2\)</span> se incluye por ser desigualdad no estricta.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020529155" value="3" data-correct="true" > El valor real <span class="math inline">\(x = 2.5\)</span> satisface plenamente la desigualdad.</label>
+<label><input type="checkbox" name="q17796553046018556" value="3" data-correct="true" > El valor real <span class="math inline">\(x = 2.5\)</span> satisface plenamente la desigualdad.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020529155" value="4" data-correct="false" > <span class="math inline">\(x \in [2, 3]\)</span></label>
+<label><input type="checkbox" name="q17796553046018556" value="4" data-correct="false" > <span class="math inline">\(x \in [2, 3]\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020529155" value="5" data-correct="false" > <span class="math inline">\(x \leq 2\)</span> o <span class="math inline">\(x &gt; 3\)</span></label>
+<label><input type="checkbox" name="q17796553046018556" value="5" data-correct="false" > <span class="math inline">\(x \leq 2\)</span> o <span class="math inline">\(x &gt; 3\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020529155" value="6" data-correct="false" > <span class="math inline">\(x \geq 2\)</span> (omite el límite de la indeterminación en <span class="math inline">\(x=3\)</span>)</label>
+<label><input type="checkbox" name="q17796553046018556" value="6" data-correct="false" > <span class="math inline">\(x \geq 2\)</span> (omite el límite de la indeterminación en <span class="math inline">\(x=3\)</span>)</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513020529155&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553046018556&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1428,31 +1491,31 @@ true
 <div id="pregunta-8-seleccionar-falsas-6" class="section level3 hasAnchor" number="10.2.8">
 <h3><span class="header-section-number">10.2.8</span> Pregunta 8 (Seleccionar Falsas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-8-seleccionar-falsas-6" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796513020606889" class="learnr-question-box">
+<div id="q17796553046104839" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad racional: <span class="math inline">\(\dfrac{2x+4}{x-3} \leq 3\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020606889" value="1" data-correct="true" > <span class="math inline">\(3 &lt; x \leq 13\)</span></label>
+<label><input type="checkbox" name="q17796553046104839" value="1" data-correct="true" > <span class="math inline">\(3 &lt; x \leq 13\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020606889" value="2" data-correct="true" > La variable <span class="math inline">\(x\)</span> puede tomar el valor real <span class="math inline">\(3\)</span>.</label>
+<label><input type="checkbox" name="q17796553046104839" value="2" data-correct="true" > La variable <span class="math inline">\(x\)</span> puede tomar el valor real <span class="math inline">\(3\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020606889" value="3" data-correct="true" > <span class="math inline">\(x \leq 3\)</span> o <span class="math inline">\(x \geq 13\)</span></label>
+<label><input type="checkbox" name="q17796553046104839" value="3" data-correct="true" > <span class="math inline">\(x \leq 3\)</span> o <span class="math inline">\(x \geq 13\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020606889" value="4" data-correct="false" > <span class="math inline">\(x &lt; 3\)</span> o <span class="math inline">\(x \geq 13\)</span></label>
+<label><input type="checkbox" name="q17796553046104839" value="4" data-correct="false" > <span class="math inline">\(x &lt; 3\)</span> o <span class="math inline">\(x \geq 13\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020606889" value="5" data-correct="false" > El número <span class="math inline">\(13\)</span> forma parte del conjunto solución de forma cerrada.</label>
+<label><input type="checkbox" name="q17796553046104839" value="5" data-correct="false" > El número <span class="math inline">\(13\)</span> forma parte del conjunto solución de forma cerrada.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020606889" value="6" data-correct="false" > El valor de <span class="math inline">\(x = 0\)</span> pertenece de forma correcta a las soluciones.</label>
+<label><input type="checkbox" name="q17796553046104839" value="6" data-correct="false" > El valor de <span class="math inline">\(x = 0\)</span> pertenece de forma correcta a las soluciones.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513020606889&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553046104839&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1480,31 +1543,31 @@ true
 <div id="pregunta-9-seleccionar-verdaderas-6" class="section level3 hasAnchor" number="10.3.1">
 <h3><span class="header-section-number">10.3.1</span> Pregunta 9 (Seleccionar Verdaderas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-9-seleccionar-verdaderas-6" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796513020687206" class="learnr-question-box">
+<div id="q17796553046189005" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad con valor absoluto: <span class="math inline">\(\mid x-3\mid &lt; 8\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020687206" value="1" data-correct="true" > <span class="math inline">\(-5 &lt; x &lt; 11\)</span></label>
+<label><input type="checkbox" name="q17796553046189005" value="1" data-correct="true" > <span class="math inline">\(-5 &lt; x &lt; 11\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020687206" value="2" data-correct="true" > Representa que la distancia del número <span class="math inline">\(x\)</span> al punto <span class="math inline">\(3\)</span> es estrictamente menor a <span class="math inline">\(8\)</span> unidades.</label>
+<label><input type="checkbox" name="q17796553046189005" value="2" data-correct="true" > Representa que la distancia del número <span class="math inline">\(x\)</span> al punto <span class="math inline">\(3\)</span> es estrictamente menor a <span class="math inline">\(8\)</span> unidades.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020687206" value="3" data-correct="true" > El valor de <span class="math inline">\(x = 0\)</span> satisface plenamente la desigualdad.</label>
+<label><input type="checkbox" name="q17796553046189005" value="3" data-correct="true" > El valor de <span class="math inline">\(x = 0\)</span> satisface plenamente la desigualdad.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020687206" value="4" data-correct="false" > <span class="math inline">\(-5 \leq x \leq 11\)</span></label>
+<label><input type="checkbox" name="q17796553046189005" value="4" data-correct="false" > <span class="math inline">\(-5 \leq x \leq 11\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020687206" value="5" data-correct="false" > <span class="math inline">\(x &lt; -5\)</span> o <span class="math inline">\(x &gt; 11\)</span></label>
+<label><input type="checkbox" name="q17796553046189005" value="5" data-correct="false" > <span class="math inline">\(x &lt; -5\)</span> o <span class="math inline">\(x &gt; 11\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020687206" value="6" data-correct="false" > El valor extremo <span class="math inline">\(x = 11\)</span> está incluido en las soluciones.</label>
+<label><input type="checkbox" name="q17796553046189005" value="6" data-correct="false" > El valor extremo <span class="math inline">\(x = 11\)</span> está incluido en las soluciones.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513020687206&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553046189005&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1527,31 +1590,31 @@ true
 <div id="pregunta-10-seleccionar-falsas-6" class="section level3 hasAnchor" number="10.3.2">
 <h3><span class="header-section-number">10.3.2</span> Pregunta 10 (Seleccionar Falsas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-10-seleccionar-falsas-6" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796513020768567" class="learnr-question-box">
+<div id="q17796553046267128" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad con valor absoluto: <span class="math inline">\(\mid x-6\mid &gt; 6\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020768567" value="1" data-correct="true" > <span class="math inline">\(0 &lt; x &lt; 12\)</span></label>
+<label><input type="checkbox" name="q17796553046267128" value="1" data-correct="true" > <span class="math inline">\(0 &lt; x &lt; 12\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020768567" value="2" data-correct="true" > El valor real <span class="math inline">\(x = 6\)</span> satisface de forma correcta la desigualdad.</label>
+<label><input type="checkbox" name="q17796553046267128" value="2" data-correct="true" > El valor real <span class="math inline">\(x = 6\)</span> satisface de forma correcta la desigualdad.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020768567" value="3" data-correct="true" > <span class="math inline">\(x \leq 0\)</span> o <span class="math inline">\(x \geq 12\)</span> (se incluyen de manera incorrecta los límites)</label>
+<label><input type="checkbox" name="q17796553046267128" value="3" data-correct="true" > <span class="math inline">\(x \leq 0\)</span> o <span class="math inline">\(x \geq 12\)</span> (se incluyen de manera incorrecta los límites)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020768567" value="4" data-correct="false" > <span class="math inline">\(x &lt; 0\)</span> o <span class="math inline">\(x &gt; 12\)</span></label>
+<label><input type="checkbox" name="q17796553046267128" value="4" data-correct="false" > <span class="math inline">\(x &lt; 0\)</span> o <span class="math inline">\(x &gt; 12\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020768567" value="5" data-correct="false" > Geométricamente, representa que la distancia de <span class="math inline">\(x\)</span> al origen o punto <span class="math inline">\(6\)</span> en la recta real es estrictamente mayor que <span class="math inline">\(6\)</span>.</label>
+<label><input type="checkbox" name="q17796553046267128" value="5" data-correct="false" > Geométricamente, representa que la distancia de <span class="math inline">\(x\)</span> al origen o punto <span class="math inline">\(6\)</span> en la recta real es estrictamente mayor que <span class="math inline">\(6\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020768567" value="6" data-correct="false" > El valor de <span class="math inline">\(x = -1\)</span> es una solución totalmente válida.</label>
+<label><input type="checkbox" name="q17796553046267128" value="6" data-correct="false" > El valor de <span class="math inline">\(x = -1\)</span> es una solución totalmente válida.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513020768567&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553046267128&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1574,31 +1637,31 @@ true
 <div id="pregunta-11-seleccionar-verdaderas-6" class="section level3 hasAnchor" number="10.3.3">
 <h3><span class="header-section-number">10.3.3</span> Pregunta 11 (Seleccionar Verdaderas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-11-seleccionar-verdaderas-6" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796513020843546" class="learnr-question-box">
+<div id="q17796553046343761" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad con valor absoluto: <span class="math inline">\(\mid 3x-4\mid \leq 5\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020843546" value="1" data-correct="true" > <span class="math inline">\(-\frac{1}{3} \leq x \leq 3\)</span></label>
+<label><input type="checkbox" name="q17796553046343761" value="1" data-correct="true" > <span class="math inline">\(-\frac{1}{3} \leq x \leq 3\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020843546" value="2" data-correct="true" > Los dos valores límites extremos <span class="math inline">\(-\frac{1}{3}\)</span> y <span class="math inline">\(3\)</span> están incluidos en la solución.</label>
+<label><input type="checkbox" name="q17796553046343761" value="2" data-correct="true" > Los dos valores límites extremos <span class="math inline">\(-\frac{1}{3}\)</span> y <span class="math inline">\(3\)</span> están incluidos en la solución.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020843546" value="3" data-correct="true" > El entero <span class="math inline">\(x = 0\)</span> satisface de forma correcta la desigualdad.</label>
+<label><input type="checkbox" name="q17796553046343761" value="3" data-correct="true" > El entero <span class="math inline">\(x = 0\)</span> satisface de forma correcta la desigualdad.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020843546" value="4" data-correct="false" > <span class="math inline">\(x \leq -\frac{1}{3}\)</span> o <span class="math inline">\(x \geq 3\)</span></label>
+<label><input type="checkbox" name="q17796553046343761" value="4" data-correct="false" > <span class="math inline">\(x \leq -\frac{1}{3}\)</span> o <span class="math inline">\(x \geq 3\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020843546" value="5" data-correct="false" > <span class="math inline">\(-\frac{1}{3} &lt; x &lt; 3\)</span></label>
+<label><input type="checkbox" name="q17796553046343761" value="5" data-correct="false" > <span class="math inline">\(-\frac{1}{3} &lt; x &lt; 3\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020843546" value="6" data-correct="false" > El valor de <span class="math inline">\(x = 4\)</span> pertenece al conjunto solución.</label>
+<label><input type="checkbox" name="q17796553046343761" value="6" data-correct="false" > El valor de <span class="math inline">\(x = 4\)</span> pertenece al conjunto solución.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513020843546&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553046343761&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1621,31 +1684,31 @@ true
 <div id="pregunta-12-seleccionar-falsas-5" class="section level3 hasAnchor" number="10.3.4">
 <h3><span class="header-section-number">10.3.4</span> Pregunta 12 (Seleccionar Falsas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-12-seleccionar-falsas-5" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796513020912476" class="learnr-question-box">
+<div id="q17796553046423456" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad con valor absoluto: <span class="math inline">\(\mid 2x-5\mid \geq 3\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020912476" value="1" data-correct="true" > <span class="math inline">\(1 &lt; x &lt; 4\)</span></label>
+<label><input type="checkbox" name="q17796553046423456" value="1" data-correct="true" > <span class="math inline">\(1 &lt; x &lt; 4\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020912476" value="2" data-correct="true" > La variable <span class="math inline">\(x\)</span> puede tomar el valor de <span class="math inline">\(2\)</span> dentro de la solución.</label>
+<label><input type="checkbox" name="q17796553046423456" value="2" data-correct="true" > La variable <span class="math inline">\(x\)</span> puede tomar el valor de <span class="math inline">\(2\)</span> dentro de la solución.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020912476" value="3" data-correct="true" > <span class="math inline">\(x &lt; 1\)</span> o <span class="math inline">\(x &gt; 4\)</span> (se excluyen incorrectamente los extremos cerrados)</label>
+<label><input type="checkbox" name="q17796553046423456" value="3" data-correct="true" > <span class="math inline">\(x &lt; 1\)</span> o <span class="math inline">\(x &gt; 4\)</span> (se excluyen incorrectamente los extremos cerrados)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020912476" value="4" data-correct="false" > <span class="math inline">\(x \leq 1\)</span> o <span class="math inline">\(x \geq 4\)</span></label>
+<label><input type="checkbox" name="q17796553046423456" value="4" data-correct="false" > <span class="math inline">\(x \leq 1\)</span> o <span class="math inline">\(x \geq 4\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020912476" value="5" data-correct="false" > El conjunto solución está constituido por la unión de dos intervalos infinitos semicerrados.</label>
+<label><input type="checkbox" name="q17796553046423456" value="5" data-correct="false" > El conjunto solución está constituido por la unión de dos intervalos infinitos semicerrados.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020912476" value="6" data-correct="false" > El valor de <span class="math inline">\(x = 5\)</span> es plenamente válido como solución.</label>
+<label><input type="checkbox" name="q17796553046423456" value="6" data-correct="false" > El valor de <span class="math inline">\(x = 5\)</span> es plenamente válido como solución.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513020912476&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553046423456&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1668,31 +1731,31 @@ true
 <div id="pregunta-13-seleccionar-verdaderas-5" class="section level3 hasAnchor" number="10.3.5">
 <h3><span class="header-section-number">10.3.5</span> Pregunta 13 (Seleccionar Verdaderas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-13-seleccionar-verdaderas-5" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796513020998010" class="learnr-question-box">
+<div id="q17796553046503906" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad con valor absoluto: <span class="math inline">\(\left| \dfrac{2(x+5)}{3} \right| \leq \frac{4}{5}\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020998010" value="1" data-correct="true" > <span class="math inline">\(-\frac{31}{5} \leq x \leq -\frac{19}{5}\)</span> o <span class="math inline">\(-6.2 \leq x \leq -3.8\)</span></label>
+<label><input type="checkbox" name="q17796553046503906" value="1" data-correct="true" > <span class="math inline">\(-\frac{31}{5} \leq x \leq -\frac{19}{5}\)</span> o <span class="math inline">\(-6.2 \leq x \leq -3.8\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020998010" value="2" data-correct="true" > El conjunto solución está compuesto únicamente por números reales negativos.</label>
+<label><input type="checkbox" name="q17796553046503906" value="2" data-correct="true" > El conjunto solución está compuesto únicamente por números reales negativos.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020998010" value="3" data-correct="true" > El valor entero <span class="math inline">\(x = -4\)</span> satisface plenamente la desigualdad.</label>
+<label><input type="checkbox" name="q17796553046503906" value="3" data-correct="true" > El valor entero <span class="math inline">\(x = -4\)</span> satisface plenamente la desigualdad.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020998010" value="4" data-correct="false" > <span class="math inline">\(x \leq -6.2\)</span> o <span class="math inline">\(x \geq -3.8\)</span></label>
+<label><input type="checkbox" name="q17796553046503906" value="4" data-correct="false" > <span class="math inline">\(x \leq -6.2\)</span> o <span class="math inline">\(x \geq -3.8\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020998010" value="5" data-correct="false" > <span class="math inline">\(-6.2 &lt; x &lt; -3.8\)</span></label>
+<label><input type="checkbox" name="q17796553046503906" value="5" data-correct="false" > <span class="math inline">\(-6.2 &lt; x &lt; -3.8\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513020998010" value="6" data-correct="false" > El valor entero <span class="math inline">\(x = 0\)</span> forma parte de las soluciones correctas.</label>
+<label><input type="checkbox" name="q17796553046503906" value="6" data-correct="false" > El valor entero <span class="math inline">\(x = 0\)</span> forma parte de las soluciones correctas.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513020998010&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553046503906&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1715,31 +1778,31 @@ true
 <div id="pregunta-14-seleccionar-falsas-5" class="section level3 hasAnchor" number="10.3.6">
 <h3><span class="header-section-number">10.3.6</span> Pregunta 14 (Seleccionar Falsas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-14-seleccionar-falsas-5" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796513021071665" class="learnr-question-box">
+<div id="q17796553046581320" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad con valor absoluto y fracción: <span class="math inline">\(\left| \dfrac{x + 5}{x - 3} \right| \leq 3\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021071665" value="1" data-correct="true" > <span class="math inline">\(1 \leq x \leq 7\)</span></label>
+<label><input type="checkbox" name="q17796553046581320" value="1" data-correct="true" > <span class="math inline">\(1 \leq x \leq 7\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021071665" value="2" data-correct="true" > El punto de indeterminación <span class="math inline">\(x = 3\)</span> forma parte del conjunto solución.</label>
+<label><input type="checkbox" name="q17796553046581320" value="2" data-correct="true" > El punto de indeterminación <span class="math inline">\(x = 3\)</span> forma parte del conjunto solución.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021071665" value="3" data-correct="true" > <span class="math inline">\(x &lt; 1\)</span> o <span class="math inline">\(x &gt; 7\)</span></label>
+<label><input type="checkbox" name="q17796553046581320" value="3" data-correct="true" > <span class="math inline">\(x &lt; 1\)</span> o <span class="math inline">\(x &gt; 7\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021071665" value="4" data-correct="false" > <span class="math inline">\(x \leq 1\)</span> o <span class="math inline">\(x \geq 7\)</span></label>
+<label><input type="checkbox" name="q17796553046581320" value="4" data-correct="false" > <span class="math inline">\(x \leq 1\)</span> o <span class="math inline">\(x \geq 7\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021071665" value="5" data-correct="false" > El conjunto de soluciones excluye por completo al intervalo abierto <span class="math inline">\((1, 7)\)</span>.</label>
+<label><input type="checkbox" name="q17796553046581320" value="5" data-correct="false" > El conjunto de soluciones excluye por completo al intervalo abierto <span class="math inline">\((1, 7)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021071665" value="6" data-correct="false" > El valor real <span class="math inline">\(x = 0\)</span> satisface de forma correcta la desigualdad.</label>
+<label><input type="checkbox" name="q17796553046581320" value="6" data-correct="false" > El valor real <span class="math inline">\(x = 0\)</span> satisface de forma correcta la desigualdad.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513021071665&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553046581320&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1762,31 +1825,31 @@ true
 <div id="pregunta-15-seleccionar-verdaderas-5" class="section level3 hasAnchor" number="10.3.7">
 <h3><span class="header-section-number">10.3.7</span> Pregunta 15 (Seleccionar Verdaderas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-15-seleccionar-verdaderas-5" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796513021151038" class="learnr-question-box">
+<div id="q17796553046662406" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad con valor absoluto y fracción: <span class="math inline">\(\left| \dfrac{x + 1}{2 - x} \right| \geq 2\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021151038" value="1" data-correct="true" > <span class="math inline">\(x \in [1, 2) \cup (2, 5]\)</span> o <span class="math inline">\(1 \leq x \leq 5\)</span> con <span class="math inline">\(x \neq 2\)</span></label>
+<label><input type="checkbox" name="q17796553046662406" value="1" data-correct="true" > <span class="math inline">\(x \in [1, 2) \cup (2, 5]\)</span> o <span class="math inline">\(1 \leq x \leq 5\)</span> con <span class="math inline">\(x \neq 2\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021151038" value="2" data-correct="true" > El número real <span class="math inline">\(2\)</span> debe excluirse obligatoriamente de la solución porque indefine el denominador inicial.</label>
+<label><input type="checkbox" name="q17796553046662406" value="2" data-correct="true" > El número real <span class="math inline">\(2\)</span> debe excluirse obligatoriamente de la solución porque indefine el denominador inicial.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021151038" value="3" data-correct="true" > El valor extremo <span class="math inline">\(x = 5\)</span> satisface plenamente la condición.</label>
+<label><input type="checkbox" name="q17796553046662406" value="3" data-correct="true" > El valor extremo <span class="math inline">\(x = 5\)</span> satisface plenamente la condición.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021151038" value="4" data-correct="false" > <span class="math inline">\(1 \leq x \leq 5\)</span> (olvida excluir el punto de indeterminación <span class="math inline">\(2\)</span>)</label>
+<label><input type="checkbox" name="q17796553046662406" value="4" data-correct="false" > <span class="math inline">\(1 \leq x \leq 5\)</span> (olvida excluir el punto de indeterminación <span class="math inline">\(2\)</span>)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021151038" value="5" data-correct="false" > <span class="math inline">\(x \leq 1\)</span> o <span class="math inline">\(x \geq 5\)</span></label>
+<label><input type="checkbox" name="q17796553046662406" value="5" data-correct="false" > <span class="math inline">\(x \leq 1\)</span> o <span class="math inline">\(x \geq 5\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021151038" value="6" data-correct="false" > <span class="math inline">\(x \in (1, 5)\)</span></label>
+<label><input type="checkbox" name="q17796553046662406" value="6" data-correct="false" > <span class="math inline">\(x \in (1, 5)\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513021151038&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553046662406&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1809,31 +1872,31 @@ true
 <div id="pregunta-16-seleccionar-falsas-4" class="section level3 hasAnchor" number="10.3.8">
 <h3><span class="header-section-number">10.3.8</span> Pregunta 16 (Seleccionar Falsas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-16-seleccionar-falsas-4" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796513021227201" class="learnr-question-box">
+<div id="q17796553046736248" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad con suma de valores absolutos: <span class="math inline">\(\mid 3x - 4\mid + \mid 2x - 3\mid \leq 3\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021227201" value="1" data-correct="true" > <span class="math inline">\(x \leq \frac{4}{5}\)</span> o <span class="math inline">\(x \geq 2\)</span></label>
+<label><input type="checkbox" name="q17796553046736248" value="1" data-correct="true" > <span class="math inline">\(x \leq \frac{4}{5}\)</span> o <span class="math inline">\(x \geq 2\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021227201" value="2" data-correct="true" > El conjunto solución está compuesto por dos intervalos infinitos separados.</label>
+<label><input type="checkbox" name="q17796553046736248" value="2" data-correct="true" > El conjunto solución está compuesto por dos intervalos infinitos separados.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021227201" value="3" data-correct="true" > <span class="math inline">\(\frac{4}{5} &lt; x &lt; 2\)</span> (excluye incorrectamente los extremos cerrados)</label>
+<label><input type="checkbox" name="q17796553046736248" value="3" data-correct="true" > <span class="math inline">\(\frac{4}{5} &lt; x &lt; 2\)</span> (excluye incorrectamente los extremos cerrados)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021227201" value="4" data-correct="false" > <span class="math inline">\(\frac{4}{5} \leq x \leq 2\)</span> (o <span class="math inline">\(0.8 \leq x \leq 2\)</span>)</label>
+<label><input type="checkbox" name="q17796553046736248" value="4" data-correct="false" > <span class="math inline">\(\frac{4}{5} \leq x \leq 2\)</span> (o <span class="math inline">\(0.8 \leq x \leq 2\)</span>)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021227201" value="5" data-correct="false" > La resolución requiere dividir la recta real en tres intervalos delimitados por los puntos críticos <span class="math inline">\(x = 1.33...\)</span> y <span class="math inline">\(x = 1.5\)</span>.</label>
+<label><input type="checkbox" name="q17796553046736248" value="5" data-correct="false" > La resolución requiere dividir la recta real en tres intervalos delimitados por los puntos críticos <span class="math inline">\(x = 1.33...\)</span> y <span class="math inline">\(x = 1.5\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021227201" value="6" data-correct="false" > El valor entero <span class="math inline">\(x = 1\)</span> satisface correctamente la desigualdad.</label>
+<label><input type="checkbox" name="q17796553046736248" value="6" data-correct="false" > El valor entero <span class="math inline">\(x = 1\)</span> satisface correctamente la desigualdad.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513021227201&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553046736248&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1856,31 +1919,31 @@ true
 <div id="pregunta-17-seleccionar-verdaderas-3" class="section level3 hasAnchor" number="10.3.9">
 <h3><span class="header-section-number">10.3.9</span> Pregunta 17 (Seleccionar Verdaderas)<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#pregunta-17-seleccionar-verdaderas-3" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796513021303911" class="learnr-question-box">
+<div id="q17796553046819628" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la desigualdad con resta de valores absolutos: <span class="math inline">\(\mid x - 4\mid - \mid 5 - x\mid \geq 2\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021303911" value="1" data-correct="true" > El conjunto de soluciones es el conjunto vacío (denotado por <span class="math inline">\(\emptyset\)</span> o no tiene solución).</label>
+<label><input type="checkbox" name="q17796553046819628" value="1" data-correct="true" > El conjunto de soluciones es el conjunto vacío (denotado por <span class="math inline">\(\emptyset\)</span> o no tiene solución).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021303911" value="2" data-correct="true" > La diferencia de estos valores absolutos tiene un valor máximo de <span class="math inline">\(1\)</span>, haciendo imposible que sea mayor o igual a <span class="math inline">\(2\)</span>.</label>
+<label><input type="checkbox" name="q17796553046819628" value="2" data-correct="true" > La diferencia de estos valores absolutos tiene un valor máximo de <span class="math inline">\(1\)</span>, haciendo imposible que sea mayor o igual a <span class="math inline">\(2\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021303911" value="3" data-correct="true" > Para todo número real <span class="math inline">\(x\)</span>, la expresión <span class="math inline">\(|x-4| - |x-5| \leq 1\)</span>.</label>
+<label><input type="checkbox" name="q17796553046819628" value="3" data-correct="true" > Para todo número real <span class="math inline">\(x\)</span>, la expresión <span class="math inline">\(|x-4| - |x-5| \leq 1\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021303911" value="4" data-correct="false" > <span class="math inline">\(x \geq 5.5\)</span> (error algebraico común de ignorar restricciones)</label>
+<label><input type="checkbox" name="q17796553046819628" value="4" data-correct="false" > <span class="math inline">\(x \geq 5.5\)</span> (error algebraico común de ignorar restricciones)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021303911" value="5" data-correct="false" > <span class="math inline">\(x \leq 4.5\)</span></label>
+<label><input type="checkbox" name="q17796553046819628" value="5" data-correct="false" > <span class="math inline">\(x \leq 4.5\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513021303911" value="6" data-correct="false" > El conjunto solución incluye a todos los números reales.</label>
+<label><input type="checkbox" name="q17796553046819628" value="6" data-correct="false" > El conjunto solución incluye a todos los números reales.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513021303911&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553046819628&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1905,10 +1968,10 @@ true
 <div id="resultados-de-la-evaluación-8" class="section level2 hasAnchor" number="10.4">
 <h2><span class="header-section-number">10.4</span> Resultados de la Evaluación<a href="evaluación-de-desigualdades-sin-y-con-valor-absoluto.html#resultados-de-la-evaluaci%C3%B3n-8" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Para ver el análisis de tu desempeño en esta prueba, haz clic en el siguiente botón. El sistema evaluará tus respuestas y te proporcionará recomendaciones personalizadas.</p>
-<button type="button" class="learnr-submit-btn" style="margin-bottom:1rem;" onclick="showScoreReport(&#39;sr17796513021537086&#39;, 17, &#39;&lt;strong&gt;¡Espectacular!&lt;/strong&gt; Tienes un dominio sobresaliente en la resolución y análisis de desigualdades matemáticas, tanto lineales, racionales como de valor absoluto. Has alcanzado un nivel de lógica excelente y comprendes con total claridad los límites, las restricciones de dominio y las propiedades geométricas del valor absoluto. ¡Sigue así, estás listo para desafíos mayores!&#39;, &#39;&lt;strong&gt;¡Buen intento!&lt;/strong&gt; Has aprobado la evaluación, pero aún hay conceptos de límites, inecuaciones racionales (como las restricciones en el denominador en $x \\neq 2$) y resolución de valor absoluto por casos que puedes pulir. Te sugerimos repasar con detenimiento términos clave y resolver paso a paso los ejercicios de inecuaciones cuadráticas y racionales. ¡Con un poco más de repaso lograrás la excelencia!&#39;, &#39;&lt;strong&gt;Se recomienda más práctica.&lt;/strong&gt; Has tenido varias respuestas incorrectas o preguntas sin responder. Te sugerimos repasar a fondo las propiedades del valor absoluto, cómo analizar los signos en intervalos en inecuaciones racionales (asegurando excluir las indeterminaciones) y resolver paso a paso los ejercicios iniciales de la recta real. ¡No te desanimes, con la práctica y atención al detalle dominarás las desigualdades!&#39;)">
+<button type="button" class="learnr-submit-btn" style="margin-bottom:1rem;" onclick="showScoreReport(&#39;sr17796553047001805&#39;, 17, &#39;&lt;strong&gt;¡Espectacular!&lt;/strong&gt; Tienes un dominio sobresaliente en la resolución y análisis de desigualdades matemáticas, tanto lineales, racionales como de valor absoluto. Has alcanzado un nivel de lógica excelente y comprendes con total claridad los límites, las restricciones de dominio y las propiedades geométricas del valor absoluto. ¡Sigue así, estás listo para desafíos mayores!&#39;, &#39;&lt;strong&gt;¡Buen intento!&lt;/strong&gt; Has aprobado la evaluación, pero aún hay conceptos de límites, inecuaciones racionales (como las restricciones en el denominador en $x \\neq 2$) y resolución de valor absoluto por casos que puedes pulir. Te sugerimos repasar con detenimiento términos clave y resolver paso a paso los ejercicios de inecuaciones cuadráticas y racionales. ¡Con un poco más de repaso lograrás la excelencia!&#39;, &#39;&lt;strong&gt;Se recomienda más práctica.&lt;/strong&gt; Has tenido varias respuestas incorrectas o preguntas sin responder. Te sugerimos repasar a fondo las propiedades del valor absoluto, cómo analizar los signos en intervalos en inecuaciones racionales (asegurando excluir las indeterminaciones) y resolver paso a paso los ejercicios iniciales de la recta real. ¡No te desanimes, con la práctica y atención al detalle dominarás las desigualdades!&#39;)">
 Calcular Mis Resultados
 </button>
-<div id="sr17796513021537086">
+<div id="sr17796553047001805">
 
 </div>
 

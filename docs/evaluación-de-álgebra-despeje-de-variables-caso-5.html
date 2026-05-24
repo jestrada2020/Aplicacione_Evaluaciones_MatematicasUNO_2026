@@ -306,8 +306,10 @@ function resetLearnrQuestion(qid) {
   inputs.forEach(function(input) { input.checked = false; });
   
   var feedbackDiv = box.querySelector('.learnr-feedback');
-  feedbackDiv.style.display = 'none';
-  feedbackDiv.className = 'learnr-feedback';
+  if (feedbackDiv) {
+    feedbackDiv.style.display = 'none';
+    feedbackDiv.className = 'learnr-feedback';
+  }
   
   box.querySelectorAll('.learnr-option').forEach(function(opt) {
     opt.classList.remove('correct-answer', 'wrong-answer', 'missed-answer');
@@ -318,17 +320,26 @@ function resetLearnrQuestion(qid) {
   box.removeAttribute('data-answered-correctly');
   
   var btn = box.querySelector('.learnr-submit-btn');
-  btn.style.display = 'inline-block';
-  btn.textContent = 'Enviar Respuesta';
-  btn.onclick = function() { checkLearnrQuestion(qid); };
+  if (btn) {
+    btn.style.display = 'inline-block';
+    btn.textContent = 'Enviar Respuesta';
+    btn.onclick = function() { checkLearnrQuestion(qid); };
+  }
 }
 
 function resetAllQuestions() {
+  // 1. Limpiar cada pregunta
   document.querySelectorAll('.learnr-question-box').forEach(function(box) {
     var qid = box.id;
     if (qid) resetLearnrQuestion(qid);
   });
-  // Re-mezclar opciones para nuevo orden aleatorio
+  
+  // 2. Limpiar reportes de puntaje
+  document.querySelectorAll('.score-report-box').forEach(function(report) {
+    report.remove();
+  });
+  
+  // 3. Re-mezclar opciones para nuevo orden aleatorio
   shuffleAllOptions();
 }
 
@@ -409,15 +420,23 @@ function showScoreReport(reportId, totalQuestions, recHigh, recMed, recLow) {
   reportBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Mezclar opciones aleatoriamente al cargar cada página
+/* ==========================================================================
+   Inyección del botón de reinicio y mezcla de opciones
+   Bookdown gitbook carga capítulos vía AJAX, por lo que usamos
+   múltiples estrategias para detectar cuando cambia el contenido.
+   ========================================================================== */
+
+function initLearnrPage() {
+  // 1. Mezclar opciones aleatoriamente
   shuffleAllOptions();
   
-  // Agregar botón de reinicio global si hay preguntas en la página
-  var questions = document.querySelectorAll('.learnr-question-box');
-  if (questions.length > 0) {
-    var h1 = document.querySelector('.book-body h1') || document.querySelector('h1');
-    if (h1) {
+  // 2. Agregar botón de reinicio si hay preguntas y aún no existe
+  var pageInner = document.querySelector('.page-inner') || document.body;
+  var questions = pageInner.querySelectorAll('.learnr-question-box');
+  
+  if (questions.length > 0 && !pageInner.querySelector('.learnr-reset-btn')) {
+    var h1 = pageInner.querySelector('h1');
+    if (h1 && h1.parentNode) {
       var resetBtn = document.createElement('button');
       resetBtn.type = 'button';
       resetBtn.className = 'learnr-reset-btn';
@@ -429,6 +448,50 @@ document.addEventListener('DOMContentLoaded', function() {
       };
       h1.parentNode.insertBefore(resetBtn, h1.nextSibling);
     }
+  }
+}
+
+// Estrategia 1: DOMContentLoaded
+document.addEventListener('DOMContentLoaded', initLearnrPage);
+
+// Estrategia 2: window.load (todo incluyendo imágenes está listo)
+window.addEventListener('load', initLearnrPage);
+
+// Estrategia 3: Polling periódico durante los primeros 10 segundos
+// Esto cubre la carga dinámica de gitbook y cualquier retraso en el DOM
+var learnrInitAttempts = 0;
+var learnrInitInterval = setInterval(function() {
+  initLearnrPage();
+  learnrInitAttempts++;
+  if (learnrInitAttempts >= 20) {
+    clearInterval(learnrInitInterval);
+  }
+}, 500);
+
+// Estrategia 4: MutationObserver sobre document.body (más robusto que .page-inner)
+// Si gitbook reemplaza .page-inner completamente, body sigue existiendo.
+document.addEventListener('DOMContentLoaded', function() {
+  var observer = new MutationObserver(function(mutations) {
+    // Solo re-inicializar si detectamos que aparecieron nuevas preguntas
+    // o si desapareció el botón de reinicio
+    var pageInner = document.querySelector('.page-inner') || document.body;
+    var hasQuestions = pageInner.querySelectorAll('.learnr-question-box').length > 0;
+    var hasResetBtn = !!pageInner.querySelector('.learnr-reset-btn');
+    if (hasQuestions && !hasResetBtn) {
+      setTimeout(initLearnrPage, 100);
+    }
+  });
+  
+  observer.observe(document.body, { childList: true, subtree: true });
+});
+
+// Estrategia 5: Evento nativo de gitbook SPA (si está disponible)
+// gitbook dispara 'page.change' cuando se carga un nuevo capítulo vía AJAX.
+window.addEventListener('load', function() {
+  if (typeof gitbook !== 'undefined' && gitbook.events) {
+    gitbook.events.bind('page.change', function() {
+      setTimeout(initLearnrPage, 200);
+    });
   }
 });
 </script>
@@ -1104,31 +1167,31 @@ h1, h2, h3, h4, .tutorial-title {
 <div id="pregunta-1-seleccionar-verdaderas-2" class="section level3 hasAnchor" number="5.2.1">
 <h3><span class="header-section-number">5.2.1</span> Pregunta 1 (Seleccionar Verdaderas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-1-seleccionar-verdaderas-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512957635364" class="learnr-question-box">
+<div id="q17796552983286011" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(V=\frac{1}{3}\pi h(r^{2}+R^{2}+rR)\)</span>, despeje la variable <span class="math inline">\(R\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957635364" value="1" data-correct="true" > <span class="math inline">\(R = \dfrac{-r \pm \sqrt{\dfrac{12V}{\pi h} - 3r^{2}}}{2}\)</span></label>
+<label><input type="checkbox" name="q17796552983286011" value="1" data-correct="true" > <span class="math inline">\(R = \dfrac{-r \pm \sqrt{\dfrac{12V}{\pi h} - 3r^{2}}}{2}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957635364" value="2" data-correct="true" > Físicamente, si asumimos dimensiones estrictamente positivas, el radio mayor se simplifica como <span class="math inline">\(R = \dfrac{-r + \sqrt{\dfrac{12V}{\pi h} - 3r^{2}}}{2}\)</span>.</label>
+<label><input type="checkbox" name="q17796552983286011" value="2" data-correct="true" > Físicamente, si asumimos dimensiones estrictamente positivas, el radio mayor se simplifica como <span class="math inline">\(R = \dfrac{-r + \sqrt{\dfrac{12V}{\pi h} - 3r^{2}}}{2}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957635364" value="3" data-correct="true" > La ecuación es cuadrática con respecto a <span class="math inline">\(R\)</span> y se resuelve aplicando la fórmula general sobre <span class="math inline">\(R^2 + rR + \left(r^2 - \frac{3V}{\pi h}\right) = 0\)</span>.</label>
+<label><input type="checkbox" name="q17796552983286011" value="3" data-correct="true" > La ecuación es cuadrática con respecto a <span class="math inline">\(R\)</span> y se resuelve aplicando la fórmula general sobre <span class="math inline">\(R^2 + rR + \left(r^2 - \frac{3V}{\pi h}\right) = 0\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957635364" value="4" data-correct="false" > <span class="math inline">\(R = \sqrt{\dfrac{3V}{\pi h} - r^{2} - rR}\)</span></label>
+<label><input type="checkbox" name="q17796552983286011" value="4" data-correct="false" > <span class="math inline">\(R = \sqrt{\dfrac{3V}{\pi h} - r^{2} - rR}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957635364" value="5" data-correct="false" > <span class="math inline">\(R = \dfrac{-r \pm \sqrt{3r^{2} - \dfrac{12V}{\pi h}} }{2}\)</span></label>
+<label><input type="checkbox" name="q17796552983286011" value="5" data-correct="false" > <span class="math inline">\(R = \dfrac{-r \pm \sqrt{3r^{2} - \dfrac{12V}{\pi h}} }{2}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957635364" value="6" data-correct="false" > El término independiente en la ecuación cuadrática de <span class="math inline">\(R\)</span> es <span class="math inline">\(\frac{3V}{\pi h}\)</span>.</label>
+<label><input type="checkbox" name="q17796552983286011" value="6" data-correct="false" > El término independiente en la ecuación cuadrática de <span class="math inline">\(R\)</span> es <span class="math inline">\(\frac{3V}{\pi h}\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512957635364&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552983286011&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1151,31 +1214,31 @@ true
 <div id="pregunta-2-seleccionar-falsas-2" class="section level3 hasAnchor" number="5.2.2">
 <h3><span class="header-section-number">5.2.2</span> Pregunta 2 (Seleccionar Falsas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-2-seleccionar-falsas-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512957774426" class="learnr-question-box">
+<div id="q17796552983407553" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(C=2\pi r\)</span>, despeje la variable <span class="math inline">\(r\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957774426" value="1" data-correct="true" > <span class="math inline">\(r = 2\pi C\)</span></label>
+<label><input type="checkbox" name="q17796552983407553" value="1" data-correct="true" > <span class="math inline">\(r = 2\pi C\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957774426" value="2" data-correct="true" > <span class="math inline">\(r = \dfrac{2\pi}{C}\)</span></label>
+<label><input type="checkbox" name="q17796552983407553" value="2" data-correct="true" > <span class="math inline">\(r = \dfrac{2\pi}{C}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957774426" value="3" data-correct="true" > <span class="math inline">\(r = C - 2\pi\)</span></label>
+<label><input type="checkbox" name="q17796552983407553" value="3" data-correct="true" > <span class="math inline">\(r = C - 2\pi\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957774426" value="4" data-correct="false" > <span class="math inline">\(r = \dfrac{C}{2\pi}\)</span></label>
+<label><input type="checkbox" name="q17796552983407553" value="4" data-correct="false" > <span class="math inline">\(r = \dfrac{C}{2\pi}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957774426" value="5" data-correct="false" > La variable <span class="math inline">\(r\)</span> es directamente proporcional a la circunferencia <span class="math inline">\(C\)</span> e inversamente proporcional al factor constante <span class="math inline">\(2\pi\)</span>.</label>
+<label><input type="checkbox" name="q17796552983407553" value="5" data-correct="false" > La variable <span class="math inline">\(r\)</span> es directamente proporcional a la circunferencia <span class="math inline">\(C\)</span> e inversamente proporcional al factor constante <span class="math inline">\(2\pi\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957774426" value="6" data-correct="false" > Al dividir ambos lados entre <span class="math inline">\(2\pi\)</span> se obtiene el despeje lineal directo.</label>
+<label><input type="checkbox" name="q17796552983407553" value="6" data-correct="false" > Al dividir ambos lados entre <span class="math inline">\(2\pi\)</span> se obtiene el despeje lineal directo.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512957774426&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552983407553&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1198,31 +1261,31 @@ true
 <div id="pregunta-3-seleccionar-verdaderas-2" class="section level3 hasAnchor" number="5.2.3">
 <h3><span class="header-section-number">5.2.3</span> Pregunta 3 (Seleccionar Verdaderas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-3-seleccionar-verdaderas-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512957861881" class="learnr-question-box">
+<div id="q17796552983496887" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(P=2w+2l\)</span>, despeje la variable <span class="math inline">\(l\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957861881" value="1" data-correct="true" > <span class="math inline">\(l = \dfrac{P - 2w}{2}\)</span></label>
+<label><input type="checkbox" name="q17796552983496887" value="1" data-correct="true" > <span class="math inline">\(l = \dfrac{P - 2w}{2}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957861881" value="2" data-correct="true" > <span class="math inline">\(l = \dfrac{P}{2} - w\)</span></label>
+<label><input type="checkbox" name="q17796552983496887" value="2" data-correct="true" > <span class="math inline">\(l = \dfrac{P}{2} - w\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957861881" value="3" data-correct="true" > Restando <span class="math inline">\(2w\)</span> a ambos lados se obtiene <span class="math inline">\(2l = P - 2w\)</span>, que al dividirse entre <span class="math inline">\(2\)</span> genera el despeje correcto.</label>
+<label><input type="checkbox" name="q17796552983496887" value="3" data-correct="true" > Restando <span class="math inline">\(2w\)</span> a ambos lados se obtiene <span class="math inline">\(2l = P - 2w\)</span>, que al dividirse entre <span class="math inline">\(2\)</span> genera el despeje correcto.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957861881" value="4" data-correct="false" > <span class="math inline">\(l = P - w\)</span></label>
+<label><input type="checkbox" name="q17796552983496887" value="4" data-correct="false" > <span class="math inline">\(l = P - w\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957861881" value="5" data-correct="false" > <span class="math inline">\(l = \dfrac{P + 2w}{2}\)</span></label>
+<label><input type="checkbox" name="q17796552983496887" value="5" data-correct="false" > <span class="math inline">\(l = \dfrac{P + 2w}{2}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957861881" value="6" data-correct="false" > <span class="math inline">\(l = 2P - w\)</span></label>
+<label><input type="checkbox" name="q17796552983496887" value="6" data-correct="false" > <span class="math inline">\(l = 2P - w\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512957861881&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552983496887&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1245,31 +1308,31 @@ true
 <div id="pregunta-4-seleccionar-falsas-2" class="section level3 hasAnchor" number="5.2.4">
 <h3><span class="header-section-number">5.2.4</span> Pregunta 4 (Seleccionar Falsas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-4-seleccionar-falsas-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512957949914" class="learnr-question-box">
+<div id="q17796552983585560" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(l=Prt\)</span>, despeje la variable <span class="math inline">\(t\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957949914" value="1" data-correct="true" > <span class="math inline">\(t = \dfrac{Pr}{l}\)</span></label>
+<label><input type="checkbox" name="q17796552983585560" value="1" data-correct="true" > <span class="math inline">\(t = \dfrac{Pr}{l}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957949914" value="2" data-correct="true" > <span class="math inline">\(t = l - Pr\)</span></label>
+<label><input type="checkbox" name="q17796552983585560" value="2" data-correct="true" > <span class="math inline">\(t = l - Pr\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957949914" value="3" data-correct="true" > <span class="math inline">\(t = l \cdot P \cdot r\)</span></label>
+<label><input type="checkbox" name="q17796552983585560" value="3" data-correct="true" > <span class="math inline">\(t = l \cdot P \cdot r\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957949914" value="4" data-correct="false" > <span class="math inline">\(t = \dfrac{l}{Pr}\)</span></label>
+<label><input type="checkbox" name="q17796552983585560" value="4" data-correct="false" > <span class="math inline">\(t = \dfrac{l}{Pr}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957949914" value="5" data-correct="false" > La variable <span class="math inline">\(t\)</span> es inversamente proporcional al producto de <span class="math inline">\(P\)</span> y <span class="math inline">\(r\)</span>.</label>
+<label><input type="checkbox" name="q17796552983585560" value="5" data-correct="false" > La variable <span class="math inline">\(t\)</span> es inversamente proporcional al producto de <span class="math inline">\(P\)</span> y <span class="math inline">\(r\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512957949914" value="6" data-correct="false" > Dividir la igualdad por el producto <span class="math inline">\(Pr\)</span> aísla de forma directa la variable <span class="math inline">\(t\)</span>.</label>
+<label><input type="checkbox" name="q17796552983585560" value="6" data-correct="false" > Dividir la igualdad por el producto <span class="math inline">\(Pr\)</span> aísla de forma directa la variable <span class="math inline">\(t\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512957949914&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552983585560&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1292,31 +1355,31 @@ true
 <div id="pregunta-5-seleccionar-verdaderas-2" class="section level3 hasAnchor" number="5.2.5">
 <h3><span class="header-section-number">5.2.5</span> Pregunta 5 (Seleccionar Verdaderas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-5-seleccionar-verdaderas-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512958036083" class="learnr-question-box">
+<div id="q17796552983663031" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(S=2\pi rh\)</span>, despeje la variable <span class="math inline">\(h\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958036083" value="1" data-correct="true" > <span class="math inline">\(h = \dfrac{S}{2\pi r}\)</span></label>
+<label><input type="checkbox" name="q17796552983663031" value="1" data-correct="true" > <span class="math inline">\(h = \dfrac{S}{2\pi r}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958036083" value="2" data-correct="true" > La variable <span class="math inline">\(h\)</span> es inversamente proporcional al producto del radio <span class="math inline">\(r\)</span> y de la constante <span class="math inline">\(2\pi\)</span>.</label>
+<label><input type="checkbox" name="q17796552983663031" value="2" data-correct="true" > La variable <span class="math inline">\(h\)</span> es inversamente proporcional al producto del radio <span class="math inline">\(r\)</span> y de la constante <span class="math inline">\(2\pi\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958036083" value="3" data-correct="true" > Dividiendo ambos lados de la ecuación entre el factor <span class="math inline">\(2\pi r\)</span> se aísla <span class="math inline">\(h\)</span> directamente.</label>
+<label><input type="checkbox" name="q17796552983663031" value="3" data-correct="true" > Dividiendo ambos lados de la ecuación entre el factor <span class="math inline">\(2\pi r\)</span> se aísla <span class="math inline">\(h\)</span> directamente.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958036083" value="4" data-correct="false" > <span class="math inline">\(h = S - 2\pi r\)</span></label>
+<label><input type="checkbox" name="q17796552983663031" value="4" data-correct="false" > <span class="math inline">\(h = S - 2\pi r\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958036083" value="5" data-correct="false" > <span class="math inline">\(h = \dfrac{2\pi r}{S}\)</span></label>
+<label><input type="checkbox" name="q17796552983663031" value="5" data-correct="false" > <span class="math inline">\(h = \dfrac{2\pi r}{S}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958036083" value="6" data-correct="false" > <span class="math inline">\(h = \dfrac{S \cdot r}{2\pi}\)</span></label>
+<label><input type="checkbox" name="q17796552983663031" value="6" data-correct="false" > <span class="math inline">\(h = \dfrac{S \cdot r}{2\pi}\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512958036083&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552983663031&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1339,31 +1402,31 @@ true
 <div id="pregunta-6-seleccionar-falsas-2" class="section level3 hasAnchor" number="5.2.6">
 <h3><span class="header-section-number">5.2.6</span> Pregunta 6 (Seleccionar Falsas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-6-seleccionar-falsas-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512958114761" class="learnr-question-box">
+<div id="q17796552983745686" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(A=\frac{1}{2}bh\)</span>, despeje la variable <span class="math inline">\(h\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958114761" value="1" data-correct="true" > <span class="math inline">\(h = \dfrac{A}{2b}\)</span></label>
+<label><input type="checkbox" name="q17796552983745686" value="1" data-correct="true" > <span class="math inline">\(h = \dfrac{A}{2b}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958114761" value="2" data-correct="true" > <span class="math inline">\(h = 2A - b\)</span></label>
+<label><input type="checkbox" name="q17796552983745686" value="2" data-correct="true" > <span class="math inline">\(h = 2A - b\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958114761" value="3" data-correct="true" > <span class="math inline">\(h = \dfrac{b}{2A}\)</span></label>
+<label><input type="checkbox" name="q17796552983745686" value="3" data-correct="true" > <span class="math inline">\(h = \dfrac{b}{2A}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958114761" value="4" data-correct="false" > <span class="math inline">\(h = \dfrac{2A}{b}\)</span></label>
+<label><input type="checkbox" name="q17796552983745686" value="4" data-correct="false" > <span class="math inline">\(h = \dfrac{2A}{b}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958114761" value="5" data-correct="false" > Multiplicar por <span class="math inline">\(2\)</span> a ambos lados de la ecuación genera <span class="math inline">\(2A = bh\)</span>.</label>
+<label><input type="checkbox" name="q17796552983745686" value="5" data-correct="false" > Multiplicar por <span class="math inline">\(2\)</span> a ambos lados de la ecuación genera <span class="math inline">\(2A = bh\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958114761" value="6" data-correct="false" > La altura <span class="math inline">\(h\)</span> es inversamente proporcional a la base <span class="math inline">\(b\)</span>.</label>
+<label><input type="checkbox" name="q17796552983745686" value="6" data-correct="false" > La altura <span class="math inline">\(h\)</span> es inversamente proporcional a la base <span class="math inline">\(b\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512958114761&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552983745686&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1386,31 +1449,31 @@ true
 <div id="pregunta-7-seleccionar-verdaderas-2" class="section level3 hasAnchor" number="5.2.7">
 <h3><span class="header-section-number">5.2.7</span> Pregunta 7 (Seleccionar Verdaderas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-7-seleccionar-verdaderas-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512958185532" class="learnr-question-box">
+<div id="q17796552983823789" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(V=\frac{1}{3}\pi r^{2}h\)</span>, despeje la variable <span class="math inline">\(h\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958185532" value="1" data-correct="true" > <span class="math inline">\(h = \dfrac{3V}{\pi r^{2}}\)</span></label>
+<label><input type="checkbox" name="q17796552983823789" value="1" data-correct="true" > <span class="math inline">\(h = \dfrac{3V}{\pi r^{2}}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958185532" value="2" data-correct="true" > Multiplicar la ecuación por <span class="math inline">\(3\)</span> y luego dividir entre <span class="math inline">\(\pi r^2\)</span> genera el despeje lineal correcto de <span class="math inline">\(h\)</span>.</label>
+<label><input type="checkbox" name="q17796552983823789" value="2" data-correct="true" > Multiplicar la ecuación por <span class="math inline">\(3\)</span> y luego dividir entre <span class="math inline">\(\pi r^2\)</span> genera el despeje lineal correcto de <span class="math inline">\(h\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958185532" value="3" data-correct="true" > La altura <span class="math inline">\(h\)</span> es inversamente proporcional al cuadrado del radio de la base <span class="math inline">\(r\)</span>.</label>
+<label><input type="checkbox" name="q17796552983823789" value="3" data-correct="true" > La altura <span class="math inline">\(h\)</span> es inversamente proporcional al cuadrado del radio de la base <span class="math inline">\(r\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958185532" value="4" data-correct="false" > <span class="math inline">\(h = \dfrac{V}{3\pi r^{2}}\)</span></label>
+<label><input type="checkbox" name="q17796552983823789" value="4" data-correct="false" > <span class="math inline">\(h = \dfrac{V}{3\pi r^{2}}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958185532" value="5" data-correct="false" > <span class="math inline">\(h = 3V - \pi r^{2}\)</span></label>
+<label><input type="checkbox" name="q17796552983823789" value="5" data-correct="false" > <span class="math inline">\(h = 3V - \pi r^{2}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958185532" value="6" data-correct="false" > <span class="math inline">\(h = \dfrac{\pi r^{2}}{3V}\)</span></label>
+<label><input type="checkbox" name="q17796552983823789" value="6" data-correct="false" > <span class="math inline">\(h = \dfrac{\pi r^{2}}{3V}\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512958185532&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552983823789&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1433,31 +1496,31 @@ true
 <div id="pregunta-8-seleccionar-falsas-2" class="section level3 hasAnchor" number="5.2.8">
 <h3><span class="header-section-number">5.2.8</span> Pregunta 8 (Seleccionar Falsas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-8-seleccionar-falsas-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512958262605" class="learnr-question-box">
+<div id="q17796552983895500" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(F=g\dfrac{mM}{d^{2}}\)</span>, despeje la variable <span class="math inline">\(m\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958262605" value="1" data-correct="true" > <span class="math inline">\(m = \dfrac{FgM}{d^{2}}\)</span></label>
+<label><input type="checkbox" name="q17796552983895500" value="1" data-correct="true" > <span class="math inline">\(m = \dfrac{FgM}{d^{2}}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958262605" value="2" data-correct="true" > <span class="math inline">\(m = Fd^{2} - gM\)</span></label>
+<label><input type="checkbox" name="q17796552983895500" value="2" data-correct="true" > <span class="math inline">\(m = Fd^{2} - gM\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958262605" value="3" data-correct="true" > <span class="math inline">\(m = \dfrac{gM}{Fd^{2}}\)</span></label>
+<label><input type="checkbox" name="q17796552983895500" value="3" data-correct="true" > <span class="math inline">\(m = \dfrac{gM}{Fd^{2}}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958262605" value="4" data-correct="false" > <span class="math inline">\(m = \dfrac{Fd^{2}}{gM}\)</span></label>
+<label><input type="checkbox" name="q17796552983895500" value="4" data-correct="false" > <span class="math inline">\(m = \dfrac{Fd^{2}}{gM}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958262605" value="5" data-correct="false" > Multiplicar ambos miembros por <span class="math inline">\(d^2\)</span> genera <span class="math inline">\(Fd^2 = gmM\)</span>.</label>
+<label><input type="checkbox" name="q17796552983895500" value="5" data-correct="false" > Multiplicar ambos miembros por <span class="math inline">\(d^2\)</span> genera <span class="math inline">\(Fd^2 = gmM\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958262605" value="6" data-correct="false" > La masa <span class="math inline">\(m\)</span> es directamente proporcional al cuadrado de la distancia <span class="math inline">\(d\)</span>.</label>
+<label><input type="checkbox" name="q17796552983895500" value="6" data-correct="false" > La masa <span class="math inline">\(m\)</span> es directamente proporcional al cuadrado de la distancia <span class="math inline">\(d\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512958262605&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552983895500&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1480,31 +1543,31 @@ true
 <div id="pregunta-9-seleccionar-verdaderas-2" class="section level3 hasAnchor" number="5.2.9">
 <h3><span class="header-section-number">5.2.9</span> Pregunta 9 (Seleccionar Verdaderas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-9-seleccionar-verdaderas-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512958342260" class="learnr-question-box">
+<div id="q17796552983974973" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(A=\frac{1}{2}(b_{1}+b_{2})\)</span>, despeje la variable <span class="math inline">\(b_{1}\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958342260" value="1" data-correct="true" > <span class="math inline">\(b_{1} = 2A - b_{2}\)</span></label>
+<label><input type="checkbox" name="q17796552983974973" value="1" data-correct="true" > <span class="math inline">\(b_{1} = 2A - b_{2}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958342260" value="2" data-correct="true" > Multiplicando ambos lados por <span class="math inline">\(2\)</span> se obtiene <span class="math inline">\(2A = b_1 + b_2\)</span>, facilitando el aislamiento directo.</label>
+<label><input type="checkbox" name="q17796552983974973" value="2" data-correct="true" > Multiplicando ambos lados por <span class="math inline">\(2\)</span> se obtiene <span class="math inline">\(2A = b_1 + b_2\)</span>, facilitando el aislamiento directo.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958342260" value="3" data-correct="true" > La variable <span class="math inline">\(b_1\)</span> se obtiene restando <span class="math inline">\(b_2\)</span> al doble de la constante <span class="math inline">\(A\)</span>.</label>
+<label><input type="checkbox" name="q17796552983974973" value="3" data-correct="true" > La variable <span class="math inline">\(b_1\)</span> se obtiene restando <span class="math inline">\(b_2\)</span> al doble de la constante <span class="math inline">\(A\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958342260" value="4" data-correct="false" > <span class="math inline">\(b_{1} = \dfrac{2A}{b_{2}}\)</span></label>
+<label><input type="checkbox" name="q17796552983974973" value="4" data-correct="false" > <span class="math inline">\(b_{1} = \dfrac{2A}{b_{2}}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958342260" value="5" data-correct="false" > <span class="math inline">\(b_{1} = A - \dfrac{b_{2}}{2}\)</span></label>
+<label><input type="checkbox" name="q17796552983974973" value="5" data-correct="false" > <span class="math inline">\(b_{1} = A - \dfrac{b_{2}}{2}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958342260" value="6" data-correct="false" > <span class="math inline">\(b_{1} = 2(A - b_{2})\)</span></label>
+<label><input type="checkbox" name="q17796552983974973" value="6" data-correct="false" > <span class="math inline">\(b_{1} = 2(A - b_{2})\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512958342260&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552983974973&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1527,31 +1590,31 @@ true
 <div id="pregunta-10-seleccionar-falsas-2" class="section level3 hasAnchor" number="5.2.10">
 <h3><span class="header-section-number">5.2.10</span> Pregunta 10 (Seleccionar Falsas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-10-seleccionar-falsas-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512958428310" class="learnr-question-box">
+<div id="q17796552984057940" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(A=P+Prt\)</span>, despeje la variable <span class="math inline">\(r\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958428310" value="1" data-correct="true" > <span class="math inline">\(r = \dfrac{A}{P} - Pt\)</span></label>
+<label><input type="checkbox" name="q17796552984057940" value="1" data-correct="true" > <span class="math inline">\(r = \dfrac{A}{P} - Pt\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958428310" value="2" data-correct="true" > <span class="math inline">\(r = \dfrac{A - 2P}{Pt}\)</span></label>
+<label><input type="checkbox" name="q17796552984057940" value="2" data-correct="true" > <span class="math inline">\(r = \dfrac{A - 2P}{Pt}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958428310" value="3" data-correct="true" > <span class="math inline">\(r = A - P - Pt\)</span></label>
+<label><input type="checkbox" name="q17796552984057940" value="3" data-correct="true" > <span class="math inline">\(r = A - P - Pt\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958428310" value="4" data-correct="false" > <span class="math inline">\(r = \dfrac{A - P}{Pt}\)</span></label>
+<label><input type="checkbox" name="q17796552984057940" value="4" data-correct="false" > <span class="math inline">\(r = \dfrac{A - P}{Pt}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958428310" value="5" data-correct="false" > Restando <span class="math inline">\(P\)</span> en ambos miembros se obtiene <span class="math inline">\(A - P = Prt\)</span>.</label>
+<label><input type="checkbox" name="q17796552984057940" value="5" data-correct="false" > Restando <span class="math inline">\(P\)</span> en ambos miembros se obtiene <span class="math inline">\(A - P = Prt\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958428310" value="6" data-correct="false" > Dividir la expresión <span class="math inline">\((A-P)\)</span> entre el factor <span class="math inline">\(Pt\)</span> aísla de forma correcta la tasa de interés <span class="math inline">\(r\)</span>.</label>
+<label><input type="checkbox" name="q17796552984057940" value="6" data-correct="false" > Dividir la expresión <span class="math inline">\((A-P)\)</span> entre el factor <span class="math inline">\(Pt\)</span> aísla de forma correcta la tasa de interés <span class="math inline">\(r\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512958428310&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552984057940&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1574,31 +1637,31 @@ true
 <div id="pregunta-11-seleccionar-verdaderas-2" class="section level3 hasAnchor" number="5.2.11">
 <h3><span class="header-section-number">5.2.11</span> Pregunta 11 (Seleccionar Verdaderas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-11-seleccionar-verdaderas-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512958504414" class="learnr-question-box">
+<div id="q17796552984131768" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(L^{2}=b\left({1 - \frac{v^{2}}{c^{2}}}\right)\)</span>, despeje la variable <span class="math inline">\(v\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958504414" value="1" data-correct="true" > <span class="math inline">\(v = \pm c\sqrt{1 - \dfrac{L^{2}}{b}}\)</span></label>
+<label><input type="checkbox" name="q17796552984131768" value="1" data-correct="true" > <span class="math inline">\(v = \pm c\sqrt{1 - \dfrac{L^{2}}{b}}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958504414" value="2" data-correct="true" > El primer paso algebraico consiste en dividir ambos lados entre <span class="math inline">\(b\)</span> dando <span class="math inline">\(\frac{L^2}{b} = 1 - \frac{v^2}{c^2}\)</span>.</label>
+<label><input type="checkbox" name="q17796552984131768" value="2" data-correct="true" > El primer paso algebraico consiste en dividir ambos lados entre <span class="math inline">\(b\)</span> dando <span class="math inline">\(\frac{L^2}{b} = 1 - \frac{v^2}{c^2}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958504414" value="3" data-correct="true" > Extraer la raíz cuadrada al final genera dos soluciones válidas dadas por el signo <span class="math inline">\(\pm\)</span>.</label>
+<label><input type="checkbox" name="q17796552984131768" value="3" data-correct="true" > Extraer la raíz cuadrada al final genera dos soluciones válidas dadas por el signo <span class="math inline">\(\pm\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958504414" value="4" data-correct="false" > <span class="math inline">\(v = c\left(1 - \dfrac{L^{2}}{b}\right)\)</span></label>
+<label><input type="checkbox" name="q17796552984131768" value="4" data-correct="false" > <span class="math inline">\(v = c\left(1 - \dfrac{L^{2}}{b}\right)\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958504414" value="5" data-correct="false" > <span class="math inline">\(v = \pm c\sqrt{\dfrac{L^{2}}{b} - 1}\)</span></label>
+<label><input type="checkbox" name="q17796552984131768" value="5" data-correct="false" > <span class="math inline">\(v = \pm c\sqrt{\dfrac{L^{2}}{b} - 1}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958504414" value="6" data-correct="false" > <span class="math inline">\(v = \pm \sqrt{c^{2} - \dfrac{L^{2}}{b}}\)</span></label>
+<label><input type="checkbox" name="q17796552984131768" value="6" data-correct="false" > <span class="math inline">\(v = \pm \sqrt{c^{2} - \dfrac{L^{2}}{b}}\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512958504414&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552984131768&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1625,31 +1688,31 @@ true
 <div id="pregunta-12-seleccionar-falsas-2" class="section level3 hasAnchor" number="5.3.1">
 <h3><span class="header-section-number">5.3.1</span> Pregunta 12 (Seleccionar Falsas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-12-seleccionar-falsas-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512958625647" class="learnr-question-box">
+<div id="q17796552984268598" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(s=\frac{1}{2}gt^{2}+v_{0}t\)</span>, despeje la variable <span class="math inline">\(t\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958625647" value="1" data-correct="true" > <span class="math inline">\(t = \sqrt{\dfrac{2s}{g} - v_{0}}\)</span></label>
+<label><input type="checkbox" name="q17796552984268598" value="1" data-correct="true" > <span class="math inline">\(t = \sqrt{\dfrac{2s}{g} - v_{0}}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958625647" value="2" data-correct="true" > <span class="math inline">\(t = \dfrac{s}{\frac{1}{2}gt + v_{0}}\)</span> (no es un despeje completo al conservar la variable en el lado derecho)</label>
+<label><input type="checkbox" name="q17796552984268598" value="2" data-correct="true" > <span class="math inline">\(t = \dfrac{s}{\frac{1}{2}gt + v_{0}}\)</span> (no es un despeje completo al conservar la variable en el lado derecho)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958625647" value="3" data-correct="true" > <span class="math inline">\(t = \dfrac{-v_{0} \pm \sqrt{v_{0}^{2} - 2gs}}{g}\)</span></label>
+<label><input type="checkbox" name="q17796552984268598" value="3" data-correct="true" > <span class="math inline">\(t = \dfrac{-v_{0} \pm \sqrt{v_{0}^{2} - 2gs}}{g}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958625647" value="4" data-correct="false" > <span class="math inline">\(t = \dfrac{-v_{0} \pm \sqrt{v_{0}^{2} + 2gs}}{g}\)</span></label>
+<label><input type="checkbox" name="q17796552984268598" value="4" data-correct="false" > <span class="math inline">\(t = \dfrac{-v_{0} \pm \sqrt{v_{0}^{2} + 2gs}}{g}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958625647" value="5" data-correct="false" > Multiplicar toda la ecuación por <span class="math inline">\(2\)</span> genera la cuadrática ordenada <span class="math inline">\(gt^2 + 2v_0t - 2s = 0\)</span>.</label>
+<label><input type="checkbox" name="q17796552984268598" value="5" data-correct="false" > Multiplicar toda la ecuación por <span class="math inline">\(2\)</span> genera la cuadrática ordenada <span class="math inline">\(gt^2 + 2v_0t - 2s = 0\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958625647" value="6" data-correct="false" > Físicamente, si consideramos tiempo positivo (<span class="math inline">\(t &gt; 0\)</span>), se descarta la raíz negativa resultando en <span class="math inline">\(t = \dfrac{-v_{0} + \sqrt{v_{0}^{2} + 2gs}}{g}\)</span>.</label>
+<label><input type="checkbox" name="q17796552984268598" value="6" data-correct="false" > Físicamente, si consideramos tiempo positivo (<span class="math inline">\(t &gt; 0\)</span>), se descarta la raíz negativa resultando en <span class="math inline">\(t = \dfrac{-v_{0} + \sqrt{v_{0}^{2} + 2gs}}{g}\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512958625647&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552984268598&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1672,31 +1735,31 @@ true
 <div id="pregunta-13-seleccionar-verdaderas-2" class="section level3 hasAnchor" number="5.3.2">
 <h3><span class="header-section-number">5.3.2</span> Pregunta 13 (Seleccionar Verdaderas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-13-seleccionar-verdaderas-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512958713162" class="learnr-question-box">
+<div id="q17796552984348448" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(S=\dfrac{p}{q+p(1-q)}\)</span>, despeje la variable <span class="math inline">\(q\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958713162" value="1" data-correct="true" > <span class="math inline">\(q = \dfrac{p(1 - S)}{S(1 - p)}\)</span></label>
+<label><input type="checkbox" name="q17796552984348448" value="1" data-correct="true" > <span class="math inline">\(q = \dfrac{p(1 - S)}{S(1 - p)}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958713162" value="2" data-correct="true" > Multiplicando la ecuación por el denominador complejo se obtiene <span class="math inline">\(S(q + p - pq) = p\)</span>.</label>
+<label><input type="checkbox" name="q17796552984348448" value="2" data-correct="true" > Multiplicando la ecuación por el denominador complejo se obtiene <span class="math inline">\(S(q + p - pq) = p\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958713162" value="3" data-correct="true" > Agrupando los términos con <span class="math inline">\(q\)</span> en un lado obtenemos <span class="math inline">\(Sq(1-p) = p(1-S)\)</span> antes de aislar la variable.</label>
+<label><input type="checkbox" name="q17796552984348448" value="3" data-correct="true" > Agrupando los términos con <span class="math inline">\(q\)</span> en un lado obtenemos <span class="math inline">\(Sq(1-p) = p(1-S)\)</span> antes de aislar la variable.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958713162" value="4" data-correct="false" > <span class="math inline">\(q = \dfrac{p - S}{S - p}\)</span></label>
+<label><input type="checkbox" name="q17796552984348448" value="4" data-correct="false" > <span class="math inline">\(q = \dfrac{p - S}{S - p}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958713162" value="5" data-correct="false" > <span class="math inline">\(q = \dfrac{S(1 - p)}{p(1 - S)}\)</span></label>
+<label><input type="checkbox" name="q17796552984348448" value="5" data-correct="false" > <span class="math inline">\(q = \dfrac{S(1 - p)}{p(1 - S)}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958713162" value="6" data-correct="false" > <span class="math inline">\(q = \dfrac{p(S - 1)}{S(p - 1)}\)</span> (omitiendo la simplificación correcta de los signos)</label>
+<label><input type="checkbox" name="q17796552984348448" value="6" data-correct="false" > <span class="math inline">\(q = \dfrac{p(S - 1)}{S(p - 1)}\)</span> (omitiendo la simplificación correcta de los signos)</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512958713162&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552984348448&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1719,31 +1782,31 @@ true
 <div id="pregunta-14-seleccionar-falsas-2" class="section level3 hasAnchor" number="5.3.3">
 <h3><span class="header-section-number">5.3.3</span> Pregunta 14 (Seleccionar Falsas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-14-seleccionar-falsas-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512958793986" class="learnr-question-box">
+<div id="q17796552984422045" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(A=2\pi r(r+h)\)</span>, despeje la variable <span class="math inline">\(r\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958793986" value="1" data-correct="true" > <span class="math inline">\(r = \sqrt{\dfrac{A}{2\pi} - rh}\)</span></label>
+<label><input type="checkbox" name="q17796552984422045" value="1" data-correct="true" > <span class="math inline">\(r = \sqrt{\dfrac{A}{2\pi} - rh}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958793986" value="2" data-correct="true" > <span class="math inline">\(r = \dfrac{A}{2\pi(r+h)}\)</span> (no representa un despeje al contener la variable buscada en el miembro derecho)</label>
+<label><input type="checkbox" name="q17796552984422045" value="2" data-correct="true" > <span class="math inline">\(r = \dfrac{A}{2\pi(r+h)}\)</span> (no representa un despeje al contener la variable buscada en el miembro derecho)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958793986" value="3" data-correct="true" > <span class="math inline">\(r = \dfrac{-\pi h \pm \sqrt{\pi^{2}h^{2} - 2\pi A}}{2\pi}\)</span></label>
+<label><input type="checkbox" name="q17796552984422045" value="3" data-correct="true" > <span class="math inline">\(r = \dfrac{-\pi h \pm \sqrt{\pi^{2}h^{2} - 2\pi A}}{2\pi}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958793986" value="4" data-correct="false" > <span class="math inline">\(r = \dfrac{-\pi h \pm \sqrt{\pi^{2}h^{2} + 2\pi A}}{2\pi}\)</span></label>
+<label><input type="checkbox" name="q17796552984422045" value="4" data-correct="false" > <span class="math inline">\(r = \dfrac{-\pi h \pm \sqrt{\pi^{2}h^{2} + 2\pi A}}{2\pi}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958793986" value="5" data-correct="false" > La ecuación cuadrática resultante al distribuir los términos es <span class="math inline">\(2\pi r^2 + 2\pi rh - A = 0\)</span>.</label>
+<label><input type="checkbox" name="q17796552984422045" value="5" data-correct="false" > La ecuación cuadrática resultante al distribuir los términos es <span class="math inline">\(2\pi r^2 + 2\pi rh - A = 0\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958793986" value="6" data-correct="false" > El discriminante al aplicar la fórmula general simplificada es <span class="math inline">\(4\pi^2h^2 + 8\pi A\)</span>.</label>
+<label><input type="checkbox" name="q17796552984422045" value="6" data-correct="false" > El discriminante al aplicar la fórmula general simplificada es <span class="math inline">\(4\pi^2h^2 + 8\pi A\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512958793986&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552984422045&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1766,31 +1829,31 @@ true
 <div id="pregunta-15-seleccionar-verdaderas-1" class="section level3 hasAnchor" number="5.3.4">
 <h3><span class="header-section-number">5.3.4</span> Pregunta 15 (Seleccionar Verdaderas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-15-seleccionar-verdaderas-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512958889705" class="learnr-question-box">
+<div id="q17796552984502770" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(P+N=\dfrac{C+2}{C}\)</span>, despeje la variable <span class="math inline">\(C\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958889705" value="1" data-correct="true" > <span class="math inline">\(C = \dfrac{2}{P + N - 1}\)</span></label>
+<label><input type="checkbox" name="q17796552984502770" value="1" data-correct="true" > <span class="math inline">\(C = \dfrac{2}{P + N - 1}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958889705" value="2" data-correct="true" > Multiplicar por <span class="math inline">\(C\)</span> da <span class="math inline">\((P+N)C = C + 2\)</span>, que al agrupar los términos de <span class="math inline">\(C\)</span> resulta en <span class="math inline">\(C(P+N-1) = 2\)</span>.</label>
+<label><input type="checkbox" name="q17796552984502770" value="2" data-correct="true" > Multiplicar por <span class="math inline">\(C\)</span> da <span class="math inline">\((P+N)C = C + 2\)</span>, que al agrupar los términos de <span class="math inline">\(C\)</span> resulta en <span class="math inline">\(C(P+N-1) = 2\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958889705" value="3" data-correct="true" > El valor de <span class="math inline">\(C\)</span> es inversamente proporcional a la expresión <span class="math inline">\(P+N-1\)</span>.</label>
+<label><input type="checkbox" name="q17796552984502770" value="3" data-correct="true" > El valor de <span class="math inline">\(C\)</span> es inversamente proporcional a la expresión <span class="math inline">\(P+N-1\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958889705" value="4" data-correct="false" > <span class="math inline">\(C = \dfrac{2}{P + N}\)</span></label>
+<label><input type="checkbox" name="q17796552984502770" value="4" data-correct="false" > <span class="math inline">\(C = \dfrac{2}{P + N}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958889705" value="5" data-correct="false" > <span class="math inline">\(C = \dfrac{P + N - 1}{2}\)</span></label>
+<label><input type="checkbox" name="q17796552984502770" value="5" data-correct="false" > <span class="math inline">\(C = \dfrac{P + N - 1}{2}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958889705" value="6" data-correct="false" > <span class="math inline">\(C = 2(P + N - 1)\)</span></label>
+<label><input type="checkbox" name="q17796552984502770" value="6" data-correct="false" > <span class="math inline">\(C = 2(P + N - 1)\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512958889705&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552984502770&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1813,31 +1876,31 @@ true
 <div id="pregunta-16-seleccionar-falsas-1" class="section level3 hasAnchor" number="5.3.5">
 <h3><span class="header-section-number">5.3.5</span> Pregunta 16 (Seleccionar Falsas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-16-seleccionar-falsas-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512958963663" class="learnr-question-box">
+<div id="q17796552984596385" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(A=B\sqrt[3]{\dfrac{C}{D}}-E\)</span>, despeje la variable <span class="math inline">\(D\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958963663" value="1" data-correct="true" > <span class="math inline">\(D = \dfrac{C(A+E)^{3}}{B^{3}}\)</span></label>
+<label><input type="checkbox" name="q17796552984596385" value="1" data-correct="true" > <span class="math inline">\(D = \dfrac{C(A+E)^{3}}{B^{3}}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958963663" value="2" data-correct="true" > <span class="math inline">\(D = \dfrac{CB}{A+E}\)</span></label>
+<label><input type="checkbox" name="q17796552984596385" value="2" data-correct="true" > <span class="math inline">\(D = \dfrac{CB}{A+E}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958963663" value="3" data-correct="true" > <span class="math inline">\(D = \dfrac{CB^{3}}{A^{3} + E^{3}}\)</span> (incorrecto desarrollo algebraico de la suma de potencias)</label>
+<label><input type="checkbox" name="q17796552984596385" value="3" data-correct="true" > <span class="math inline">\(D = \dfrac{CB^{3}}{A^{3} + E^{3}}\)</span> (incorrecto desarrollo algebraico de la suma de potencias)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958963663" value="4" data-correct="false" > <span class="math inline">\(D = \dfrac{CB^{3}}{(A+E)^{3}}\)</span></label>
+<label><input type="checkbox" name="q17796552984596385" value="4" data-correct="false" > <span class="math inline">\(D = \dfrac{CB^{3}}{(A+E)^{3}}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958963663" value="5" data-correct="false" > Sumando <span class="math inline">\(E\)</span> y dividiendo entre <span class="math inline">\(B\)</span> obtenemos la igualdad intermedia <span class="math inline">\(\frac{A+E}{B} = \sqrt[3]{\frac{C}{D}}\)</span>.</label>
+<label><input type="checkbox" name="q17796552984596385" value="5" data-correct="false" > Sumando <span class="math inline">\(E\)</span> y dividiendo entre <span class="math inline">\(B\)</span> obtenemos la igualdad intermedia <span class="math inline">\(\frac{A+E}{B} = \sqrt[3]{\frac{C}{D}}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512958963663" value="6" data-correct="false" > Elevar al cubo ambos miembros de la ecuación elimina la raíz cúbica resultando en <span class="math inline">\(\left(\frac{A+E}{B}\right)^3 = \frac{C}{D}\)</span>.</label>
+<label><input type="checkbox" name="q17796552984596385" value="6" data-correct="false" > Elevar al cubo ambos miembros de la ecuación elimina la raíz cúbica resultando en <span class="math inline">\(\left(\frac{A+E}{B}\right)^3 = \frac{C}{D}\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512958963663&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552984596385&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1860,31 +1923,31 @@ true
 <div id="pregunta-17-seleccionar-verdaderas-1" class="section level3 hasAnchor" number="5.3.6">
 <h3><span class="header-section-number">5.3.6</span> Pregunta 17 (Seleccionar Verdaderas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-17-seleccionar-verdaderas-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512959057050" class="learnr-question-box">
+<div id="q17796552984688938" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(F=\dfrac{\pi PR^{4}}{8VL}\)</span>, despeje la variable <span class="math inline">\(R\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959057050" value="1" data-correct="true" > <span class="math inline">\(R = \pm \left(\dfrac{8VLF}{\pi P}\right)^{1/4}\)</span></label>
+<label><input type="checkbox" name="q17796552984688938" value="1" data-correct="true" > <span class="math inline">\(R = \pm \left(\dfrac{8VLF}{\pi P}\right)^{1/4}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959057050" value="2" data-correct="true" > Aislando el término <span class="math inline">\(R^4\)</span> obtenemos <span class="math inline">\(R^4 = \dfrac{8VLF}{\pi P}\)</span> antes de aplicar la raíz cuarta.</label>
+<label><input type="checkbox" name="q17796552984688938" value="2" data-correct="true" > Aislando el término <span class="math inline">\(R^4\)</span> obtenemos <span class="math inline">\(R^4 = \dfrac{8VLF}{\pi P}\)</span> antes de aplicar la raíz cuarta.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959057050" value="3" data-correct="true" > Físicamente, si consideramos dimensiones de radio estrictamente positivas, se tiene <span class="math inline">\(R = \left(\dfrac{8VLF}{\pi P}\right)^{1/4}\)</span>.</label>
+<label><input type="checkbox" name="q17796552984688938" value="3" data-correct="true" > Físicamente, si consideramos dimensiones de radio estrictamente positivas, se tiene <span class="math inline">\(R = \left(\dfrac{8VLF}{\pi P}\right)^{1/4}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959057050" value="4" data-correct="false" > <span class="math inline">\(R = \left(\dfrac{\pi P}{8VLF}\right)^{4}\)</span></label>
+<label><input type="checkbox" name="q17796552984688938" value="4" data-correct="false" > <span class="math inline">\(R = \left(\dfrac{\pi P}{8VLF}\right)^{4}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959057050" value="5" data-correct="false" > <span class="math inline">\(R = \pm \dfrac{2VLF}{\pi P}\)</span></label>
+<label><input type="checkbox" name="q17796552984688938" value="5" data-correct="false" > <span class="math inline">\(R = \pm \dfrac{2VLF}{\pi P}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959057050" value="6" data-correct="false" > <span class="math inline">\(R = \pm \left(\dfrac{8VLF - \pi P}{4}\right)\)</span></label>
+<label><input type="checkbox" name="q17796552984688938" value="6" data-correct="false" > <span class="math inline">\(R = \pm \left(\dfrac{8VLF - \pi P}{4}\right)\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512959057050&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552984688938&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1907,31 +1970,31 @@ true
 <div id="pregunta-18-seleccionar-falsas-1" class="section level3 hasAnchor" number="5.3.7">
 <h3><span class="header-section-number">5.3.7</span> Pregunta 18 (Seleccionar Falsas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-18-seleccionar-falsas-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512959126530" class="learnr-question-box">
+<div id="q17796552984751269" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(V=V_{max}\left(1-\left(\dfrac{r}{r_0}\right)^2 \right)\)</span>, despeje la variable <span class="math inline">\(r\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959126530" value="1" data-correct="true" > <span class="math inline">\(r = \pm r_{0} \left(1 - \sqrt{\dfrac{V}{V_{max}}}\right)\)</span></label>
+<label><input type="checkbox" name="q17796552984751269" value="1" data-correct="true" > <span class="math inline">\(r = \pm r_{0} \left(1 - \sqrt{\dfrac{V}{V_{max}}}\right)\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959126530" value="2" data-correct="true" > <span class="math inline">\(r = \pm r_{0}\sqrt{1 - V_{max}}\)</span></label>
+<label><input type="checkbox" name="q17796552984751269" value="2" data-correct="true" > <span class="math inline">\(r = \pm r_{0}\sqrt{1 - V_{max}}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959126530" value="3" data-correct="true" > <span class="math inline">\(r = r_{0} - \sqrt{1 - \dfrac{V}{V_{max}}}\)</span></label>
+<label><input type="checkbox" name="q17796552984751269" value="3" data-correct="true" > <span class="math inline">\(r = r_{0} - \sqrt{1 - \dfrac{V}{V_{max}}}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959126530" value="4" data-correct="false" > <span class="math inline">\(r = \pm r_{0}\sqrt{1 - \dfrac{V}{V_{max}}}\)</span></label>
+<label><input type="checkbox" name="q17796552984751269" value="4" data-correct="false" > <span class="math inline">\(r = \pm r_{0}\sqrt{1 - \dfrac{V}{V_{max}}}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959126530" value="5" data-correct="false" > Dividiendo entre <span class="math inline">\(V_{max}\)</span> y reordenando términos se obtiene <span class="math inline">\(\left(\frac{r}{r_0}\right)^2 = 1 - \frac{V}{V_{max}}\)</span>.</label>
+<label><input type="checkbox" name="q17796552984751269" value="5" data-correct="false" > Dividiendo entre <span class="math inline">\(V_{max}\)</span> y reordenando términos se obtiene <span class="math inline">\(\left(\frac{r}{r_0}\right)^2 = 1 - \frac{V}{V_{max}}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959126530" value="6" data-correct="false" > Multiplicar por <span class="math inline">\(r_0^2\)</span> y extraer la raíz genera el término con el factor multiplicativo <span class="math inline">\(r_0\)</span> libre fuera de la raíz.</label>
+<label><input type="checkbox" name="q17796552984751269" value="6" data-correct="false" > Multiplicar por <span class="math inline">\(r_0^2\)</span> y extraer la raíz genera el término con el factor multiplicativo <span class="math inline">\(r_0\)</span> libre fuera de la raíz.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512959126530&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552984751269&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1954,31 +2017,31 @@ true
 <div id="pregunta-19-seleccionar-verdaderas-1" class="section level3 hasAnchor" number="5.3.8">
 <h3><span class="header-section-number">5.3.8</span> Pregunta 19 (Seleccionar Verdaderas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-19-seleccionar-verdaderas-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512959209156" class="learnr-question-box">
+<div id="q17796552984836704" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(W=b\left(\dfrac{a}{a+x}\right)^2\)</span>, despeje la variable <span class="math inline">\(x\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959209156" value="1" data-correct="true" > <span class="math inline">\(x = a\left(\pm \sqrt{\dfrac{b}{W}} - 1\right)\)</span></label>
+<label><input type="checkbox" name="q17796552984836704" value="1" data-correct="true" > <span class="math inline">\(x = a\left(\pm \sqrt{\dfrac{b}{W}} - 1\right)\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959209156" value="2" data-correct="true" > Considerando la raíz positiva, el despeje simplificado se expresa como <span class="math inline">\(x = a\left(\sqrt{\dfrac{b}{W}} - 1\right)\)</span>.</label>
+<label><input type="checkbox" name="q17796552984836704" value="2" data-correct="true" > Considerando la raíz positiva, el despeje simplificado se expresa como <span class="math inline">\(x = a\left(\sqrt{\dfrac{b}{W}} - 1\right)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959209156" value="3" data-correct="true" > El primer paso consiste en aislar la potencia dividiendo entre <span class="math inline">\(b\)</span>, lo que da <span class="math inline">\(\frac{W}{b} = \left(\frac{a}{a+x}\right)^2\)</span>.</label>
+<label><input type="checkbox" name="q17796552984836704" value="3" data-correct="true" > El primer paso consiste en aislar la potencia dividiendo entre <span class="math inline">\(b\)</span>, lo que da <span class="math inline">\(\frac{W}{b} = \left(\frac{a}{a+x}\right)^2\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959209156" value="4" data-correct="false" > <span class="math inline">\(x = a\left(\dfrac{b}{W} - 1\right)\)</span></label>
+<label><input type="checkbox" name="q17796552984836704" value="4" data-correct="false" > <span class="math inline">\(x = a\left(\dfrac{b}{W} - 1\right)\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959209156" value="5" data-correct="false" > <span class="math inline">\(x = \pm \sqrt{\dfrac{ab}{W}} - a\)</span></label>
+<label><input type="checkbox" name="q17796552984836704" value="5" data-correct="false" > <span class="math inline">\(x = \pm \sqrt{\dfrac{ab}{W}} - a\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959209156" value="6" data-correct="false" > <span class="math inline">\(x = a\left(\pm \sqrt{\dfrac{W}{b}} + 1\right)\)</span></label>
+<label><input type="checkbox" name="q17796552984836704" value="6" data-correct="false" > <span class="math inline">\(x = a\left(\pm \sqrt{\dfrac{W}{b}} + 1\right)\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512959209156&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552984836704&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2001,31 +2064,31 @@ true
 <div id="pregunta-20-seleccionar-falsas-1" class="section level3 hasAnchor" number="5.3.9">
 <h3><span class="header-section-number">5.3.9</span> Pregunta 20 (Seleccionar Falsas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-20-seleccionar-falsas-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512959283215" class="learnr-question-box">
+<div id="q17796552984915167" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(W=b\left(\dfrac{a}{a+x}\right)^2\)</span>, despeje la variable <span class="math inline">\(a\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959283215" value="1" data-correct="true" > <span class="math inline">\(a = \dfrac{x}{\sqrt{\dfrac{W}{b}} - 1}\)</span></label>
+<label><input type="checkbox" name="q17796552984915167" value="1" data-correct="true" > <span class="math inline">\(a = \dfrac{x}{\sqrt{\dfrac{W}{b}} - 1}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959283215" value="2" data-correct="true" > <span class="math inline">\(a = \dfrac{x\sqrt{W}}{\sqrt{W} - \sqrt{b}}\)</span></label>
+<label><input type="checkbox" name="q17796552984915167" value="2" data-correct="true" > <span class="math inline">\(a = \dfrac{x\sqrt{W}}{\sqrt{W} - \sqrt{b}}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959283215" value="3" data-correct="true" > <span class="math inline">\(a = \dfrac{x(W-b)}{b}\)</span></label>
+<label><input type="checkbox" name="q17796552984915167" value="3" data-correct="true" > <span class="math inline">\(a = \dfrac{x(W-b)}{b}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959283215" value="4" data-correct="false" > <span class="math inline">\(a = \dfrac{x\sqrt{W}}{\sqrt{b} - \sqrt{W}}\)</span></label>
+<label><input type="checkbox" name="q17796552984915167" value="4" data-correct="false" > <span class="math inline">\(a = \dfrac{x\sqrt{W}}{\sqrt{b} - \sqrt{W}}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959283215" value="5" data-correct="false" > Dividiendo entre <span class="math inline">\(b\)</span> y extrayendo la raíz positiva obtenemos <span class="math inline">\(\sqrt{\frac{W}{b}} = \frac{a}{a+x}\)</span>.</label>
+<label><input type="checkbox" name="q17796552984915167" value="5" data-correct="false" > Dividiendo entre <span class="math inline">\(b\)</span> y extrayendo la raíz positiva obtenemos <span class="math inline">\(\sqrt{\frac{W}{b}} = \frac{a}{a+x}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959283215" value="6" data-correct="false" > Es equivalente a la expresión simplificada <span class="math inline">\(a = \dfrac{x}{\sqrt{\dfrac{b}{W}} - 1}\)</span>.</label>
+<label><input type="checkbox" name="q17796552984915167" value="6" data-correct="false" > Es equivalente a la expresión simplificada <span class="math inline">\(a = \dfrac{x}{\sqrt{\dfrac{b}{W}} - 1}\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512959283215&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552984915167&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2048,31 +2111,31 @@ true
 <div id="pregunta-21-seleccionar-verdaderas" class="section level3 hasAnchor" number="5.3.10">
 <h3><span class="header-section-number">5.3.10</span> Pregunta 21 (Seleccionar Verdaderas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-21-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512959364754" class="learnr-question-box">
+<div id="q17796552984998727" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(d=2\pi\left(\dfrac{vR}{0.52\cos(\theta)}\right)^{1/3}\)</span>, despeje la variable <span class="math inline">\(v\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959364754" value="1" data-correct="true" > <span class="math inline">\(v = \dfrac{0.52\cos(\theta)}{R} \left(\dfrac{d}{2\pi}\right)^{3}\)</span></label>
+<label><input type="checkbox" name="q17796552984998727" value="1" data-correct="true" > <span class="math inline">\(v = \dfrac{0.52\cos(\theta)}{R} \left(\dfrac{d}{2\pi}\right)^{3}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959364754" value="2" data-correct="true" > Es equivalente a la expresión completamente simplificada <span class="math inline">\(v = \dfrac{0.065 d^{3} \cos(\theta)}{\pi^{3} R}\)</span>.</label>
+<label><input type="checkbox" name="q17796552984998727" value="2" data-correct="true" > Es equivalente a la expresión completamente simplificada <span class="math inline">\(v = \dfrac{0.065 d^{3} \cos(\theta)}{\pi^{3} R}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959364754" value="3" data-correct="true" > El primer paso requiere dividir entre <span class="math inline">\(2\pi\)</span> y luego elevar al cubo a ambos lados para eliminar el exponente fraccionario <span class="math inline">\(1/3\)</span>.</label>
+<label><input type="checkbox" name="q17796552984998727" value="3" data-correct="true" > El primer paso requiere dividir entre <span class="math inline">\(2\pi\)</span> y luego elevar al cubo a ambos lados para eliminar el exponente fraccionario <span class="math inline">\(1/3\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959364754" value="4" data-correct="false" > <span class="math inline">\(v = \dfrac{0.52 d^{3}\cos(\theta)}{2\pi R}\)</span></label>
+<label><input type="checkbox" name="q17796552984998727" value="4" data-correct="false" > <span class="math inline">\(v = \dfrac{0.52 d^{3}\cos(\theta)}{2\pi R}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959364754" value="5" data-correct="false" > <span class="math inline">\(v = \left(\dfrac{d}{4\pi^{3}}\right) \cdot \dfrac{0.52\cos(\theta)}{R}\)</span></label>
+<label><input type="checkbox" name="q17796552984998727" value="5" data-correct="false" > <span class="math inline">\(v = \left(\dfrac{d}{4\pi^{3}}\right) \cdot \dfrac{0.52\cos(\theta)}{R}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959364754" value="6" data-correct="false" > El término <span class="math inline">\(\pi^3\)</span> queda en el numerador de la expresión simplificada.</label>
+<label><input type="checkbox" name="q17796552984998727" value="6" data-correct="false" > El término <span class="math inline">\(\pi^3\)</span> queda en el numerador de la expresión simplificada.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512959364754&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552984998727&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2095,31 +2158,31 @@ true
 <div id="pregunta-22-seleccionar-falsas" class="section level3 hasAnchor" number="5.3.11">
 <h3><span class="header-section-number">5.3.11</span> Pregunta 22 (Seleccionar Falsas)<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#pregunta-22-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512959442558" class="learnr-question-box">
+<div id="q17796552985064478" class="learnr-question-box">
 <div class="learnr-question-text">
 Dada la ecuación <span class="math inline">\(d=2\pi\left(\dfrac{vR}{0.52\cos(\theta)}\right)^{1/3}\)</span>, despeje la variable <span class="math inline">\(\theta\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959442558" value="1" data-correct="true" > <span class="math inline">\(\theta = \arccos\left(\dfrac{0.52 d^{3}}{8\pi^{3} vR}\right)\)</span></label>
+<label><input type="checkbox" name="q17796552985064478" value="1" data-correct="true" > <span class="math inline">\(\theta = \arccos\left(\dfrac{0.52 d^{3}}{8\pi^{3} vR}\right)\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959442558" value="2" data-correct="true" > <span class="math inline">\(\theta = \cos\left(\dfrac{8\pi^{3} vR}{0.52 d^{3}}\right)\)</span> (incorrecto uso de la función coseno en lugar de su inversa arcoseno)</label>
+<label><input type="checkbox" name="q17796552985064478" value="2" data-correct="true" > <span class="math inline">\(\theta = \cos\left(\dfrac{8\pi^{3} vR}{0.52 d^{3}}\right)\)</span> (incorrecto uso de la función coseno en lugar de su inversa arcoseno)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959442558" value="3" data-correct="true" > <span class="math inline">\(\theta = \arccos\left(\dfrac{vR}{0.52} \left(\dfrac{2\pi}{d}\right)^{3}\right)\)</span></label>
+<label><input type="checkbox" name="q17796552985064478" value="3" data-correct="true" > <span class="math inline">\(\theta = \arccos\left(\dfrac{vR}{0.52} \left(\dfrac{2\pi}{d}\right)^{3}\right)\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959442558" value="4" data-correct="false" > <span class="math inline">\(\theta = \arccos\left(\dfrac{8\pi^{3} vR}{0.52 d^{3}}\right)\)</span></label>
+<label><input type="checkbox" name="q17796552985064478" value="4" data-correct="false" > <span class="math inline">\(\theta = \arccos\left(\dfrac{8\pi^{3} vR}{0.52 d^{3}}\right)\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959442558" value="5" data-correct="false" > Elevar al cubo y despejar genera la igualdad intermedia <span class="math inline">\(\cos(\theta) = \dfrac{vR}{0.52 \left(\frac{d}{2\pi}\right)^3}\)</span>.</label>
+<label><input type="checkbox" name="q17796552985064478" value="5" data-correct="false" > Elevar al cubo y despejar genera la igualdad intermedia <span class="math inline">\(\cos(\theta) = \dfrac{vR}{0.52 \left(\frac{d}{2\pi}\right)^3}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512959442558" value="6" data-correct="false" > Es equivalente a la expresión con decimales simplificados <span class="math inline">\(\theta = \arccos\left(\dfrac{200\pi^{3} vR}{13 d^{3}}\right)\)</span>.</label>
+<label><input type="checkbox" name="q17796552985064478" value="6" data-correct="false" > Es equivalente a la expresión con decimales simplificados <span class="math inline">\(\theta = \arccos\left(\dfrac{200\pi^{3} vR}{13 d^{3}}\right)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512959442558&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552985064478&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2144,10 +2207,10 @@ true
 <div id="resultados-de-la-evaluación-3" class="section level2 hasAnchor" number="5.4">
 <h2><span class="header-section-number">5.4</span> Resultados de la Evaluación<a href="evaluación-de-álgebra-despeje-de-variables-caso-5.html#resultados-de-la-evaluaci%C3%B3n-3" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Para ver el análisis de tu desempeño en esta prueba, haz clic en el siguiente botón. El sistema evaluará tus respuestas y te proporcionará recomendaciones personalizadas.</p>
-<button type="button" class="learnr-submit-btn" style="margin-bottom:1rem;" onclick="showScoreReport(&#39;sr17796512959623864&#39;, 22, &#39;&lt;strong&gt;¡Espectacular!&lt;/strong&gt; Tienes un dominio sobresaliente en la manipulación y el despeje de variables en ecuaciones literales complejas. Comprendes con total claridad el aislamiento mediante cuadráticas, radicación de diferentes índices y funciones trigonométricas inversas. ¡Sigue así, estás listo para desafíos mayores!&#39;, &#39;&lt;strong&gt;¡Buen intento!&lt;/strong&gt; Has aprobado la evaluación, pero aún hay conceptos de aislamiento cuadrático y despeje de variables en denominadores que puedes pulir. Te sugerimos repasar la aplicación de la fórmula cuadrática para ecuaciones literales (como en $s = \\frac{1}{2}gt^2 + v_0t$ o $A = 2\\pi r(r+h)$). ¡Con un poco más de repaso lograrás la excelencia!&#39;, &#39;&lt;strong&gt;Se recomienda más práctica.&lt;/strong&gt; Has tenido varias respuestas incorrectas o preguntas sin responder. Te sugerimos repasar a fondo las propiedades de las operaciones inversas (multiplicar denominadores, potencias inversas a raíces, etc.) y practicar con ecuaciones lineales simples antes de avanzar. ¡No te desanimes, con la práctica dominarás el despeje de variables!&#39;)">
+<button type="button" class="learnr-submit-btn" style="margin-bottom:1rem;" onclick="showScoreReport(&#39;sr17796552985262406&#39;, 22, &#39;&lt;strong&gt;¡Espectacular!&lt;/strong&gt; Tienes un dominio sobresaliente en la manipulación y el despeje de variables en ecuaciones literales complejas. Comprendes con total claridad el aislamiento mediante cuadráticas, radicación de diferentes índices y funciones trigonométricas inversas. ¡Sigue así, estás listo para desafíos mayores!&#39;, &#39;&lt;strong&gt;¡Buen intento!&lt;/strong&gt; Has aprobado la evaluación, pero aún hay conceptos de aislamiento cuadrático y despeje de variables en denominadores que puedes pulir. Te sugerimos repasar la aplicación de la fórmula cuadrática para ecuaciones literales (como en $s = \\frac{1}{2}gt^2 + v_0t$ o $A = 2\\pi r(r+h)$). ¡Con un poco más de repaso lograrás la excelencia!&#39;, &#39;&lt;strong&gt;Se recomienda más práctica.&lt;/strong&gt; Has tenido varias respuestas incorrectas o preguntas sin responder. Te sugerimos repasar a fondo las propiedades de las operaciones inversas (multiplicar denominadores, potencias inversas a raíces, etc.) y practicar con ecuaciones lineales simples antes de avanzar. ¡No te desanimes, con la práctica dominarás el despeje de variables!&#39;)">
 Calcular Mis Resultados
 </button>
-<div id="sr17796512959623864">
+<div id="sr17796552985262406">
 
 </div>
 

@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Proyecto Cuestionarios</title>
-  <meta name="description" content="Proyecto Cuestionarios" />
+  <title>Planteamiento y Solución de Problemas: Álgebra y Geometría Analítica</title>
+  <meta name="description" content="Planteamiento y Solución de Problemas: Álgebra y Geometría Analítica" />
   <meta name="generator" content="bookdown 0.46 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Proyecto Cuestionarios" />
+  <meta property="og:title" content="Planteamiento y Solución de Problemas: Álgebra y Geometría Analítica" />
   <meta property="og:type" content="book" />
   
   
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Proyecto Cuestionarios" />
+  <meta name="twitter:title" content="Planteamiento y Solución de Problemas: Álgebra y Geometría Analítica" />
   
   
   
@@ -306,8 +306,10 @@ function resetLearnrQuestion(qid) {
   inputs.forEach(function(input) { input.checked = false; });
   
   var feedbackDiv = box.querySelector('.learnr-feedback');
-  feedbackDiv.style.display = 'none';
-  feedbackDiv.className = 'learnr-feedback';
+  if (feedbackDiv) {
+    feedbackDiv.style.display = 'none';
+    feedbackDiv.className = 'learnr-feedback';
+  }
   
   box.querySelectorAll('.learnr-option').forEach(function(opt) {
     opt.classList.remove('correct-answer', 'wrong-answer', 'missed-answer');
@@ -318,17 +320,26 @@ function resetLearnrQuestion(qid) {
   box.removeAttribute('data-answered-correctly');
   
   var btn = box.querySelector('.learnr-submit-btn');
-  btn.style.display = 'inline-block';
-  btn.textContent = 'Enviar Respuesta';
-  btn.onclick = function() { checkLearnrQuestion(qid); };
+  if (btn) {
+    btn.style.display = 'inline-block';
+    btn.textContent = 'Enviar Respuesta';
+    btn.onclick = function() { checkLearnrQuestion(qid); };
+  }
 }
 
 function resetAllQuestions() {
+  // 1. Limpiar cada pregunta
   document.querySelectorAll('.learnr-question-box').forEach(function(box) {
     var qid = box.id;
     if (qid) resetLearnrQuestion(qid);
   });
-  // Re-mezclar opciones para nuevo orden aleatorio
+  
+  // 2. Limpiar reportes de puntaje
+  document.querySelectorAll('.score-report-box').forEach(function(report) {
+    report.remove();
+  });
+  
+  // 3. Re-mezclar opciones para nuevo orden aleatorio
   shuffleAllOptions();
 }
 
@@ -409,15 +420,23 @@ function showScoreReport(reportId, totalQuestions, recHigh, recMed, recLow) {
   reportBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Mezclar opciones aleatoriamente al cargar cada página
+/* ==========================================================================
+   Inyección del botón de reinicio y mezcla de opciones
+   Bookdown gitbook carga capítulos vía AJAX, por lo que usamos
+   múltiples estrategias para detectar cuando cambia el contenido.
+   ========================================================================== */
+
+function initLearnrPage() {
+  // 1. Mezclar opciones aleatoriamente
   shuffleAllOptions();
   
-  // Agregar botón de reinicio global si hay preguntas en la página
-  var questions = document.querySelectorAll('.learnr-question-box');
-  if (questions.length > 0) {
-    var h1 = document.querySelector('.book-body h1') || document.querySelector('h1');
-    if (h1) {
+  // 2. Agregar botón de reinicio si hay preguntas y aún no existe
+  var pageInner = document.querySelector('.page-inner') || document.body;
+  var questions = pageInner.querySelectorAll('.learnr-question-box');
+  
+  if (questions.length > 0 && !pageInner.querySelector('.learnr-reset-btn')) {
+    var h1 = pageInner.querySelector('h1');
+    if (h1 && h1.parentNode) {
       var resetBtn = document.createElement('button');
       resetBtn.type = 'button';
       resetBtn.className = 'learnr-reset-btn';
@@ -429,6 +448,50 @@ document.addEventListener('DOMContentLoaded', function() {
       };
       h1.parentNode.insertBefore(resetBtn, h1.nextSibling);
     }
+  }
+}
+
+// Estrategia 1: DOMContentLoaded
+document.addEventListener('DOMContentLoaded', initLearnrPage);
+
+// Estrategia 2: window.load (todo incluyendo imágenes está listo)
+window.addEventListener('load', initLearnrPage);
+
+// Estrategia 3: Polling periódico durante los primeros 10 segundos
+// Esto cubre la carga dinámica de gitbook y cualquier retraso en el DOM
+var learnrInitAttempts = 0;
+var learnrInitInterval = setInterval(function() {
+  initLearnrPage();
+  learnrInitAttempts++;
+  if (learnrInitAttempts >= 20) {
+    clearInterval(learnrInitInterval);
+  }
+}, 500);
+
+// Estrategia 4: MutationObserver sobre document.body (más robusto que .page-inner)
+// Si gitbook reemplaza .page-inner completamente, body sigue existiendo.
+document.addEventListener('DOMContentLoaded', function() {
+  var observer = new MutationObserver(function(mutations) {
+    // Solo re-inicializar si detectamos que aparecieron nuevas preguntas
+    // o si desapareció el botón de reinicio
+    var pageInner = document.querySelector('.page-inner') || document.body;
+    var hasQuestions = pageInner.querySelectorAll('.learnr-question-box').length > 0;
+    var hasResetBtn = !!pageInner.querySelector('.learnr-reset-btn');
+    if (hasQuestions && !hasResetBtn) {
+      setTimeout(initLearnrPage, 100);
+    }
+  });
+  
+  observer.observe(document.body, { childList: true, subtree: true });
+});
+
+// Estrategia 5: Evento nativo de gitbook SPA (si está disponible)
+// gitbook dispara 'page.change' cuando se carga un nuevo capítulo vía AJAX.
+window.addEventListener('load', function() {
+  if (typeof gitbook !== 'undefined' && gitbook.events) {
+    gitbook.events.bind('page.change', function() {
+      setTimeout(initLearnrPage, 200);
+    });
   }
 });
 </script>
@@ -928,7 +991,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Proyecto Cuestionarios</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Planteamiento y Solución de Problemas: Álgebra y Geometría Analítica</a>
           </h1>
         </div>
 
@@ -937,7 +1000,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             <section class="normal" id="section-">
 <div id="header">
-<h1 class="title">Proyecto Cuestionarios</h1>
+<h1 class="title">Planteamiento y Solución de Problemas: Álgebra y Geometría Analítica</h1>
 <p class="author"><em>SIM01</em></p>
 <p class="date"><em>2026-05-24</em></p>
 </div>

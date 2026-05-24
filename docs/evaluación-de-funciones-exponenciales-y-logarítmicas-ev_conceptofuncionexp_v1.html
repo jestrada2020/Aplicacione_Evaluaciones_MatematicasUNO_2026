@@ -306,8 +306,10 @@ function resetLearnrQuestion(qid) {
   inputs.forEach(function(input) { input.checked = false; });
   
   var feedbackDiv = box.querySelector('.learnr-feedback');
-  feedbackDiv.style.display = 'none';
-  feedbackDiv.className = 'learnr-feedback';
+  if (feedbackDiv) {
+    feedbackDiv.style.display = 'none';
+    feedbackDiv.className = 'learnr-feedback';
+  }
   
   box.querySelectorAll('.learnr-option').forEach(function(opt) {
     opt.classList.remove('correct-answer', 'wrong-answer', 'missed-answer');
@@ -318,17 +320,26 @@ function resetLearnrQuestion(qid) {
   box.removeAttribute('data-answered-correctly');
   
   var btn = box.querySelector('.learnr-submit-btn');
-  btn.style.display = 'inline-block';
-  btn.textContent = 'Enviar Respuesta';
-  btn.onclick = function() { checkLearnrQuestion(qid); };
+  if (btn) {
+    btn.style.display = 'inline-block';
+    btn.textContent = 'Enviar Respuesta';
+    btn.onclick = function() { checkLearnrQuestion(qid); };
+  }
 }
 
 function resetAllQuestions() {
+  // 1. Limpiar cada pregunta
   document.querySelectorAll('.learnr-question-box').forEach(function(box) {
     var qid = box.id;
     if (qid) resetLearnrQuestion(qid);
   });
-  // Re-mezclar opciones para nuevo orden aleatorio
+  
+  // 2. Limpiar reportes de puntaje
+  document.querySelectorAll('.score-report-box').forEach(function(report) {
+    report.remove();
+  });
+  
+  // 3. Re-mezclar opciones para nuevo orden aleatorio
   shuffleAllOptions();
 }
 
@@ -409,15 +420,23 @@ function showScoreReport(reportId, totalQuestions, recHigh, recMed, recLow) {
   reportBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Mezclar opciones aleatoriamente al cargar cada página
+/* ==========================================================================
+   Inyección del botón de reinicio y mezcla de opciones
+   Bookdown gitbook carga capítulos vía AJAX, por lo que usamos
+   múltiples estrategias para detectar cuando cambia el contenido.
+   ========================================================================== */
+
+function initLearnrPage() {
+  // 1. Mezclar opciones aleatoriamente
   shuffleAllOptions();
   
-  // Agregar botón de reinicio global si hay preguntas en la página
-  var questions = document.querySelectorAll('.learnr-question-box');
-  if (questions.length > 0) {
-    var h1 = document.querySelector('.book-body h1') || document.querySelector('h1');
-    if (h1) {
+  // 2. Agregar botón de reinicio si hay preguntas y aún no existe
+  var pageInner = document.querySelector('.page-inner') || document.body;
+  var questions = pageInner.querySelectorAll('.learnr-question-box');
+  
+  if (questions.length > 0 && !pageInner.querySelector('.learnr-reset-btn')) {
+    var h1 = pageInner.querySelector('h1');
+    if (h1 && h1.parentNode) {
       var resetBtn = document.createElement('button');
       resetBtn.type = 'button';
       resetBtn.className = 'learnr-reset-btn';
@@ -429,6 +448,50 @@ document.addEventListener('DOMContentLoaded', function() {
       };
       h1.parentNode.insertBefore(resetBtn, h1.nextSibling);
     }
+  }
+}
+
+// Estrategia 1: DOMContentLoaded
+document.addEventListener('DOMContentLoaded', initLearnrPage);
+
+// Estrategia 2: window.load (todo incluyendo imágenes está listo)
+window.addEventListener('load', initLearnrPage);
+
+// Estrategia 3: Polling periódico durante los primeros 10 segundos
+// Esto cubre la carga dinámica de gitbook y cualquier retraso en el DOM
+var learnrInitAttempts = 0;
+var learnrInitInterval = setInterval(function() {
+  initLearnrPage();
+  learnrInitAttempts++;
+  if (learnrInitAttempts >= 20) {
+    clearInterval(learnrInitInterval);
+  }
+}, 500);
+
+// Estrategia 4: MutationObserver sobre document.body (más robusto que .page-inner)
+// Si gitbook reemplaza .page-inner completamente, body sigue existiendo.
+document.addEventListener('DOMContentLoaded', function() {
+  var observer = new MutationObserver(function(mutations) {
+    // Solo re-inicializar si detectamos que aparecieron nuevas preguntas
+    // o si desapareció el botón de reinicio
+    var pageInner = document.querySelector('.page-inner') || document.body;
+    var hasQuestions = pageInner.querySelectorAll('.learnr-question-box').length > 0;
+    var hasResetBtn = !!pageInner.querySelector('.learnr-reset-btn');
+    if (hasQuestions && !hasResetBtn) {
+      setTimeout(initLearnrPage, 100);
+    }
+  });
+  
+  observer.observe(document.body, { childList: true, subtree: true });
+});
+
+// Estrategia 5: Evento nativo de gitbook SPA (si está disponible)
+// gitbook dispara 'page.change' cuando se carga un nuevo capítulo vía AJAX.
+window.addEventListener('load', function() {
+  if (typeof gitbook !== 'undefined' && gitbook.events) {
+    gitbook.events.bind('page.change', function() {
+      setTimeout(initLearnrPage, 200);
+    });
   }
 });
 </script>
@@ -1106,37 +1169,37 @@ h1, h2, h3, h4, .tutorial-title {
 <h3><span class="header-section-number">12.2.1</span> Pregunta 1 (Lectura de f y g en el mismo plano)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-1-lectura-de-f-y-g-en-el-mismo-plano" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
 <p><img src="images/GRAFICA_funcion2.jpg" alt="" width="35%" style="display: block; margin: auto;" /></p>
-<div id="q17796513045756502" class="learnr-question-box">
+<div id="q17796553071712682" class="learnr-question-box">
 <div class="learnr-question-text">
 Se muestran las gráficas de <span class="math inline">\(f\)</span> y <span class="math inline">\(g\)</span> en la figura anterior. Analice detalladamente su comportamiento, dominios, rangos, intersecciones e intervalos de crecimiento para identificar cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045756502" value="1" data-correct="true" > El valor de la función <span class="math inline">\(f\)</span> en <span class="math inline">\(x = -4\)</span> es <span class="math inline">\(f(-4) = -2\)</span>, y el valor de <span class="math inline">\(g\)</span> en <span class="math inline">\(x = 3\)</span> es <span class="math inline">\(g(3) = 4\)</span>.</label>
+<label><input type="checkbox" name="q17796553071712682" value="1" data-correct="true" > El valor de la función <span class="math inline">\(f\)</span> en <span class="math inline">\(x = -4\)</span> es <span class="math inline">\(f(-4) = -2\)</span>, y el valor de <span class="math inline">\(g\)</span> en <span class="math inline">\(x = 3\)</span> es <span class="math inline">\(g(3) = 4\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045756502" value="2" data-correct="true" > Las gráficas de <span class="math inline">\(f(x)\)</span> y <span class="math inline">\(g(x)\)</span> se intersectan para los valores de <span class="math inline">\(x = -2\)</span> y <span class="math inline">\(x = 2\)</span>, es decir, se cumple que <span class="math inline">\(f(x) = g(x)\)</span> en esos puntos.</label>
+<label><input type="checkbox" name="q17796553071712682" value="2" data-correct="true" > Las gráficas de <span class="math inline">\(f(x)\)</span> y <span class="math inline">\(g(x)\)</span> se intersectan para los valores de <span class="math inline">\(x = -2\)</span> y <span class="math inline">\(x = 2\)</span>, es decir, se cumple que <span class="math inline">\(f(x) = g(x)\)</span> en esos puntos.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045756502" value="3" data-correct="true" > Las soluciones estimadas de la ecuación <span class="math inline">\(f(x) = -1\)</span> corresponden a los valores <span class="math inline">\(x = -3\)</span> y <span class="math inline">\(x = 4\)</span>.</label>
+<label><input type="checkbox" name="q17796553071712682" value="3" data-correct="true" > Las soluciones estimadas de la ecuación <span class="math inline">\(f(x) = -1\)</span> corresponden a los valores <span class="math inline">\(x = -3\)</span> y <span class="math inline">\(x = 4\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045756502" value="4" data-correct="true" > La función <span class="math inline">\(f(x)\)</span> es estrictamente decreciente en el intervalo cerrado <span class="math inline">\([0, 4]\)</span>.</label>
+<label><input type="checkbox" name="q17796553071712682" value="4" data-correct="true" > La función <span class="math inline">\(f(x)\)</span> es estrictamente decreciente en el intervalo cerrado <span class="math inline">\([0, 4]\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045756502" value="5" data-correct="true" > El dominio de la función <span class="math inline">\(f\)</span> es el intervalo <span class="math inline">\([-4, 4]\)</span> y su rango es el intervalo <span class="math inline">\([-2, 3]\)</span>.</label>
+<label><input type="checkbox" name="q17796553071712682" value="5" data-correct="true" > El dominio de la función <span class="math inline">\(f\)</span> es el intervalo <span class="math inline">\([-4, 4]\)</span> y su rango es el intervalo <span class="math inline">\([-2, 3]\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045756502" value="6" data-correct="false" > El dominio de la función <span class="math inline">\(f\)</span> es <span class="math inline">\([-2, 3]\)</span> y su rango es <span class="math inline">\([-4, 4]\)</span>.</label>
+<label><input type="checkbox" name="q17796553071712682" value="6" data-correct="false" > El dominio de la función <span class="math inline">\(f\)</span> es <span class="math inline">\([-2, 3]\)</span> y su rango es <span class="math inline">\([-4, 4]\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045756502" value="7" data-correct="false" > El valor de la función <span class="math inline">\(g\)</span> en <span class="math inline">\(x = 3\)</span> es <span class="math inline">\(g(3) = -2\)</span>, y el de <span class="math inline">\(f\)</span> en <span class="math inline">\(x = -4\)</span> es <span class="math inline">\(f(-4) = 4\)</span>.</label>
+<label><input type="checkbox" name="q17796553071712682" value="7" data-correct="false" > El valor de la función <span class="math inline">\(g\)</span> en <span class="math inline">\(x = 3\)</span> es <span class="math inline">\(g(3) = -2\)</span>, y el de <span class="math inline">\(f\)</span> en <span class="math inline">\(x = -4\)</span> es <span class="math inline">\(f(-4) = 4\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045756502" value="8" data-correct="false" > Las gráficas de las funciones se intersectan únicamente en el origen de coordenadas <span class="math inline">\((0, 0)\)</span>.</label>
+<label><input type="checkbox" name="q17796553071712682" value="8" data-correct="false" > Las gráficas de las funciones se intersectan únicamente en el origen de coordenadas <span class="math inline">\((0, 0)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513045756502&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553071712682&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1160,34 +1223,34 @@ true
 <h3><span class="header-section-number">12.2.2</span> Pregunta 2 (Composición en formato tabla)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-2-composici%C3%B3n-en-formato-tabla" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
 <p><img src="images/GRAFICA_Tabla1.jpg" alt="" width="38%" style="display: block; margin: auto;" /></p>
-<div id="q17796513045954472" class="learnr-question-box">
+<div id="q17796553071909790" class="learnr-question-box">
 <div class="learnr-question-text">
 Utilizando la tabla de valores proporcionada en la figura para las funciones <span class="math inline">\(f\)</span> y <span class="math inline">\(g\)</span>, calcule las imágenes de las funciones compuestas indicadas paso a paso. Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045954472" value="1" data-correct="true" > El valor de la función compuesta <span class="math inline">\(f(g(1))\)</span> es exactamente igual a <span class="math inline">\(5\)</span>.</label>
+<label><input type="checkbox" name="q17796553071909790" value="1" data-correct="true" > El valor de la función compuesta <span class="math inline">\(f(g(1))\)</span> es exactamente igual a <span class="math inline">\(5\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045954472" value="2" data-correct="true" > El valor de <span class="math inline">\(g(f(1))\)</span> es igual a <span class="math inline">\(2\)</span> y el valor de <span class="math inline">\(f(f(1))\)</span> es igual a <span class="math inline">\(4\)</span>.</label>
+<label><input type="checkbox" name="q17796553071909790" value="2" data-correct="true" > El valor de <span class="math inline">\(g(f(1))\)</span> es igual a <span class="math inline">\(2\)</span> y el valor de <span class="math inline">\(f(f(1))\)</span> es igual a <span class="math inline">\(4\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045954472" value="3" data-correct="true" > Las composiciones <span class="math inline">\(g(g(1))\)</span> y <span class="math inline">\(g(f(3))\)</span> dan como resultados exactos <span class="math inline">\(3\)</span> y <span class="math inline">\(1\)</span>, respectivamente.</label>
+<label><input type="checkbox" name="q17796553071909790" value="3" data-correct="true" > Las composiciones <span class="math inline">\(g(g(1))\)</span> y <span class="math inline">\(g(f(3))\)</span> dan como resultados exactos <span class="math inline">\(3\)</span> y <span class="math inline">\(1\)</span>, respectivamente.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045954472" value="4" data-correct="true" > La función compuesta <span class="math inline">\(f(g(6))\)</span> produce un resultado final igual a <span class="math inline">\(4\)</span>.</label>
+<label><input type="checkbox" name="q17796553071909790" value="4" data-correct="true" > La función compuesta <span class="math inline">\(f(g(6))\)</span> produce un resultado final igual a <span class="math inline">\(4\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045954472" value="5" data-correct="false" > El valor de la función compuesta <span class="math inline">\(f(g(1))\)</span> es <span class="math inline">\(6\)</span> puesto que la imagen interna <span class="math inline">\(g(1)\)</span> vale <span class="math inline">\(6\)</span>.</label>
+<label><input type="checkbox" name="q17796553071909790" value="5" data-correct="false" > El valor de la función compuesta <span class="math inline">\(f(g(1))\)</span> es <span class="math inline">\(6\)</span> puesto que la imagen interna <span class="math inline">\(g(1)\)</span> vale <span class="math inline">\(6\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045954472" value="6" data-correct="false" > La función compuesta <span class="math inline">\(g(f(3))\)</span> produce un resultado final igual a <span class="math inline">\(4\)</span> puesto que <span class="math inline">\(f(3)\)</span> vale <span class="math inline">\(4\)</span>.</label>
+<label><input type="checkbox" name="q17796553071909790" value="6" data-correct="false" > La función compuesta <span class="math inline">\(g(f(3))\)</span> produce un resultado final igual a <span class="math inline">\(4\)</span> puesto que <span class="math inline">\(f(3)\)</span> vale <span class="math inline">\(4\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513045954472" value="7" data-correct="false" > El valor de <span class="math inline">\(f(g(6))\)</span> es igual a <span class="math inline">\(1\)</span>.</label>
+<label><input type="checkbox" name="q17796553071909790" value="7" data-correct="false" > El valor de <span class="math inline">\(f(g(6))\)</span> es igual a <span class="math inline">\(1\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513045954472&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553071909790&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1211,37 +1274,37 @@ true
 <h3><span class="header-section-number">12.2.3</span> Pregunta 3 (Composición gráfica - enunciado109)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-3-composici%C3%B3n-gr%C3%A1fica---enunciado109" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
 <p><img src="images/GRAFICA_funcion5.jpg" alt="" width="35%" style="display: block; margin: auto;" /></p>
-<div id="q17796513046115524" class="learnr-question-box">
+<div id="q17796553072063700" class="learnr-question-box">
 <div class="learnr-question-text">
 A partir de las gráficas de las funciones <span class="math inline">\(f\)</span> (en rojo, definida en el dominio <span class="math inline">\([0, 6]\)</span> como <span class="math inline">\(f(x)=-x\)</span> para <span class="math inline">\(x \in [0, 2]\)</span> y <span class="math inline">\(f(x)=2x-6\)</span> para <span class="math inline">\(x \in [2, 6]\)</span>) y <span class="math inline">\(g\)</span> (en azul, definida como la parábola <span class="math inline">\(g(x)=x^2+4x+5\)</span> para <span class="math inline">\(x \in [-4, -1]\)</span> y el segmento de recta para <span class="math inline">\(x \in [-1, 2)\)</span>) representadas en la figura anterior, evalúe las composiciones indicadas e identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046115524" value="1" data-correct="true" > El valor de la composición <span class="math inline">\(f(g(1))\)</span> es exactamente <span class="math inline">\(2\)</span>, ya que la función interna es <span class="math inline">\(g(1) = 4\)</span> y la externa es <span class="math inline">\(f(4) = 2\)</span>.</label>
+<label><input type="checkbox" name="q17796553072063700" value="1" data-correct="true" > El valor de la composición <span class="math inline">\(f(g(1))\)</span> es exactamente <span class="math inline">\(2\)</span>, ya que la función interna es <span class="math inline">\(g(1) = 4\)</span> y la externa es <span class="math inline">\(f(4) = 2\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046115524" value="2" data-correct="true" > La composición <span class="math inline">\(g(f(1))\)</span> es igual a <span class="math inline">\(2\)</span>, ya que la función interna es <span class="math inline">\(f(1) = -1\)</span> y la externa evaluada es <span class="math inline">\(g(-1) = 2\)</span>.</label>
+<label><input type="checkbox" name="q17796553072063700" value="2" data-correct="true" > La composición <span class="math inline">\(g(f(1))\)</span> es igual a <span class="math inline">\(2\)</span>, ya que la función interna es <span class="math inline">\(f(1) = -1\)</span> y la externa evaluada es <span class="math inline">\(g(-1) = 2\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046115524" value="3" data-correct="true" > El valor de la composición <span class="math inline">\(f(f(1))\)</span> no está definido en el conjunto de los números reales, debido a que <span class="math inline">\(f(1) = -1\)</span>, lo cual se encuentra fuera del dominio de la función externa <span class="math inline">\(f\)</span>, que está restringido al intervalo <span class="math inline">\([0, 6]\)</span>.</label>
+<label><input type="checkbox" name="q17796553072063700" value="3" data-correct="true" > El valor de la composición <span class="math inline">\(f(f(1))\)</span> no está definido en el conjunto de los números reales, debido a que <span class="math inline">\(f(1) = -1\)</span>, lo cual se encuentra fuera del dominio de la función externa <span class="math inline">\(f\)</span>, que está restringido al intervalo <span class="math inline">\([0, 6]\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046115524" value="4" data-correct="true" > El valor de la composición <span class="math inline">\(g(g(1))\)</span> es igual a <span class="math inline">\(3\)</span>, puesto que la función interna vale <span class="math inline">\(g(1) = 4\)</span> y, según el punto marcado en la gráfica, se tiene que <span class="math inline">\(g(4) = 3\)</span>.</label>
+<label><input type="checkbox" name="q17796553072063700" value="4" data-correct="true" > El valor de la composición <span class="math inline">\(g(g(1))\)</span> es igual a <span class="math inline">\(3\)</span>, puesto que la función interna vale <span class="math inline">\(g(1) = 4\)</span> y, según el punto marcado en la gráfica, se tiene que <span class="math inline">\(g(4) = 3\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046115524" value="5" data-correct="true" > El valor de la composición <span class="math inline">\(g(f(3))\)</span> es exactamente <span class="math inline">\(3\)</span>, ya que la función interna es <span class="math inline">\(f(3) = 0\)</span> y en la gráfica se lee que la imagen es <span class="math inline">\(g(0) = 3\)</span>.</label>
+<label><input type="checkbox" name="q17796553072063700" value="5" data-correct="true" > El valor de la composición <span class="math inline">\(g(f(3))\)</span> es exactamente <span class="math inline">\(3\)</span>, ya que la función interna es <span class="math inline">\(f(3) = 0\)</span> y en la gráfica se lee que la imagen es <span class="math inline">\(g(0) = 3\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046115524" value="6" data-correct="true" > El valor de la composición <span class="math inline">\(f(g(6))\)</span> es igual a <span class="math inline">\(6\)</span>, ya que según la gráfica la función interna es <span class="math inline">\(g(6) = 6\)</span> y la externa es <span class="math inline">\(f(6) = 6\)</span>.</label>
+<label><input type="checkbox" name="q17796553072063700" value="6" data-correct="true" > El valor de la composición <span class="math inline">\(f(g(6))\)</span> es igual a <span class="math inline">\(6\)</span>, ya que según la gráfica la función interna es <span class="math inline">\(g(6) = 6\)</span> y la externa es <span class="math inline">\(f(6) = 6\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046115524" value="7" data-correct="false" > La composición <span class="math inline">\(f(g(1))\)</span> da como resultado final <span class="math inline">\(4\)</span>.</label>
+<label><input type="checkbox" name="q17796553072063700" value="7" data-correct="false" > La composición <span class="math inline">\(f(g(1))\)</span> da como resultado final <span class="math inline">\(4\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046115524" value="8" data-correct="false" > La composición <span class="math inline">\(g(f(1))\)</span> da como resultado final <span class="math inline">\(-1\)</span>.</label>
+<label><input type="checkbox" name="q17796553072063700" value="8" data-correct="false" > La composición <span class="math inline">\(g(f(1))\)</span> da como resultado final <span class="math inline">\(-1\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513046115524&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553072063700&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1269,34 +1332,34 @@ true
 <div id="pregunta-4-deducir-función-exponencial-fxbx" class="section level3 hasAnchor" number="12.3.1">
 <h3><span class="header-section-number">12.3.1</span> Pregunta 4 (Deducir función exponencial <span class="math inline">\(f(x)=b^x\)</span>)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-4-deducir-funci%C3%B3n-exponencial-fxbx" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513046198867" class="learnr-question-box">
+<div id="q17796553072142647" class="learnr-question-box">
 <div class="learnr-question-text">
 Deduzca una función exponencial de la forma <span class="math inline">\(f(x)=b^{x}\)</span> con <span class="math inline">\(b &gt; 0\)</span>, de tal manera que la gráfica de <span class="math inline">\(f\)</span> pase por cada uno de los puntos dados. Identifique cuáles de las siguientes deducciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046198867" value="1" data-correct="true" > Para el punto <span class="math inline">\((3, 26)\)</span>, la función es <span class="math inline">\(f(x) = (\sqrt[3]{26})^x\)</span>, lo que corresponde a una base <span class="math inline">\(b = \sqrt[3]{26} \approx 2.9625\)</span>.</label>
+<label><input type="checkbox" name="q17796553072142647" value="1" data-correct="true" > Para el punto <span class="math inline">\((3, 26)\)</span>, la función es <span class="math inline">\(f(x) = (\sqrt[3]{26})^x\)</span>, lo que corresponde a una base <span class="math inline">\(b = \sqrt[3]{26} \approx 2.9625\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046198867" value="2" data-correct="true" > Para el punto <span class="math inline">\((-1, 5)\)</span>, la función es <span class="math inline">\(f(x) = (0.2)^x\)</span> (o <span class="math inline">\(f(x) = 5^{-x}\)</span>), lo que corresponde a una base <span class="math inline">\(b = 0.2\)</span> (o <span class="math inline">\(b = \frac{1}{5}\)</span>).</label>
+<label><input type="checkbox" name="q17796553072142647" value="2" data-correct="true" > Para el punto <span class="math inline">\((-1, 5)\)</span>, la función es <span class="math inline">\(f(x) = (0.2)^x\)</span> (o <span class="math inline">\(f(x) = 5^{-x}\)</span>), lo que corresponde a una base <span class="math inline">\(b = 0.2\)</span> (o <span class="math inline">\(b = \frac{1}{5}\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046198867" value="3" data-correct="true" > Para el punto <span class="math inline">\((1, e^{2})\)</span>, la función es <span class="math inline">\(f(x) = (e^2)^x = e^{2x}\)</span>, lo que corresponde a una base <span class="math inline">\(b = e^2 \approx 7.3891\)</span>.</label>
+<label><input type="checkbox" name="q17796553072142647" value="3" data-correct="true" > Para el punto <span class="math inline">\((1, e^{2})\)</span>, la función es <span class="math inline">\(f(x) = (e^2)^x = e^{2x}\)</span>, lo que corresponde a una base <span class="math inline">\(b = e^2 \approx 7.3891\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046198867" value="4" data-correct="true" > Para el punto <span class="math inline">\((2, e)\)</span>, la función es <span class="math inline">\(f(x) = (\sqrt{e})^x = e^{x/2}\)</span>, lo que corresponde a una base <span class="math inline">\(b = \sqrt{e} \approx 1.6487\)</span>.</label>
+<label><input type="checkbox" name="q17796553072142647" value="4" data-correct="true" > Para el punto <span class="math inline">\((2, e)\)</span>, la función es <span class="math inline">\(f(x) = (\sqrt{e})^x = e^{x/2}\)</span>, lo que corresponde a una base <span class="math inline">\(b = \sqrt{e} \approx 1.6487\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046198867" value="5" data-correct="false" > Para el punto <span class="math inline">\((3, 26)\)</span>, la base es <span class="math inline">\(b = \frac{26}{3}\)</span>.</label>
+<label><input type="checkbox" name="q17796553072142647" value="5" data-correct="false" > Para el punto <span class="math inline">\((3, 26)\)</span>, la base es <span class="math inline">\(b = \frac{26}{3}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046198867" value="6" data-correct="false" > Para el punto <span class="math inline">\((-1, 5)\)</span>, la base es <span class="math inline">\(b = -5\)</span>.</label>
+<label><input type="checkbox" name="q17796553072142647" value="6" data-correct="false" > Para el punto <span class="math inline">\((-1, 5)\)</span>, la base es <span class="math inline">\(b = -5\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046198867" value="7" data-correct="false" > Para el punto <span class="math inline">\((2, e)\)</span>, la base es <span class="math inline">\(b = e^2\)</span>.</label>
+<label><input type="checkbox" name="q17796553072142647" value="7" data-correct="false" > Para el punto <span class="math inline">\((2, e)\)</span>, la base es <span class="math inline">\(b = e^2\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513046198867&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553072142647&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1319,34 +1382,34 @@ true
 <div id="pregunta-5-resolver-desigualdades-exponenciales" class="section level3 hasAnchor" number="12.3.2">
 <h3><span class="header-section-number">12.3.2</span> Pregunta 5 (Resolver desigualdades exponenciales)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-5-resolver-desigualdades-exponenciales" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513046271660" class="learnr-question-box">
+<div id="q17796553072225729" class="learnr-question-box">
 <div class="learnr-question-text">
 Use las propiedades de las funciones exponenciales crecientes y decrecientes para resolver las desigualdades dadas. Identifique cuáles de las siguientes soluciones son totalmente <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046271660" value="1" data-correct="true" > La solución para la desigualdad <span class="math inline">\(2^x &gt; 16\)</span> es el intervalo <span class="math inline">\((4, \infty)\)</span>, es decir, se cumple para todo <span class="math inline">\(x &gt; 4\)</span>.</label>
+<label><input type="checkbox" name="q17796553072225729" value="1" data-correct="true" > La solución para la desigualdad <span class="math inline">\(2^x &gt; 16\)</span> es el intervalo <span class="math inline">\((4, \infty)\)</span>, es decir, se cumple para todo <span class="math inline">\(x &gt; 4\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046271660" value="2" data-correct="true" > La solución para la desigualdad <span class="math inline">\((0.5)^x \geq 8\)</span> (que equivale a <span class="math inline">\(2^{-x} \geq 2^3\)</span>) es el intervalo <span class="math inline">\((-\infty, -3]\)</span>, es decir, se cumple para todo <span class="math inline">\(x \leq -3\)</span>.</label>
+<label><input type="checkbox" name="q17796553072225729" value="2" data-correct="true" > La solución para la desigualdad <span class="math inline">\((0.5)^x \geq 8\)</span> (que equivale a <span class="math inline">\(2^{-x} \geq 2^3\)</span>) es el intervalo <span class="math inline">\((-\infty, -3]\)</span>, es decir, se cumple para todo <span class="math inline">\(x \leq -3\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046271660" value="3" data-correct="true" > La solución para la desigualdad <span class="math inline">\(e^x \leq 1\)</span> (que equivale a <span class="math inline">\(e^x \leq e^0\)</span>) es el intervalo <span class="math inline">\((-\infty, 0]\)</span>, es decir, se cumple para todo <span class="math inline">\(x \leq 0\)</span>.</label>
+<label><input type="checkbox" name="q17796553072225729" value="3" data-correct="true" > La solución para la desigualdad <span class="math inline">\(e^x \leq 1\)</span> (que equivale a <span class="math inline">\(e^x \leq e^0\)</span>) es el intervalo <span class="math inline">\((-\infty, 0]\)</span>, es decir, se cumple para todo <span class="math inline">\(x \leq 0\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046271660" value="4" data-correct="true" > La solución para la desigualdad <span class="math inline">\(e^{x-2} &lt; 1\)</span> (que equivale a <span class="math inline">\(e^{x-2} &lt; e^0 \Rightarrow x-2 &lt; 0\)</span>) es el intervalo <span class="math inline">\((-\infty, 2)\)</span>, es decir, se cumple para todo <span class="math inline">\(x &lt; 2\)</span>.</label>
+<label><input type="checkbox" name="q17796553072225729" value="4" data-correct="true" > La solución para la desigualdad <span class="math inline">\(e^{x-2} &lt; 1\)</span> (que equivale a <span class="math inline">\(e^{x-2} &lt; e^0 \Rightarrow x-2 &lt; 0\)</span>) es el intervalo <span class="math inline">\((-\infty, 2)\)</span>, es decir, se cumple para todo <span class="math inline">\(x &lt; 2\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046271660" value="5" data-correct="false" > La solución para la desigualdad <span class="math inline">\(2^x &gt; 16\)</span> es el intervalo <span class="math inline">\(x &gt; 8\)</span>.</label>
+<label><input type="checkbox" name="q17796553072225729" value="5" data-correct="false" > La solución para la desigualdad <span class="math inline">\(2^x &gt; 16\)</span> es el intervalo <span class="math inline">\(x &gt; 8\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046271660" value="6" data-correct="false" > La solución para la desigualdad <span class="math inline">\((0.5)^x \geq 8\)</span> es el intervalo <span class="math inline">\(x \geq 3\)</span>.</label>
+<label><input type="checkbox" name="q17796553072225729" value="6" data-correct="false" > La solución para la desigualdad <span class="math inline">\((0.5)^x \geq 8\)</span> es el intervalo <span class="math inline">\(x \geq 3\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046271660" value="7" data-correct="false" > La solución para la desigualdad <span class="math inline">\(e^{x-2} &lt; 1\)</span> es el intervalo <span class="math inline">\(x &gt; 2\)</span>.</label>
+<label><input type="checkbox" name="q17796553072225729" value="7" data-correct="false" > La solución para la desigualdad <span class="math inline">\(e^{x-2} &lt; 1\)</span> es el intervalo <span class="math inline">\(x &gt; 2\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513046271660&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553072225729&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1369,40 +1432,40 @@ true
 <div id="pregunta-6-relaciones-exponenciales-con-2ta-y-6tb" class="section level3 hasAnchor" number="12.3.3">
 <h3><span class="header-section-number">12.3.3</span> Pregunta 6 (Relaciones exponenciales con <span class="math inline">\(2^t=a\)</span> y <span class="math inline">\(6^t=b\)</span>)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-6-relaciones-exponenciales-con-2ta-y-6tb" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513046353919" class="learnr-question-box">
+<div id="q17796553072303695" class="learnr-question-box">
 <div class="learnr-question-text">
 Suponga que <span class="math inline">\(2^t=a\)</span> y que <span class="math inline">\(6^t=b\)</span>. Conteste las siguientes expresiones usando de forma estricta las leyes de los exponentes y determine cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046353919" value="1" data-correct="true" > La expresión para <span class="math inline">\(12^t\)</span> equivale al producto <span class="math inline">\(a \cdot b\)</span>.</label>
+<label><input type="checkbox" name="q17796553072303695" value="1" data-correct="true" > La expresión para <span class="math inline">\(12^t\)</span> equivale al producto <span class="math inline">\(a \cdot b\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046353919" value="2" data-correct="true" > La expresión para <span class="math inline">\(3^t\)</span> (obtenida como <span class="math inline">\(\frac{6^t}{2^t}\)</span>) equivale a la fracción <span class="math inline">\(\frac{b}{a}\)</span>.</label>
+<label><input type="checkbox" name="q17796553072303695" value="2" data-correct="true" > La expresión para <span class="math inline">\(3^t\)</span> (obtenida como <span class="math inline">\(\frac{6^t}{2^t}\)</span>) equivale a la fracción <span class="math inline">\(\frac{b}{a}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046353919" value="3" data-correct="true" > La expresión para <span class="math inline">\(6^{-t}\)</span> equivale a la fracción inversa <span class="math inline">\(\frac{1}{b}\)</span>.</label>
+<label><input type="checkbox" name="q17796553072303695" value="3" data-correct="true" > La expresión para <span class="math inline">\(6^{-t}\)</span> equivale a la fracción inversa <span class="math inline">\(\frac{1}{b}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046353919" value="4" data-correct="true" > La expresión para <span class="math inline">\(6^{3t}\)</span> equivale al cubo <span class="math inline">\(b^3\)</span>.</label>
+<label><input type="checkbox" name="q17796553072303695" value="4" data-correct="true" > La expresión para <span class="math inline">\(6^{3t}\)</span> equivale al cubo <span class="math inline">\(b^3\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046353919" value="5" data-correct="true" > La expresión simplificada para <span class="math inline">\(2^{-3t}2^{7t}\)</span> equivale a la potencia <span class="math inline">\(a^4\)</span>.</label>
+<label><input type="checkbox" name="q17796553072303695" value="5" data-correct="true" > La expresión simplificada para <span class="math inline">\(2^{-3t}2^{7t}\)</span> equivale a la potencia <span class="math inline">\(a^4\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046353919" value="6" data-correct="true" > La expresión para <span class="math inline">\(18^t\)</span> (obtenida como <span class="math inline">\(3^t \cdot 6^t = \frac{b}{a} \cdot b\)</span>) equivale a la expresión <span class="math inline">\(\frac{b^2}{a}\)</span>.</label>
+<label><input type="checkbox" name="q17796553072303695" value="6" data-correct="true" > La expresión para <span class="math inline">\(18^t\)</span> (obtenida como <span class="math inline">\(3^t \cdot 6^t = \frac{b}{a} \cdot b\)</span>) equivale a la expresión <span class="math inline">\(\frac{b^2}{a}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046353919" value="7" data-correct="false" > La expresión para <span class="math inline">\(12^t\)</span> equivale a la suma <span class="math inline">\(a + b\)</span>.</label>
+<label><input type="checkbox" name="q17796553072303695" value="7" data-correct="false" > La expresión para <span class="math inline">\(12^t\)</span> equivale a la suma <span class="math inline">\(a + b\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046353919" value="8" data-correct="false" > La expresión para <span class="math inline">\(3^t\)</span> equivale a la resta <span class="math inline">\(b - a\)</span>.</label>
+<label><input type="checkbox" name="q17796553072303695" value="8" data-correct="false" > La expresión para <span class="math inline">\(3^t\)</span> equivale a la resta <span class="math inline">\(b - a\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046353919" value="9" data-correct="false" > La expresión para <span class="math inline">\(18^t\)</span> es igual a <span class="math inline">\(b^3\)</span>.</label>
+<label><input type="checkbox" name="q17796553072303695" value="9" data-correct="false" > La expresión para <span class="math inline">\(18^t\)</span> es igual a <span class="math inline">\(b^3\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513046353919&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553072303695&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1425,31 +1488,31 @@ true
 <div id="pregunta-7-cálculo-de-logaritmo-con-bases-genéricas" class="section level3 hasAnchor" number="12.3.4">
 <h3><span class="header-section-number">12.3.4</span> Pregunta 7 (Cálculo de logaritmo con bases genéricas)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-7-c%C3%A1lculo-de-logaritmo-con-bases-gen%C3%A9ricas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513046436203" class="learnr-question-box">
+<div id="q17796553072404423" class="learnr-question-box">
 <div class="learnr-question-text">
 Si se conocen los valores de los logaritmos en una base genérica <span class="math inline">\(\log_b 2 = 0.4307\)</span> y <span class="math inline">\(\log_b 3 = 0.6826\)</span>, encuentre el valor de la expresión <span class="math inline">\(\log_b \sqrt[3]{18}\)</span>. Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046436203" value="1" data-correct="true" > La expansión utilizando leyes de logaritmos es igual a <span class="math inline">\(\frac{1}{3}\log_b 2 + \frac{2}{3}\log_b 3\)</span>.</label>
+<label><input type="checkbox" name="q17796553072404423" value="1" data-correct="true" > La expansión utilizando leyes de logaritmos es igual a <span class="math inline">\(\frac{1}{3}\log_b 2 + \frac{2}{3}\log_b 3\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046436203" value="2" data-correct="true" > El valor numérico aproximado al aplicar las propiedades a partir de los datos dados es igual a <span class="math inline">\(0.5986\)</span>.</label>
+<label><input type="checkbox" name="q17796553072404423" value="2" data-correct="true" > El valor numérico aproximado al aplicar las propiedades a partir de los datos dados es igual a <span class="math inline">\(0.5986\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046436203" value="3" data-correct="true" > Al simplificar la expresión por propiedades de radicales se obtiene que <span class="math inline">\(\log_b \sqrt[3]{18} = \log_b(18^{1/3}) = \frac{1}{3}\log_b(18)\)</span>.</label>
+<label><input type="checkbox" name="q17796553072404423" value="3" data-correct="true" > Al simplificar la expresión por propiedades de radicales se obtiene que <span class="math inline">\(\log_b \sqrt[3]{18} = \log_b(18^{1/3}) = \frac{1}{3}\log_b(18)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046436203" value="4" data-correct="true" > La expresión se descompone usando la factorización prima <span class="math inline">\(18 = 2 \cdot 3^2\)</span>.</label>
+<label><input type="checkbox" name="q17796553072404423" value="4" data-correct="true" > La expresión se descompone usando la factorización prima <span class="math inline">\(18 = 2 \cdot 3^2\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046436203" value="5" data-correct="false" > El valor numérico aproximado de la expresión es <span class="math inline">\(0.3711\)</span>.</label>
+<label><input type="checkbox" name="q17796553072404423" value="5" data-correct="false" > El valor numérico aproximado de la expresión es <span class="math inline">\(0.3711\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046436203" value="6" data-correct="false" > El valor numérico se calcula sumando directamente los valores conocidos: <span class="math inline">\(\log_b 2 + \log_b 3 = 1.1133\)</span>.</label>
+<label><input type="checkbox" name="q17796553072404423" value="6" data-correct="false" > El valor numérico se calcula sumando directamente los valores conocidos: <span class="math inline">\(\log_b 2 + \log_b 3 = 1.1133\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513046436203&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553072404423&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1472,31 +1535,31 @@ true
 <div id="pregunta-8-simplificar-y-escribir-como-un-solo-logaritmo" class="section level3 hasAnchor" number="12.3.5">
 <h3><span class="header-section-number">12.3.5</span> Pregunta 8 (Simplificar y escribir como un solo logaritmo)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-8-simplificar-y-escribir-como-un-solo-logaritmo" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513046515599" class="learnr-question-box">
+<div id="q17796553072494294" class="learnr-question-box">
 <div class="learnr-question-text">
 Simplifique la siguiente expresión logarítmica y escríbala como un único logaritmo simplificado:<br><span class="math display">\[\frac{1}{2}\ln(36)+2\ln(4)-\ln(4)\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046515599" value="1" data-correct="true" > La expresión simplificada como un único logaritmo es <span class="math inline">\(\ln(24)\)</span>.</label>
+<label><input type="checkbox" name="q17796553072494294" value="1" data-correct="true" > La expresión simplificada como un único logaritmo es <span class="math inline">\(\ln(24)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046515599" value="2" data-correct="true" > La expresión inicial se reduce paso a paso como: <span class="math inline">\(\ln(\sqrt{36}) + 2\ln(4) - \ln(4) = \ln(6) + \ln(4) = \ln(6 \cdot 4) = \ln(24)\)</span>.</label>
+<label><input type="checkbox" name="q17796553072494294" value="2" data-correct="true" > La expresión inicial se reduce paso a paso como: <span class="math inline">\(\ln(\sqrt{36}) + 2\ln(4) - \ln(4) = \ln(6) + \ln(4) = \ln(6 \cdot 4) = \ln(24)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046515599" value="3" data-correct="true" > El valor numérico aproximado de la expresión simplificada es <span class="math inline">\(3.1781\)</span>.</label>
+<label><input type="checkbox" name="q17796553072494294" value="3" data-correct="true" > El valor numérico aproximado de la expresión simplificada es <span class="math inline">\(3.1781\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046515599" value="4" data-correct="false" > La expresión simplificada final equivale a la expresión <span class="math inline">\(\ln(144)\)</span>.</label>
+<label><input type="checkbox" name="q17796553072494294" value="4" data-correct="false" > La expresión simplificada final equivale a la expresión <span class="math inline">\(\ln(144)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046515599" value="5" data-correct="false" > La expresión final simplificada se reduce simplemente a <span class="math inline">\(\ln(6)\)</span>.</label>
+<label><input type="checkbox" name="q17796553072494294" value="5" data-correct="false" > La expresión final simplificada se reduce simplemente a <span class="math inline">\(\ln(6)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046515599" value="6" data-correct="false" > El valor numérico aproximado de la expresión es <span class="math inline">\(2.0794\)</span>.</label>
+<label><input type="checkbox" name="q17796553072494294" value="6" data-correct="false" > El valor numérico aproximado de la expresión es <span class="math inline">\(2.0794\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513046515599&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553072494294&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1519,25 +1582,25 @@ true
 <div id="pregunta-9-reformular-de-exponencial-a-logarítmica" class="section level3 hasAnchor" number="12.3.6">
 <h3><span class="header-section-number">12.3.6</span> Pregunta 9 (Reformular de exponencial a logarítmica)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-9-reformular-de-exponencial-a-logar%C3%ADtmica" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513046593864" class="learnr-question-box">
+<div id="q17796553072582830" class="learnr-question-box">
 <div class="learnr-question-text">
 Reformule la expresión exponencial dada en su forma logarítmica equivalente:<br><span class="math display">\[(a+b)^{2}=a^2+2ab+b^2\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046593864" value="1" data-correct="true" > La expresión logarítmica equivalente es <span class="math inline">\(\log_{a+b}(a^2+2ab+b^2) = 2\)</span>.</label>
+<label><input type="checkbox" name="q17796553072582830" value="1" data-correct="true" > La expresión logarítmica equivalente es <span class="math inline">\(\log_{a+b}(a^2+2ab+b^2) = 2\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046593864" value="2" data-correct="true" > En esta reformulación, el binomio <span class="math inline">\((a+b)\)</span> actúa como la base del logaritmo, el trinomio <span class="math inline">\((a^2+2ab+b^2)\)</span> es el argumento y el exponente <span class="math inline">\(2\)</span> es el resultado del logaritmo.</label>
+<label><input type="checkbox" name="q17796553072582830" value="2" data-correct="true" > En esta reformulación, el binomio <span class="math inline">\((a+b)\)</span> actúa como la base del logaritmo, el trinomio <span class="math inline">\((a^2+2ab+b^2)\)</span> es el argumento y el exponente <span class="math inline">\(2\)</span> es el resultado del logaritmo.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046593864" value="3" data-correct="false" > La expresión logarítmica equivalente es <span class="math inline">\(\log_{2}(a^2+2ab+b^2) = a+b\)</span>.</label>
+<label><input type="checkbox" name="q17796553072582830" value="3" data-correct="false" > La expresión logarítmica equivalente es <span class="math inline">\(\log_{2}(a^2+2ab+b^2) = a+b\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046593864" value="4" data-correct="false" > La expresión logarítmica equivalente es <span class="math inline">\(\log_{a+b}(2) = a^2+2ab+b^2\)</span>.</label>
+<label><input type="checkbox" name="q17796553072582830" value="4" data-correct="false" > La expresión logarítmica equivalente es <span class="math inline">\(\log_{a+b}(2) = a^2+2ab+b^2\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513046593864&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553072582830&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1560,25 +1623,25 @@ true
 <div id="pregunta-10-reformular-de-logarítmica-a-exponencial" class="section level3 hasAnchor" number="12.3.7">
 <h3><span class="header-section-number">12.3.7</span> Pregunta 10 (Reformular de logarítmica a exponencial)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-10-reformular-de-logar%C3%ADtmica-a-exponencial" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513046733733" class="learnr-question-box">
+<div id="q17796553072707731" class="learnr-question-box">
 <div class="learnr-question-text">
 Reformule la expresión logarítmica dada en su forma exponencial equivalente:<br><span class="math display">\[\log_{\sqrt{3}}81=8\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046733733" value="1" data-correct="true" > La expresión exponencial equivalente es <span class="math inline">\((\sqrt{3})^8 = 81\)</span>.</label>
+<label><input type="checkbox" name="q17796553072707731" value="1" data-correct="true" > La expresión exponencial equivalente es <span class="math inline">\((\sqrt{3})^8 = 81\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046733733" value="2" data-correct="true" > Puesto que <span class="math inline">\(\sqrt{3} = 3^{1/2}\)</span>, se verifica que <span class="math inline">\((3^{1/2})^8 = 3^4 = 81\)</span>, lo cual demuestra consistencia matemática.</label>
+<label><input type="checkbox" name="q17796553072707731" value="2" data-correct="true" > Puesto que <span class="math inline">\(\sqrt{3} = 3^{1/2}\)</span>, se verifica que <span class="math inline">\((3^{1/2})^8 = 3^4 = 81\)</span>, lo cual demuestra consistencia matemática.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046733733" value="3" data-correct="false" > La expresión exponencial equivalente es <span class="math inline">\(8^{\sqrt{3}} = 81\)</span>.</label>
+<label><input type="checkbox" name="q17796553072707731" value="3" data-correct="false" > La expresión exponencial equivalente es <span class="math inline">\(8^{\sqrt{3}} = 81\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046733733" value="4" data-correct="false" > La expresión exponencial equivalente es <span class="math inline">\(81^8 = \sqrt{3}\)</span>.</label>
+<label><input type="checkbox" name="q17796553072707731" value="4" data-correct="false" > La expresión exponencial equivalente es <span class="math inline">\(81^8 = \sqrt{3}\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513046733733&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553072707731&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1601,25 +1664,25 @@ true
 <div id="pregunta-11-valor-exacto-de-log_100.0000001" class="section level3 hasAnchor" number="12.3.8">
 <h3><span class="header-section-number">12.3.8</span> Pregunta 11 (Valor exacto de <span class="math inline">\(\log_{10}(0.0000001)\)</span>)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-11-valor-exacto-de-log_100.0000001" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513046812106" class="learnr-question-box">
+<div id="q17796553072783231" class="learnr-question-box">
 <div class="learnr-question-text">
 Determine el valor numérico exacto de la expresión logarítmica:<br><span class="math display">\[\log_{10}(0.0000001)\]</span><br>Seleccione las afirmaciones que son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046812106" value="1" data-correct="true" > El valor exacto de este logaritmo es <span class="math inline">\(-7\)</span>.</label>
+<label><input type="checkbox" name="q17796553072783231" value="1" data-correct="true" > El valor exacto de este logaritmo es <span class="math inline">\(-7\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046812106" value="2" data-correct="true" > El argumento decimal se puede escribir en notación científica como la potencia de base diez <span class="math inline">\(10^{-7}\)</span>, y dado que la base del logaritmo es <span class="math inline">\(10\)</span>, el resultado es el exponente <span class="math inline">\(-7\)</span>.</label>
+<label><input type="checkbox" name="q17796553072783231" value="2" data-correct="true" > El argumento decimal se puede escribir en notación científica como la potencia de base diez <span class="math inline">\(10^{-7}\)</span>, y dado que la base del logaritmo es <span class="math inline">\(10\)</span>, el resultado es el exponente <span class="math inline">\(-7\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046812106" value="3" data-correct="false" > El valor exacto de este logaritmo es <span class="math inline">\(7\)</span>.</label>
+<label><input type="checkbox" name="q17796553072783231" value="3" data-correct="false" > El valor exacto de este logaritmo es <span class="math inline">\(7\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046812106" value="4" data-correct="false" > El valor exacto de este logaritmo es <span class="math inline">\(-6\)</span>.</label>
+<label><input type="checkbox" name="q17796553072783231" value="4" data-correct="false" > El valor exacto de este logaritmo es <span class="math inline">\(-6\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513046812106&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553072783231&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1642,25 +1705,25 @@ true
 <div id="pregunta-12-valor-exacto-de-25log_5-8" class="section level3 hasAnchor" number="12.3.9">
 <h3><span class="header-section-number">12.3.9</span> Pregunta 12 (Valor exacto de <span class="math inline">\(25^{\log_5 8}\)</span>)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-12-valor-exacto-de-25log_5-8" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513046906280" class="learnr-question-box">
+<div id="q17796553072861628" class="learnr-question-box">
 <div class="learnr-question-text">
 Determine el valor numérico exacto de la expresión exponencial con logaritmo:<br><span class="math display">\[25^{\log_{5}8}\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046906280" value="1" data-correct="true" > El valor exacto de la expresión es <span class="math inline">\(64\)</span>.</label>
+<label><input type="checkbox" name="q17796553072861628" value="1" data-correct="true" > El valor exacto de la expresión es <span class="math inline">\(64\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046906280" value="2" data-correct="true" > Al escribir la base externa como <span class="math inline">\(25 = 5^2\)</span> y aplicar las leyes de exponentes, la expresión se reduce a <span class="math inline">\((5^{\log_5 8})^2 = 8^2 = 64\)</span>.</label>
+<label><input type="checkbox" name="q17796553072861628" value="2" data-correct="true" > Al escribir la base externa como <span class="math inline">\(25 = 5^2\)</span> y aplicar las leyes de exponentes, la expresión se reduce a <span class="math inline">\((5^{\log_5 8})^2 = 8^2 = 64\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046906280" value="3" data-correct="false" > El valor exacto de la expresión es <span class="math inline">\(16\)</span>.</label>
+<label><input type="checkbox" name="q17796553072861628" value="3" data-correct="false" > El valor exacto de la expresión es <span class="math inline">\(16\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046906280" value="4" data-correct="false" > El valor exacto de la expresión es <span class="math inline">\(32\)</span>.</label>
+<label><input type="checkbox" name="q17796553072861628" value="4" data-correct="false" > El valor exacto de la expresión es <span class="math inline">\(32\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513046906280&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553072861628&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1683,28 +1746,28 @@ true
 <div id="pregunta-13-valor-exacto-de-e-ln7" class="section level3 hasAnchor" number="12.3.10">
 <h3><span class="header-section-number">12.3.10</span> Pregunta 13 (Valor exacto de <span class="math inline">\(e^{-\ln(7)}\)</span>)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-13-valor-exacto-de-e-ln7" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513046976832" class="learnr-question-box">
+<div id="q17796553072932509" class="learnr-question-box">
 <div class="learnr-question-text">
 Determine el valor numérico exacto de la expresión exponencial:<br><span class="math display">\[e^{-\ln(7)}\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046976832" value="1" data-correct="true" > La expresión se reduce al valor exacto fraccionario de <span class="math inline">\(\frac{1}{7}\)</span>.</label>
+<label><input type="checkbox" name="q17796553072932509" value="1" data-correct="true" > La expresión se reduce al valor exacto fraccionario de <span class="math inline">\(\frac{1}{7}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046976832" value="2" data-correct="true" > Aplicando las leyes de los logaritmos, el exponente <span class="math inline">\(-\ln(7)\)</span> se escribe como <span class="math inline">\(\ln(7^{-1})\)</span>, y por la propiedad fundamental <span class="math inline">\(e^{\ln(u)} = u\)</span>, se obtiene <span class="math inline">\(7^{-1} = \frac{1}{7}\)</span>.</label>
+<label><input type="checkbox" name="q17796553072932509" value="2" data-correct="true" > Aplicando las leyes de los logaritmos, el exponente <span class="math inline">\(-\ln(7)\)</span> se escribe como <span class="math inline">\(\ln(7^{-1})\)</span>, y por la propiedad fundamental <span class="math inline">\(e^{\ln(u)} = u\)</span>, se obtiene <span class="math inline">\(7^{-1} = \frac{1}{7}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046976832" value="3" data-correct="true" > El valor numérico aproximado de la expresión es <span class="math inline">\(0.1429\)</span>.</label>
+<label><input type="checkbox" name="q17796553072932509" value="3" data-correct="true" > El valor numérico aproximado de la expresión es <span class="math inline">\(0.1429\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046976832" value="4" data-correct="false" > El valor exacto de la expresión es <span class="math inline">\(-7\)</span>.</label>
+<label><input type="checkbox" name="q17796553072932509" value="4" data-correct="false" > El valor exacto de la expresión es <span class="math inline">\(-7\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513046976832" value="5" data-correct="false" > El valor exacto de la expresión es <span class="math inline">\(7\)</span>.</label>
+<label><input type="checkbox" name="q17796553072932509" value="5" data-correct="false" > El valor exacto de la expresión es <span class="math inline">\(7\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513046976832&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553072932509&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1727,28 +1790,28 @@ true
 <div id="pregunta-14-leyes-de-logaritmos---caso-1" class="section level3 hasAnchor" number="12.3.11">
 <h3><span class="header-section-number">12.3.11</span> Pregunta 14 (Leyes de logaritmos - Caso 1)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-14-leyes-de-logaritmos---caso-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513047055365" class="learnr-question-box">
+<div id="q17796553073017616" class="learnr-question-box">
 <div class="learnr-question-text">
 Aplique las leyes de los logaritmos de modo que la expresión resultante para <span class="math inline">\(\ln(y)\)</span> no contenga productos, cocientes ni potencias, a partir de:<br><span class="math display">\[y=\frac{x^{10}\sqrt{x^2+4}}{\sqrt[3]{8x^3+2}}\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047055365" value="1" data-correct="true" > La expansión correcta es <span class="math inline">\(\ln(y) = 10\ln(x) + \frac{1}{2}\ln(x^2+4) - \frac{1}{3}\ln(8x^3+2)\)</span>.</label>
+<label><input type="checkbox" name="q17796553073017616" value="1" data-correct="true" > La expansión correcta es <span class="math inline">\(\ln(y) = 10\ln(x) + \frac{1}{2}\ln(x^2+4) - \frac{1}{3}\ln(8x^3+2)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047055365" value="2" data-correct="true" > El término con potencia en el numerador se expande de forma aditiva como <span class="math inline">\(10\ln(x)\)</span> y el radical de raíz cuadrada como <span class="math inline">\(\frac{1}{2}\ln(x^2+4)\)</span>.</label>
+<label><input type="checkbox" name="q17796553073017616" value="2" data-correct="true" > El término con potencia en el numerador se expande de forma aditiva como <span class="math inline">\(10\ln(x)\)</span> y el radical de raíz cuadrada como <span class="math inline">\(\frac{1}{2}\ln(x^2+4)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047055365" value="3" data-correct="true" > El término en el denominador con raíz cúbica se expande de forma sustractiva como <span class="math inline">\(-\frac{1}{3}\ln(8x^3+2)\)</span>.</label>
+<label><input type="checkbox" name="q17796553073017616" value="3" data-correct="true" > El término en el denominador con raíz cúbica se expande de forma sustractiva como <span class="math inline">\(-\frac{1}{3}\ln(8x^3+2)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047055365" value="4" data-correct="false" > La expansión correcta contiene el término aditivo <span class="math inline">\(+\frac{1}{3}\ln(8x^3+2)\)</span>.</label>
+<label><input type="checkbox" name="q17796553073017616" value="4" data-correct="false" > La expansión correcta contiene el término aditivo <span class="math inline">\(+\frac{1}{3}\ln(8x^3+2)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047055365" value="5" data-correct="false" > La potencia de <span class="math inline">\(x\)</span> se expande incorrectamente como <span class="math inline">\(\ln(10x)\)</span>.</label>
+<label><input type="checkbox" name="q17796553073017616" value="5" data-correct="false" > La potencia de <span class="math inline">\(x\)</span> se expande incorrectamente como <span class="math inline">\(\ln(10x)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513047055365&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553073017616&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1771,28 +1834,28 @@ true
 <div id="pregunta-15-leyes-de-logaritmos---caso-2" class="section level3 hasAnchor" number="12.3.12">
 <h3><span class="header-section-number">12.3.12</span> Pregunta 15 (Leyes de logaritmos - Caso 2)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-15-leyes-de-logaritmos---caso-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513047137866" class="learnr-question-box">
+<div id="q17796553073093899" class="learnr-question-box">
 <div class="learnr-question-text">
 Aplique las leyes de los logaritmos de modo que la expresión resultante para <span class="math inline">\(\ln(y)\)</span> no contenga productos, cocientes ni potencias, a partir de:<br><span class="math display">\[y=\frac{(x^{3}-3)^{5}(x^{4}+3x^2+1)^{8}}{4x+3}\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047137866" value="1" data-correct="true" > La expansión correcta es <span class="math inline">\(\ln(y) = 5\ln(x^3-3) + 8\ln(x^4+3x^2+1) - \ln(4x+3)\)</span>.</label>
+<label><input type="checkbox" name="q17796553073093899" value="1" data-correct="true" > La expansión correcta es <span class="math inline">\(\ln(y) = 5\ln(x^3-3) + 8\ln(x^4+3x^2+1) - \ln(4x+3)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047137866" value="2" data-correct="true" > El factor polinómico del numerador <span class="math inline">\((x^3-3)^5\)</span> se convierte en <span class="math inline">\(5\ln(x^3-3)\)</span> y se suma debido a que está en el numerador.</label>
+<label><input type="checkbox" name="q17796553073093899" value="2" data-correct="true" > El factor polinómico del numerador <span class="math inline">\((x^3-3)^5\)</span> se convierte en <span class="math inline">\(5\ln(x^3-3)\)</span> y se suma debido a que está en el numerador.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047137866" value="3" data-correct="true" > El factor polinómico del numerador <span class="math inline">\((x^4+3x^2+1)^8\)</span> se convierte en <span class="math inline">\(8\ln(x^4+3x^2+1)\)</span> y se suma.</label>
+<label><input type="checkbox" name="q17796553073093899" value="3" data-correct="true" > El factor polinómico del numerador <span class="math inline">\((x^4+3x^2+1)^8\)</span> se convierte en <span class="math inline">\(8\ln(x^4+3x^2+1)\)</span> y se suma.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047137866" value="4" data-correct="true" > El divisor polinómico <span class="math inline">\((4x+3)\)</span> en el denominador se resta como <span class="math inline">\(-\ln(4x+3)\)</span>.</label>
+<label><input type="checkbox" name="q17796553073093899" value="4" data-correct="true" > El divisor polinómico <span class="math inline">\((4x+3)\)</span> en el denominador se resta como <span class="math inline">\(-\ln(4x+3)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047137866" value="5" data-correct="false" > El término del denominador se expande incorrectamente como <span class="math inline">\(-\ln(4x) - \ln(3)\)</span>.</label>
+<label><input type="checkbox" name="q17796553073093899" value="5" data-correct="false" > El término del denominador se expande incorrectamente como <span class="math inline">\(-\ln(4x) - \ln(3)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513047137866&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553073093899&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1815,28 +1878,28 @@ true
 <div id="pregunta-16-leyes-de-logaritmos---caso-3" class="section level3 hasAnchor" number="12.3.13">
 <h3><span class="header-section-number">12.3.13</span> Pregunta 16 (Leyes de logaritmos - Caso 3)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-16-leyes-de-logaritmos---caso-3" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513047219948" class="learnr-question-box">
+<div id="q17796553073174207" class="learnr-question-box">
 <div class="learnr-question-text">
 Aplique las leyes de los logaritmos de modo que la expresión resultante para <span class="math inline">\(\ln(y)\)</span> no contenga productos, cocientes ni potencias, a partir de:<br><span class="math display">\[y=64x^{6}\sqrt{x+1}\sqrt[3]{x^{2}+2}\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047219948" value="1" data-correct="true" > La expansión correcta es <span class="math inline">\(\ln(y) = \ln(64) + 6\ln(x) + \frac{1}{2}\ln(x+1) + \frac{1}{3}\ln(x^2+2)\)</span>.</label>
+<label><input type="checkbox" name="q17796553073174207" value="1" data-correct="true" > La expansión correcta es <span class="math inline">\(\ln(y) = \ln(64) + 6\ln(x) + \frac{1}{2}\ln(x+1) + \frac{1}{3}\ln(x^2+2)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047219948" value="2" data-correct="true" > El término constante <span class="math inline">\(\ln(64)\)</span> se puede expandir equivalentemente como <span class="math inline">\(6\ln(2)\)</span>, dado que <span class="math inline">\(64 = 2^6\)</span>.</label>
+<label><input type="checkbox" name="q17796553073174207" value="2" data-correct="true" > El término constante <span class="math inline">\(\ln(64)\)</span> se puede expandir equivalentemente como <span class="math inline">\(6\ln(2)\)</span>, dado que <span class="math inline">\(64 = 2^6\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047219948" value="3" data-correct="true" > Todos los términos de la expresión se suman debido a que el argumento original es un producto continuo de factores.</label>
+<label><input type="checkbox" name="q17796553073174207" value="3" data-correct="true" > Todos los términos de la expresión se suman debido a que el argumento original es un producto continuo de factores.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047219948" value="4" data-correct="false" > El término de la raíz cuadrada <span class="math inline">\(\sqrt{x+1}\)</span> se resta de la expresión.</label>
+<label><input type="checkbox" name="q17796553073174207" value="4" data-correct="false" > El término de la raíz cuadrada <span class="math inline">\(\sqrt{x+1}\)</span> se resta de la expresión.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047219948" value="5" data-correct="false" > La potencia <span class="math inline">\(x^6\)</span> se convierte de forma errónea en <span class="math inline">\(\ln(6x)\)</span>.</label>
+<label><input type="checkbox" name="q17796553073174207" value="5" data-correct="false" > La potencia <span class="math inline">\(x^6\)</span> se convierte de forma errónea en <span class="math inline">\(\ln(6x)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513047219948&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553073174207&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1859,28 +1922,28 @@ true
 <div id="pregunta-17-resuelva-para-k-e10k7" class="section level3 hasAnchor" number="12.3.14">
 <h3><span class="header-section-number">12.3.14</span> Pregunta 17 (Resuelva para <span class="math inline">\(k\)</span>: <span class="math inline">\(e^{10k}=7\)</span>)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-17-resuelva-para-k-e10k7" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513047293908" class="learnr-question-box">
+<div id="q17796553073252576" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva la ecuación exponencial dada y determine el valor exacto y aproximado para la variable <span class="math inline">\(k\)</span>:<br><span class="math display">\[e^{10k}=7\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047293908" value="1" data-correct="true" > La solución exacta de la ecuación es <span class="math inline">\(k = \frac{\ln(7)}{10}\)</span>.</label>
+<label><input type="checkbox" name="q17796553073252576" value="1" data-correct="true" > La solución exacta de la ecuación es <span class="math inline">\(k = \frac{\ln(7)}{10}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047293908" value="2" data-correct="true" > El valor numérico aproximado de la variable es <span class="math inline">\(k \approx 0.1946\)</span>.</label>
+<label><input type="checkbox" name="q17796553073252576" value="2" data-correct="true" > El valor numérico aproximado de la variable es <span class="math inline">\(k \approx 0.1946\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047293908" value="3" data-correct="true" > La solución se obtiene aplicando la función logaritmo natural a ambos lados de la ecuación, lo que anula la base exponencial natural <span class="math inline">\(e\)</span>.</label>
+<label><input type="checkbox" name="q17796553073252576" value="3" data-correct="true" > La solución se obtiene aplicando la función logaritmo natural a ambos lados de la ecuación, lo que anula la base exponencial natural <span class="math inline">\(e\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047293908" value="4" data-correct="false" > La solución exacta de la ecuación es <span class="math inline">\(k = \frac{7}{10}\)</span>.</label>
+<label><input type="checkbox" name="q17796553073252576" value="4" data-correct="false" > La solución exacta de la ecuación es <span class="math inline">\(k = \frac{7}{10}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047293908" value="5" data-correct="false" > La solución de la ecuación es <span class="math inline">\(k = 10\ln(7)\)</span>.</label>
+<label><input type="checkbox" name="q17796553073252576" value="5" data-correct="false" > La solución de la ecuación es <span class="math inline">\(k = 10\ln(7)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513047293908&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553073252576&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1903,28 +1966,28 @@ true
 <div id="pregunta-18-resuelva-para-x-2x-38x1" class="section level3 hasAnchor" number="12.3.15">
 <h3><span class="header-section-number">12.3.15</span> Pregunta 18 (Resuelva para <span class="math inline">\(x\)</span>: <span class="math inline">\(2^{x-3}=8^{x+1}\)</span>)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-18-resuelva-para-x-2x-38x1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513047364431" class="learnr-question-box">
+<div id="q17796553073334477" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva la ecuación exponencial y determine el conjunto solución para la variable <span class="math inline">\(x\)</span>:<br><span class="math display">\[2^{x-3}=8^{x+1}\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047364431" value="1" data-correct="true" > La solución única de la ecuación es <span class="math inline">\(x = -3\)</span>.</label>
+<label><input type="checkbox" name="q17796553073334477" value="1" data-correct="true" > La solución única de la ecuación es <span class="math inline">\(x = -3\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047364431" value="2" data-correct="true" > Al expresar el número <span class="math inline">\(8\)</span> como una potencia de base dos (<span class="math inline">\(8 = 2^3\)</span>), la ecuación se reduce a la igualdad de exponentes: <span class="math inline">\(x - 3 = 3(x + 1)\)</span>.</label>
+<label><input type="checkbox" name="q17796553073334477" value="2" data-correct="true" > Al expresar el número <span class="math inline">\(8\)</span> como una potencia de base dos (<span class="math inline">\(8 = 2^3\)</span>), la ecuación se reduce a la igualdad de exponentes: <span class="math inline">\(x - 3 = 3(x + 1)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047364431" value="3" data-correct="true" > Al evaluar <span class="math inline">\(x = -3\)</span> en la ecuación original se obtiene la identidad numérica <span class="math inline">\(2^{-6} = 8^{-2}\)</span> (que equivale al valor exacto de <span class="math inline">\(\frac{1}{64}\)</span>).</label>
+<label><input type="checkbox" name="q17796553073334477" value="3" data-correct="true" > Al evaluar <span class="math inline">\(x = -3\)</span> en la ecuación original se obtiene la identidad numérica <span class="math inline">\(2^{-6} = 8^{-2}\)</span> (que equivale al valor exacto de <span class="math inline">\(\frac{1}{64}\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047364431" value="4" data-correct="false" > La solución única de la ecuación es <span class="math inline">\(x = 3\)</span>.</label>
+<label><input type="checkbox" name="q17796553073334477" value="4" data-correct="false" > La solución única de la ecuación es <span class="math inline">\(x = 3\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047364431" value="5" data-correct="false" > La ecuación es inconsistente y carece de soluciones reales.</label>
+<label><input type="checkbox" name="q17796553073334477" value="5" data-correct="false" > La ecuación es inconsistente y carece de soluciones reales.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513047364431&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553073334477&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1947,28 +2010,28 @@ true
 <div id="pregunta-19-resuelva-para-x-72x2343" class="section level3 hasAnchor" number="12.3.16">
 <h3><span class="header-section-number">12.3.16</span> Pregunta 19 (Resuelva para <span class="math inline">\(x\)</span>: <span class="math inline">\(7^{2x+2}=343\)</span>)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-19-resuelva-para-x-72x2343" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513047446590" class="learnr-question-box">
+<div id="q17796553073435035" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva la ecuación exponencial y determine el conjunto solución para la variable <span class="math inline">\(x\)</span>:<br><span class="math display">\[7^{2x+2}=343\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047446590" value="1" data-correct="true" > La solución exacta de la ecuación es <span class="math inline">\(x = 0.5\)</span> (o equivalentemente la fracción <span class="math inline">\(x = \frac{1}{2}\)</span>).</label>
+<label><input type="checkbox" name="q17796553073435035" value="1" data-correct="true" > La solución exacta de la ecuación es <span class="math inline">\(x = 0.5\)</span> (o equivalentemente la fracción <span class="math inline">\(x = \frac{1}{2}\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047446590" value="2" data-correct="true" > Puesto que el número <span class="math inline">\(343\)</span> se puede expresar en base siete como <span class="math inline">\(7^3\)</span>, la ecuación equivale a resolver la igualdad lineal de exponentes: <span class="math inline">\(2x + 2 = 3\)</span>.</label>
+<label><input type="checkbox" name="q17796553073435035" value="2" data-correct="true" > Puesto que el número <span class="math inline">\(343\)</span> se puede expresar en base siete como <span class="math inline">\(7^3\)</span>, la ecuación equivale a resolver la igualdad lineal de exponentes: <span class="math inline">\(2x + 2 = 3\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047446590" value="3" data-correct="true" > Al evaluar la solución hallada en la ecuación original, se cumple la identidad <span class="math inline">\(7^{3} = 343\)</span>, verificando su consistencia.</label>
+<label><input type="checkbox" name="q17796553073435035" value="3" data-correct="true" > Al evaluar la solución hallada en la ecuación original, se cumple la identidad <span class="math inline">\(7^{3} = 343\)</span>, verificando su consistencia.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047446590" value="4" data-correct="false" > La solución única de la ecuación es <span class="math inline">\(x = 1.5\)</span>.</label>
+<label><input type="checkbox" name="q17796553073435035" value="4" data-correct="false" > La solución única de la ecuación es <span class="math inline">\(x = 1.5\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047446590" value="5" data-correct="false" > La ecuación no tiene solución en el conjunto de los números reales.</label>
+<label><input type="checkbox" name="q17796553073435035" value="5" data-correct="false" > La ecuación no tiene solución en el conjunto de los números reales.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513047446590&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553073435035&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1991,28 +2054,28 @@ true
 <div id="pregunta-20-resuelva-para-x-ln2ln4x-1ln2x5" class="section level3 hasAnchor" number="12.3.17">
 <h3><span class="header-section-number">12.3.17</span> Pregunta 20 (Resuelva para <span class="math inline">\(x\)</span>: <span class="math inline">\(\ln(2)+\ln(4x-1)=\ln(2x+5)\)</span>)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-20-resuelva-para-x-ln2ln4x-1ln2x5" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513047522000" class="learnr-question-box">
+<div id="q17796553073525572" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva analíticamente la ecuación logarítmica y determine el conjunto solución para la variable <span class="math inline">\(x\)</span>:<br><span class="math display">\[\ln(2)+\ln(4x-1)=\ln(2x+5)\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047522000" value="1" data-correct="true" > La solución única de la ecuación es <span class="math inline">\(x = \frac{7}{6}\)</span> (o en formato aproximado <span class="math inline">\(x \approx 1.1667\)</span>).</label>
+<label><input type="checkbox" name="q17796553073525572" value="1" data-correct="true" > La solución única de la ecuación es <span class="math inline">\(x = \frac{7}{6}\)</span> (o en formato aproximado <span class="math inline">\(x \approx 1.1667\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047522000" value="2" data-correct="true" > Aplicando las leyes de los logaritmos, la suma del lado izquierdo se simplifica como el logaritmo de un producto: <span class="math inline">\(\ln(8x - 2) = \ln(2x + 5)\)</span>.</label>
+<label><input type="checkbox" name="q17796553073525572" value="2" data-correct="true" > Aplicando las leyes de los logaritmos, la suma del lado izquierdo se simplifica como el logaritmo de un producto: <span class="math inline">\(\ln(8x - 2) = \ln(2x + 5)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047522000" value="3" data-correct="true" > El valor hallado <span class="math inline">\(x = \frac{7}{6}\)</span> es admisible debido a que hace que los argumentos de todos los logaritmos de la ecuación original sean estrictamente positivos (<span class="math inline">\(4(\frac{7}{6})-1 = \frac{11}{3} &gt; 0\)</span> y <span class="math inline">\(2(\frac{7}{6})+5 = \frac{22}{3} &gt; 0\)</span>).</label>
+<label><input type="checkbox" name="q17796553073525572" value="3" data-correct="true" > El valor hallado <span class="math inline">\(x = \frac{7}{6}\)</span> es admisible debido a que hace que los argumentos de todos los logaritmos de la ecuación original sean estrictamente positivos (<span class="math inline">\(4(\frac{7}{6})-1 = \frac{11}{3} &gt; 0\)</span> y <span class="math inline">\(2(\frac{7}{6})+5 = \frac{22}{3} &gt; 0\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047522000" value="4" data-correct="false" > La solución de la ecuación es <span class="math inline">\(x = 1\)</span>.</label>
+<label><input type="checkbox" name="q17796553073525572" value="4" data-correct="false" > La solución de la ecuación es <span class="math inline">\(x = 1\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047522000" value="5" data-correct="false" > La ecuación carece de soluciones porque los logaritmos del lado izquierdo no se pueden simplificar.</label>
+<label><input type="checkbox" name="q17796553073525572" value="5" data-correct="false" > La ecuación carece de soluciones porque los logaritmos del lado izquierdo no se pueden simplificar.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513047522000&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553073525572&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2035,28 +2098,28 @@ true
 <div id="pregunta-21-resuelva-para-x-e2x3x-4" class="section level3 hasAnchor" number="12.3.18">
 <h3><span class="header-section-number">12.3.18</span> Pregunta 21 (Resuelva para <span class="math inline">\(x\)</span>: <span class="math inline">\(e^{2x}=3^{x-4}\)</span>)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-21-resuelva-para-x-e2x3x-4" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513047604383" class="learnr-question-box">
+<div id="q17796553073596006" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva la ecuación exponencial y determine el conjunto solución analítico y numérico para la variable <span class="math inline">\(x\)</span>:<br><span class="math display">\[e^{2x}=3^{x-4}\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047604383" value="1" data-correct="true" > La solución exacta de la ecuación es <span class="math inline">\(x = \frac{4\ln(3)}{\ln(3)-2}\)</span> (o equivalentemente <span class="math inline">\(x = \frac{-4\ln(3)}{2-\ln(3)}\)</span>).</label>
+<label><input type="checkbox" name="q17796553073596006" value="1" data-correct="true" > La solución exacta de la ecuación es <span class="math inline">\(x = \frac{4\ln(3)}{\ln(3)-2}\)</span> (o equivalentemente <span class="math inline">\(x = \frac{-4\ln(3)}{2-\ln(3)}\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047604383" value="2" data-correct="true" > El valor numérico aproximado de la solución es <span class="math inline">\(x \approx -4.8752\)</span>.</label>
+<label><input type="checkbox" name="q17796553073596006" value="2" data-correct="true" > El valor numérico aproximado de la solución es <span class="math inline">\(x \approx -4.8752\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047604383" value="3" data-correct="true" > La solución se obtiene aplicando logaritmo natural a ambos lados y agrupando de forma algebraica todos los términos con <span class="math inline">\(x\)</span> en un único lado de la ecuación.</label>
+<label><input type="checkbox" name="q17796553073596006" value="3" data-correct="true" > La solución se obtiene aplicando logaritmo natural a ambos lados y agrupando de forma algebraica todos los términos con <span class="math inline">\(x\)</span> en un único lado de la ecuación.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047604383" value="4" data-correct="false" > La solución exacta es <span class="math inline">\(x = \frac{4}{\ln(3)-2}\)</span>.</label>
+<label><input type="checkbox" name="q17796553073596006" value="4" data-correct="false" > La solución exacta es <span class="math inline">\(x = \frac{4}{\ln(3)-2}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047604383" value="5" data-correct="false" > El valor numérico aproximado de la solución es <span class="math inline">\(x \approx 4.8752\)</span>.</label>
+<label><input type="checkbox" name="q17796553073596006" value="5" data-correct="false" > El valor numérico aproximado de la solución es <span class="math inline">\(x \approx 4.8752\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513047604383&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553073596006&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2079,31 +2142,31 @@ true
 <div id="pregunta-22-resuelva-para-x-5x-5-x2" class="section level3 hasAnchor" number="12.3.19">
 <h3><span class="header-section-number">12.3.19</span> Pregunta 22 (Resuelva para <span class="math inline">\(x\)</span>: <span class="math inline">\(5^x-5^{-x}=2\)</span>)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-22-resuelva-para-x-5x-5-x2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513047692568" class="learnr-question-box">
+<div id="q17796553073674481" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva analíticamente la ecuación exponencial de tipo cuadrático y determine la solución para la variable <span class="math inline">\(x\)</span>:<br><span class="math display">\[5^{x}-5^{-x}=2\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047692568" value="1" data-correct="true" > Al realizar la sustitución de variable auxiliar <span class="math inline">\(u = 5^x\)</span> (con <span class="math inline">\(u &gt; 0\)</span>), la ecuación original se transforma en la ecuación cuadrática <span class="math inline">\(u^2 - 2u - 1 = 0\)</span>.</label>
+<label><input type="checkbox" name="q17796553073674481" value="1" data-correct="true" > Al realizar la sustitución de variable auxiliar <span class="math inline">\(u = 5^x\)</span> (con <span class="math inline">\(u &gt; 0\)</span>), la ecuación original se transforma en la ecuación cuadrática <span class="math inline">\(u^2 - 2u - 1 = 0\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047692568" value="2" data-correct="true" > La única raíz positiva admisible para la variable auxiliar es <span class="math inline">\(u = 1 + \sqrt{2}\)</span>, dado que la raíz <span class="math inline">\(1 - \sqrt{2}\)</span> es negativa y la función exponencial <span class="math inline">\(5^x\)</span> solo toma valores positivos.</label>
+<label><input type="checkbox" name="q17796553073674481" value="2" data-correct="true" > La única raíz positiva admisible para la variable auxiliar es <span class="math inline">\(u = 1 + \sqrt{2}\)</span>, dado que la raíz <span class="math inline">\(1 - \sqrt{2}\)</span> es negativa y la función exponencial <span class="math inline">\(5^x\)</span> solo toma valores positivos.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047692568" value="3" data-correct="true" > La solución analítica exacta de la ecuación original para la variable <span class="math inline">\(x\)</span> es <span class="math inline">\(x = \log_5(1 + \sqrt{2}) = \frac{\ln(1 + \sqrt{2})}{\ln(5)}.\)</span></label>
+<label><input type="checkbox" name="q17796553073674481" value="3" data-correct="true" > La solución analítica exacta de la ecuación original para la variable <span class="math inline">\(x\)</span> es <span class="math inline">\(x = \log_5(1 + \sqrt{2}) = \frac{\ln(1 + \sqrt{2})}{\ln(5)}.\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047692568" value="4" data-correct="true" > El valor numérico aproximado de la solución es <span class="math inline">\(x \approx 0.5476\)</span>.</label>
+<label><input type="checkbox" name="q17796553073674481" value="4" data-correct="true" > El valor numérico aproximado de la solución es <span class="math inline">\(x \approx 0.5476\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047692568" value="5" data-correct="false" > La solución exacta para <span class="math inline">\(x\)</span> es <span class="math inline">\(x = \log_5(1 - \sqrt{2})\)</span>.</label>
+<label><input type="checkbox" name="q17796553073674481" value="5" data-correct="false" > La solución exacta para <span class="math inline">\(x\)</span> es <span class="math inline">\(x = \log_5(1 - \sqrt{2})\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047692568" value="6" data-correct="false" > La ecuación es inconsistente y carece de soluciones reales.</label>
+<label><input type="checkbox" name="q17796553073674481" value="6" data-correct="false" > La ecuación es inconsistente y carece de soluciones reales.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513047692568&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553073674481&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2131,31 +2194,31 @@ true
 <div id="pregunta-23-crecimiento-bacteriano-de-e.-coli" class="section level3 hasAnchor" number="12.4.1">
 <h3><span class="header-section-number">12.4.1</span> Pregunta 23 (Crecimiento bacteriano de E. coli)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-23-crecimiento-bacteriano-de-e.-coli" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513047781135" class="learnr-question-box">
+<div id="q17796553073757864" class="learnr-question-box">
 <div class="learnr-question-text">
 Se sabe que el tiempo de duplicación de bacterias E. coli que residen en el intestino grueso de las personas saludables es de solo <span class="math inline">\(20\)</span> minutos. A partir del modelo de crecimiento exponencial <span class="math inline">\(P(t)=P_0 e^{kt}\)</span> con <span class="math inline">\(k&gt;0\)</span>, calcule el comportamiento del cultivo después de <span class="math inline">\(6\)</span> horas. Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047781135" value="1" data-correct="true" > La constante de crecimiento poblacional por hora es exactamente <span class="math inline">\(k = 3\ln(2) = \ln(8) \approx 2.0794\)</span> (si el tiempo <span class="math inline">\(t\)</span> se mide en horas).</label>
+<label><input type="checkbox" name="q17796553073757864" value="1" data-correct="true" > La constante de crecimiento poblacional por hora es exactamente <span class="math inline">\(k = 3\ln(2) = \ln(8) \approx 2.0794\)</span> (si el tiempo <span class="math inline">\(t\)</span> se mide en horas).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047781135" value="2" data-correct="true" > La población de bacterias se duplica cada 20 minutos, lo que equivale a experimentar exactamente 18 ciclos completos de duplicación en un lapso de 6 horas.</label>
+<label><input type="checkbox" name="q17796553073757864" value="2" data-correct="true" > La población de bacterias se duplica cada 20 minutos, lo que equivale a experimentar exactamente 18 ciclos completos de duplicación en un lapso de 6 horas.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047781135" value="3" data-correct="true" > La población final de bacterias al transcurrir 6 horas es <span class="math inline">\(P(6) = 262,144 \cdot P_0\)</span>, es decir, la cantidad inicial se multiplica por <span class="math inline">\(262,144\)</span>.</label>
+<label><input type="checkbox" name="q17796553073757864" value="3" data-correct="true" > La población final de bacterias al transcurrir 6 horas es <span class="math inline">\(P(6) = 262,144 \cdot P_0\)</span>, es decir, la cantidad inicial se multiplica por <span class="math inline">\(262,144\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047781135" value="4" data-correct="true" > La constante de crecimiento por minuto de la población es exactamente <span class="math inline">\(k = \frac{\ln(2)}{20} \approx 0.0347\)</span> (si el tiempo <span class="math inline">\(t\)</span> se mide en minutos).</label>
+<label><input type="checkbox" name="q17796553073757864" value="4" data-correct="true" > La constante de crecimiento por minuto de la población es exactamente <span class="math inline">\(k = \frac{\ln(2)}{20} \approx 0.0347\)</span> (si el tiempo <span class="math inline">\(t\)</span> se mide en minutos).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047781135" value="5" data-correct="false" > Al cabo de 6 horas, la cantidad final de bacterias es de tan solo <span class="math inline">\(12 \cdot P_0\)</span>.</label>
+<label><input type="checkbox" name="q17796553073757864" value="5" data-correct="false" > Al cabo de 6 horas, la cantidad final de bacterias es de tan solo <span class="math inline">\(12 \cdot P_0\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047781135" value="6" data-correct="false" > La constante de crecimiento <span class="math inline">\(k\)</span> es un valor negativo debido al decaimiento continuo del cultivo.</label>
+<label><input type="checkbox" name="q17796553073757864" value="6" data-correct="false" > La constante de crecimiento <span class="math inline">\(k\)</span> es un valor negativo debido al decaimiento continuo del cultivo.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513047781135&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553073757864&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2178,31 +2241,31 @@ true
 <div id="pregunta-24-decaimiento-de-radio" class="section level3 hasAnchor" number="12.4.2">
 <h3><span class="header-section-number">12.4.2</span> Pregunta 24 (Decaimiento de Radio)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-24-decaimiento-de-radio" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513047875892" class="learnr-question-box">
+<div id="q17796553073839217" class="learnr-question-box">
 <div class="learnr-question-text">
 Suponga que inicialmente se tiene una muestra de <span class="math inline">\(20\)</span> gramos de radio. A los <span class="math inline">\(t\)</span> años transcurridos, la cantidad de radio restante se modela de forma continua a partir de la función exponencial decreciente: <span class="math inline">\(A(t)=20e^{-0.000418t}\)</span>. Calcule la cantidad de gramos que quedan después de 100 años y el porcentaje que ha decaído. Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047875892" value="1" data-correct="true" > La cantidad de radio remanente en la muestra pasados los 100 años es de aproximadamente <span class="math inline">\(19.18\)</span> gramos.</label>
+<label><input type="checkbox" name="q17796553073839217" value="1" data-correct="true" > La cantidad de radio remanente en la muestra pasados los 100 años es de aproximadamente <span class="math inline">\(19.18\)</span> gramos.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047875892" value="2" data-correct="true" > El porcentaje de los 20 gramos originales que ha decaído en el transcurso de los 100 años es de aproximadamente <span class="math inline">\(4.09\%\)</span>.</label>
+<label><input type="checkbox" name="q17796553073839217" value="2" data-correct="true" > El porcentaje de los 20 gramos originales que ha decaído en el transcurso de los 100 años es de aproximadamente <span class="math inline">\(4.09\%\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047875892" value="3" data-correct="true" > El modelo matemático muestra que la tasa de desintegración anual del radio es de aproximadamente <span class="math inline">\(0.0418\%\)</span>.</label>
+<label><input type="checkbox" name="q17796553073839217" value="3" data-correct="true" > El modelo matemático muestra que la tasa de desintegración anual del radio es de aproximadamente <span class="math inline">\(0.0418\%\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047875892" value="4" data-correct="true" > El porcentaje de radio que aún permanece intacto (sin decaer) en la muestra tras los 100 años es de aproximadamente <span class="math inline">\(95.91\%\)</span>.</label>
+<label><input type="checkbox" name="q17796553073839217" value="4" data-correct="true" > El porcentaje de radio que aún permanece intacto (sin decaer) en la muestra tras los 100 años es de aproximadamente <span class="math inline">\(95.91\%\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047875892" value="5" data-correct="false" > Después de transcurrir los 100 años, queda exactamente la mitad del radio original (10 gramos).</label>
+<label><input type="checkbox" name="q17796553073839217" value="5" data-correct="false" > Después de transcurrir los 100 años, queda exactamente la mitad del radio original (10 gramos).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047875892" value="6" data-correct="false" > Ha decaído más del <span class="math inline">\(50\%\)</span> del radio original en los primeros 100 años.</label>
+<label><input type="checkbox" name="q17796553073839217" value="6" data-correct="false" > Ha decaído más del <span class="math inline">\(50\%\)</span> del radio original en los primeros 100 años.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513047875892&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553073839217&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2225,31 +2288,31 @@ true
 <div id="pregunta-25-ph-de-la-sangre-humana" class="section level3 hasAnchor" number="12.4.3">
 <h3><span class="header-section-number">12.4.3</span> Pregunta 25 (pH de la sangre humana)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-25-ph-de-la-sangre-humana" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513047959629" class="learnr-question-box">
+<div id="q17796553073912776" class="learnr-question-box">
 <div class="learnr-question-text">
 En química y medicina, el potencial de hidrógeno (<span class="math inline">\(pH\)</span>) de una solución acuosa se define a partir de la escala logarítmica estándar: <span class="math inline">\(pH=-\log_{10}[H^+]\)</span>, donde <span class="math inline">\([H^+]\)</span> es la concentración de iones de hidrógeno medida en moles por litro. Sabiendo que los niveles vitales y normales de una persona deben ser sumamente estrictos y caer en el intervalo <span class="math inline">\(7.2 &lt; pH &lt; 7.6\)</span>, calcule el <span class="math inline">\(pH\)</span> de la sangre de una persona saludable si su concentración es de <span class="math inline">\([H^+] = 3.98 \times 10^{-8}\)</span> moles por litro. Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047959629" value="1" data-correct="true" > La concentración de iones de hidrógeno <span class="math inline">\([H^+] = 3.98 \times 10^{-8}\)</span> moles por litro resulta en un nivel de <span class="math inline">\(pH \approx 7.40\)</span>.</label>
+<label><input type="checkbox" name="q17796553073912776" value="1" data-correct="true" > La concentración de iones de hidrógeno <span class="math inline">\([H^+] = 3.98 \times 10^{-8}\)</span> moles por litro resulta en un nivel de <span class="math inline">\(pH \approx 7.40\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047959629" value="2" data-correct="true" > Dado que el <span class="math inline">\(pH \approx 7.40\)</span>, la sangre de este individuo se encuentra dentro de los límites normales y saludables de supervivencia (<span class="math inline">\(7.2 &lt; pH &lt; 7.6\)</span>).</label>
+<label><input type="checkbox" name="q17796553073912776" value="2" data-correct="true" > Dado que el <span class="math inline">\(pH \approx 7.40\)</span>, la sangre de este individuo se encuentra dentro de los límites normales y saludables de supervivencia (<span class="math inline">\(7.2 &lt; pH &lt; 7.6\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047959629" value="3" data-correct="true" > Químicamente, un valor de <span class="math inline">\(pH\)</span> de <span class="math inline">\(7.40\)</span> clasifica a la sangre humana de esta persona como una solución ligeramente básica (alcalina).</label>
+<label><input type="checkbox" name="q17796553073912776" value="3" data-correct="true" > Químicamente, un valor de <span class="math inline">\(pH\)</span> de <span class="math inline">\(7.40\)</span> clasifica a la sangre humana de esta persona como una solución ligeramente básica (alcalina).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047959629" value="4" data-correct="true" > La fórmula química estándar del potencial de hidrógeno incluye un signo negativo delante de la función logarítmica (<span class="math inline">\(pH = -\log_{10}[H^+]\)</span>), el cual es fundamental para transformar concentraciones muy pequeñas en valores de pH positivos convencionales.</label>
+<label><input type="checkbox" name="q17796553073912776" value="4" data-correct="true" > La fórmula química estándar del potencial de hidrógeno incluye un signo negativo delante de la función logarítmica (<span class="math inline">\(pH = -\log_{10}[H^+]\)</span>), el cual es fundamental para transformar concentraciones muy pequeñas en valores de pH positivos convencionales.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047959629" value="5" data-correct="false" > El <span class="math inline">\(pH\)</span> de la sangre resultante es igual a <span class="math inline">\(-7.40\)</span>, lo cual denota una acidez sumamente corrosiva e incompatible con la vida.</label>
+<label><input type="checkbox" name="q17796553073912776" value="5" data-correct="false" > El <span class="math inline">\(pH\)</span> de la sangre resultante es igual a <span class="math inline">\(-7.40\)</span>, lo cual denota una acidez sumamente corrosiva e incompatible con la vida.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513047959629" value="6" data-correct="false" > El <span class="math inline">\(pH\)</span> de la sangre es igual a <span class="math inline">\(3.98\)</span>, cayendo fuera del rango saludable.</label>
+<label><input type="checkbox" name="q17796553073912776" value="6" data-correct="false" > El <span class="math inline">\(pH\)</span> de la sangre es igual a <span class="math inline">\(3.98\)</span>, cayendo fuera del rango saludable.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513047959629&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553073912776&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2272,31 +2335,31 @@ true
 <div id="pregunta-26-cantidad-inicial-de-bacterias-en-un-cultivo" class="section level3 hasAnchor" number="12.4.4">
 <h3><span class="header-section-number">12.4.4</span> Pregunta 26 (Cantidad inicial de bacterias en un cultivo)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-26-cantidad-inicial-de-bacterias-en-un-cultivo" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513048031905" class="learnr-question-box">
+<div id="q17796553073995892" class="learnr-question-box">
 <div class="learnr-question-text">
 Un modelo de crecimiento continuo de bacterias en un cultivo en laboratorio al cabo de <span class="math inline">\(t\)</span> horas está dado por la función exponencial: <span class="math inline">\(P(t)=P_{0}e^{kt}\)</span>. Si después de transcurridas <span class="math inline">\(3\)</span> horas se observa que hay un total de <span class="math inline">\(400\)</span> bacterias, y luego de transcurridas <span class="math inline">\(10\)</span> horas desde el inicio se contabiliza un total de <span class="math inline">\(2000\)</span> bacterias, calcule la cantidad inicial de bacterias en el cultivo. Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048031905" value="1" data-correct="true" > La población inicial de bacterias en el cultivo es de aproximadamente <span class="math inline">\(200\)</span> bacterias (o de forma exacta <span class="math inline">\(201\)</span> bacterias redondeando al entero más cercano a partir de <span class="math inline">\(400 \cdot 5^{-3/7} \approx 200.47\)</span>).</label>
+<label><input type="checkbox" name="q17796553073995892" value="1" data-correct="true" > La población inicial de bacterias en el cultivo es de aproximadamente <span class="math inline">\(200\)</span> bacterias (o de forma exacta <span class="math inline">\(201\)</span> bacterias redondeando al entero más cercano a partir de <span class="math inline">\(400 \cdot 5^{-3/7} \approx 200.47\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048031905" value="2" data-correct="true" > La constante de crecimiento exponencial de la población es exactamente <span class="math inline">\(k = \frac{\ln(5)}{7} \approx 0.2299\)</span> por hora.</label>
+<label><input type="checkbox" name="q17796553073995892" value="2" data-correct="true" > La constante de crecimiento exponencial de la población es exactamente <span class="math inline">\(k = \frac{\ln(5)}{7} \approx 0.2299\)</span> por hora.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048031905" value="3" data-correct="true" > El factor de multiplicación de la población en un intervalo de 7 horas (de <span class="math inline">\(t=3\)</span> a <span class="math inline">\(t=10\)</span>) es exactamente igual a <span class="math inline">\(5\)</span> (es decir, <span class="math inline">\(\frac{2000}{400} = 5\)</span>).</label>
+<label><input type="checkbox" name="q17796553073995892" value="3" data-correct="true" > El factor de multiplicación de la población en un intervalo de 7 horas (de <span class="math inline">\(t=3\)</span> a <span class="math inline">\(t=10\)</span>) es exactamente igual a <span class="math inline">\(5\)</span> (es decir, <span class="math inline">\(\frac{2000}{400} = 5\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048031905" value="4" data-correct="true" > La cantidad de población inicial se puede modelar mediante la expresión analítica <span class="math inline">\(P_0 = 400 \cdot 5^{-3/7}\)</span>.</label>
+<label><input type="checkbox" name="q17796553073995892" value="4" data-correct="true" > La cantidad de población inicial se puede modelar mediante la expresión analítica <span class="math inline">\(P_0 = 400 \cdot 5^{-3/7}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048031905" value="5" data-correct="false" > La población inicial del cultivo al inicio del experimento era de exactamente <span class="math inline">\(400\)</span> bacterias.</label>
+<label><input type="checkbox" name="q17796553073995892" value="5" data-correct="false" > La población inicial del cultivo al inicio del experimento era de exactamente <span class="math inline">\(400\)</span> bacterias.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048031905" value="6" data-correct="false" > La constante de crecimiento exponencial <span class="math inline">\(k\)</span> de la población es negativa porque las bacterias están muriendo continuamente.</label>
+<label><input type="checkbox" name="q17796553073995892" value="6" data-correct="false" > La constante de crecimiento exponencial <span class="math inline">\(k\)</span> de la población es negativa porque las bacterias están muriendo continuamente.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513048031905&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553073995892&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2319,31 +2382,31 @@ true
 <div id="pregunta-27-sistema-lineal-de-logaritmos" class="section level3 hasAnchor" number="12.4.5">
 <h3><span class="header-section-number">12.4.5</span> Pregunta 27 (Sistema lineal de logaritmos)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-27-sistema-lineal-de-logaritmos" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513048114563" class="learnr-question-box">
+<div id="q17796553074073471" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución del sistema de ecuaciones con logaritmos:<br><span class="math display">\[\left\{ \begin{array}{clrr} 3\log_{10}x &amp; - &amp; \log_{10}y=2 &amp; (1) \\\\ 5\log_{10}x &amp; + &amp; 2\log_{10}y=1 &amp; (2) \end{array} \right.\]</span><br>Seleccione las afirmaciones que son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048114563" value="1" data-correct="true" > La solución exacta del sistema para las variables originales es la pareja de valores <span class="math inline">\((x, y) = (10^{5/11}, 10^{-7/11})\)</span>.</label>
+<label><input type="checkbox" name="q17796553074073471" value="1" data-correct="true" > La solución exacta del sistema para las variables originales es la pareja de valores <span class="math inline">\((x, y) = (10^{5/11}, 10^{-7/11})\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048114563" value="2" data-correct="true" > Al introducir variables auxiliares <span class="math inline">\(u = \log_{10} x\)</span> y <span class="math inline">\(v = \log_{10} y\)</span>, el sistema no lineal se linealiza de forma exacta a un sistema de dimensiones <span class="math inline">\(2 \times 2\)</span> con solución única.</label>
+<label><input type="checkbox" name="q17796553074073471" value="2" data-correct="true" > Al introducir variables auxiliares <span class="math inline">\(u = \log_{10} x\)</span> y <span class="math inline">\(v = \log_{10} y\)</span>, el sistema no lineal se linealiza de forma exacta a un sistema de dimensiones <span class="math inline">\(2 \times 2\)</span> con solución única.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048114563" value="3" data-correct="true" > La solución del sistema lineal para las variables auxiliares es exactamente <span class="math inline">\(u = \frac{5}{11}\)</span> y <span class="math inline">\(v = -\frac{7}{11}\)</span>.</label>
+<label><input type="checkbox" name="q17796553074073471" value="3" data-correct="true" > La solución del sistema lineal para las variables auxiliares es exactamente <span class="math inline">\(u = \frac{5}{11}\)</span> y <span class="math inline">\(v = -\frac{7}{11}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048114563" value="4" data-correct="true" > El valor numérico aproximado de la solución del sistema es <span class="math inline">\((x, y) \approx (2.8480, 0.2311)\)</span>.</label>
+<label><input type="checkbox" name="q17796553074073471" value="4" data-correct="true" > El valor numérico aproximado de la solución del sistema es <span class="math inline">\((x, y) \approx (2.8480, 0.2311)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048114563" value="5" data-correct="false" > El sistema es inconsistente y carece de soluciones reales.</label>
+<label><input type="checkbox" name="q17796553074073471" value="5" data-correct="false" > El sistema es inconsistente y carece de soluciones reales.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048114563" value="6" data-correct="false" > La solución única del sistema es la pareja <span class="math inline">\((x, y) = (10, 1)\)</span>.</label>
+<label><input type="checkbox" name="q17796553074073471" value="6" data-correct="false" > La solución única del sistema es la pareja <span class="math inline">\((x, y) = (10, 1)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513048114563&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553074073471&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2366,31 +2429,31 @@ true
 <div id="pregunta-28-sistema-no-lineal-con-logaritmos" class="section level3 hasAnchor" number="12.4.6">
 <h3><span class="header-section-number">12.4.6</span> Pregunta 28 (Sistema no lineal con logaritmos)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-28-sistema-no-lineal-con-logaritmos" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513048196532" class="learnr-question-box">
+<div id="q17796553074148583" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema de ecuaciones no lineales:<br><span class="math display">\[\left\{ \begin{array}{clrr} y &amp; = &amp; \log_{10}x &amp; (1) \\\\ y^{2} &amp; = &amp; 5 + 4\log_{10}x &amp; (2) \end{array} \right.\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048196532" value="1" data-correct="true" > El sistema tiene exactamente dos soluciones reales distintas dadas por los puntos coordenados <span class="math inline">\((100000, 5)\)</span> y <span class="math inline">\((0.1, -1)\)</span>.</label>
+<label><input type="checkbox" name="q17796553074148583" value="1" data-correct="true" > El sistema tiene exactamente dos soluciones reales distintas dadas por los puntos coordenados <span class="math inline">\((100000, 5)\)</span> y <span class="math inline">\((0.1, -1)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048196532" value="2" data-correct="true" > Al sustituir la primera ecuación en la segunda, se obtiene la ecuación cuadrática en términos de la variable <span class="math inline">\(y\)</span> dada por: <span class="math inline">\(y^2 - 4y - 5 = 0\)</span>.</label>
+<label><input type="checkbox" name="q17796553074148583" value="2" data-correct="true" > Al sustituir la primera ecuación en la segunda, se obtiene la ecuación cuadrática en términos de la variable <span class="math inline">\(y\)</span> dada por: <span class="math inline">\(y^2 - 4y - 5 = 0\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048196532" value="3" data-correct="true" > Las soluciones para la variable auxiliar son los enteros <span class="math inline">\(y = 5\)</span> y <span class="math inline">\(y = -1\)</span>.</label>
+<label><input type="checkbox" name="q17796553074148583" value="3" data-correct="true" > Las soluciones para la variable auxiliar son los enteros <span class="math inline">\(y = 5\)</span> y <span class="math inline">\(y = -1\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048196532" value="4" data-correct="true" > Ambos valores hallados para la variable <span class="math inline">\(x\)</span> (<span class="math inline">\(x = 100000\)</span> y <span class="math inline">\(x = 0.1\)</span>) son números reales estrictamente positivos, por lo que satisfacen la condición de dominio del logaritmo de base diez.</label>
+<label><input type="checkbox" name="q17796553074148583" value="4" data-correct="true" > Ambos valores hallados para la variable <span class="math inline">\(x\)</span> (<span class="math inline">\(x = 100000\)</span> y <span class="math inline">\(x = 0.1\)</span>) son números reales estrictamente positivos, por lo que satisfacen la condición de dominio del logaritmo de base diez.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048196532" value="5" data-correct="false" > El sistema tiene una solución única dada por <span class="math inline">\((100000, 5)\)</span> debido a que la base del logaritmo prohíbe valores de salida negativos de la variable <span class="math inline">\(y\)</span>.</label>
+<label><input type="checkbox" name="q17796553074148583" value="5" data-correct="false" > El sistema tiene una solución única dada por <span class="math inline">\((100000, 5)\)</span> debido a que la base del logaritmo prohíbe valores de salida negativos de la variable <span class="math inline">\(y\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048196532" value="6" data-correct="false" > El sistema no lineal es inconsistente y carece de soluciones reales.</label>
+<label><input type="checkbox" name="q17796553074148583" value="6" data-correct="false" > El sistema no lineal es inconsistente y carece de soluciones reales.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513048196532&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553074148583&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2413,31 +2476,31 @@ true
 <div id="pregunta-29-sistema-exponencial-logarítmico" class="section level3 hasAnchor" number="12.4.7">
 <h3><span class="header-section-number">12.4.7</span> Pregunta 29 (Sistema exponencial-logarítmico)<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#pregunta-29-sistema-exponencial-logar%C3%ADtmico" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513048306380" class="learnr-question-box">
+<div id="q17796553074258779" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema de ecuaciones exponencial-logarítmico:<br><span class="math display">\[\left\{ \begin{array}{clrr} y &amp; = &amp; 2^{x^2} &amp; (1) \\\\ \sqrt{5}x &amp; = &amp; \log_{2}y &amp; (2) \end{array} \right.\]</span><br>Seleccione cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048306380" value="1" data-correct="true" > El sistema posee exactamente dos soluciones reales distintas dadas por los puntos coordenados <span class="math inline">\((0, 1)\)</span> y <span class="math inline">\((\sqrt{5}, 32)\)</span>.</label>
+<label><input type="checkbox" name="q17796553074258779" value="1" data-correct="true" > El sistema posee exactamente dos soluciones reales distintas dadas por los puntos coordenados <span class="math inline">\((0, 1)\)</span> y <span class="math inline">\((\sqrt{5}, 32)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048306380" value="2" data-correct="true" > Al sustituir la primera ecuación en la segunda (o equivalentemente, al escribir la ecuación logarítmica como la exponencial <span class="math inline">\(y = 2^{\sqrt{5}x}\)</span> e igualar), se obtiene la ecuación cuadrática <span class="math inline">\(x^2 - \sqrt{5}x = 0\)</span>.</label>
+<label><input type="checkbox" name="q17796553074258779" value="2" data-correct="true" > Al sustituir la primera ecuación en la segunda (o equivalentemente, al escribir la ecuación logarítmica como la exponencial <span class="math inline">\(y = 2^{\sqrt{5}x}\)</span> e igualar), se obtiene la ecuación cuadrática <span class="math inline">\(x^2 - \sqrt{5}x = 0\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048306380" value="3" data-correct="true" > Las soluciones reales para la variable independiente son exactamente <span class="math inline">\(x = 0\)</span> y <span class="math inline">\(x = \sqrt{5}\)</span>.</label>
+<label><input type="checkbox" name="q17796553074258779" value="3" data-correct="true" > Las soluciones reales para la variable independiente son exactamente <span class="math inline">\(x = 0\)</span> y <span class="math inline">\(x = \sqrt{5}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048306380" value="4" data-correct="true" > Al evaluar la solución de la variable <span class="math inline">\(x = \sqrt{5}\)</span> en la ecuación exponencial, se obtiene un valor de la variable dependiente de <span class="math inline">\(y = 2^5 = 32\)</span>.</label>
+<label><input type="checkbox" name="q17796553074258779" value="4" data-correct="true" > Al evaluar la solución de la variable <span class="math inline">\(x = \sqrt{5}\)</span> en la ecuación exponencial, se obtiene un valor de la variable dependiente de <span class="math inline">\(y = 2^5 = 32\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048306380" value="5" data-correct="false" > El sistema tiene una solución única correspondiente al origen de coordenadas <span class="math inline">\((0, 0)\)</span>.</label>
+<label><input type="checkbox" name="q17796553074258779" value="5" data-correct="false" > El sistema tiene una solución única correspondiente al origen de coordenadas <span class="math inline">\((0, 0)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513048306380" value="6" data-correct="false" > El sistema exponencial carece de soluciones en los números reales porque la base dos no puede igualarse al radical.</label>
+<label><input type="checkbox" name="q17796553074258779" value="6" data-correct="false" > El sistema exponencial carece de soluciones en los números reales porque la base dos no puede igualarse al radical.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513048306380&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553074258779&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2462,10 +2525,10 @@ true
 <div id="reporte-final-de-calificación-1" class="section level2 hasAnchor" number="12.5">
 <h2><span class="header-section-number">12.5</span> Reporte Final de Calificación<a href="evaluación-de-funciones-exponenciales-y-logarítmicas-ev_conceptofuncionexp_v1.html#reporte-final-de-calificaci%C3%B3n-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Para ver el análisis de tu desempeño en esta prueba, haz clic en el siguiente botón. El sistema evaluará tus respuestas y te proporcionará recomendaciones personalizadas.</p>
-<button type="button" class="learnr-submit-btn" style="margin-bottom:1rem;" onclick="showScoreReport(&#39;sr17796513048483633&#39;, 29, &#39;&lt;strong&gt;¡Espectacular!&lt;/strong&gt; Tienes un dominio sobresaliente y sumamente sólido en los conceptos de funciones, leyes de exponentes y logaritmos, su simplificación, el modelado exponencial de crecimiento bacteriano y decaimiento radioactivo, y la resolución de sistemas no lineales complejos. ¡Sigue así, estás más que preparado para los cursos avanzados de cálculo!&#39;, &#39;&lt;strong&gt;¡Buen trabajo!&lt;/strong&gt; Has aprobado la evaluación con éxito, pero aún hay ciertos conceptos que puedes pulir, especialmente en el análisis y modelación de sistemas no lineales exponencial-logarítmicos o el despeje analítico de bases diferentes. Te recomendamos revisar estos puntos y realizar más ejercicios prácticos para alcanzar la excelencia.&#39;, &#39;&lt;strong&gt;Se sugiere más práctica.&lt;/strong&gt; Has tenido varias respuestas incorrectas o preguntas sin responder. Te sugerimos repasar las leyes fundamentales de logaritmos y exponentes, practicar la expansión algebraica de logaritmos naturales, y revisar los métodos de resolución cuadrática de ecuaciones antes de volver a intentarlo. ¡No te rindas, con estudio y práctica constante dominarás la materia!&#39;)">
+<button type="button" class="learnr-submit-btn" style="margin-bottom:1rem;" onclick="showScoreReport(&#39;sr17796553074466207&#39;, 29, &#39;&lt;strong&gt;¡Espectacular!&lt;/strong&gt; Tienes un dominio sobresaliente y sumamente sólido en los conceptos de funciones, leyes de exponentes y logaritmos, su simplificación, el modelado exponencial de crecimiento bacteriano y decaimiento radioactivo, y la resolución de sistemas no lineales complejos. ¡Sigue así, estás más que preparado para los cursos avanzados de cálculo!&#39;, &#39;&lt;strong&gt;¡Buen trabajo!&lt;/strong&gt; Has aprobado la evaluación con éxito, pero aún hay ciertos conceptos que puedes pulir, especialmente en el análisis y modelación de sistemas no lineales exponencial-logarítmicos o el despeje analítico de bases diferentes. Te recomendamos revisar estos puntos y realizar más ejercicios prácticos para alcanzar la excelencia.&#39;, &#39;&lt;strong&gt;Se sugiere más práctica.&lt;/strong&gt; Has tenido varias respuestas incorrectas o preguntas sin responder. Te sugerimos repasar las leyes fundamentales de logaritmos y exponentes, practicar la expansión algebraica de logaritmos naturales, y revisar los métodos de resolución cuadrática de ecuaciones antes de volver a intentarlo. ¡No te rindas, con estudio y práctica constante dominarás la materia!&#39;)">
 🏆 Obtener Mi Reporte de Resultados
 </button>
-<div id="sr17796513048483633">
+<div id="sr17796553074466207">
 
 </div>
 

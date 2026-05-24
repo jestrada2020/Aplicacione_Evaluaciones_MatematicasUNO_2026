@@ -306,8 +306,10 @@ function resetLearnrQuestion(qid) {
   inputs.forEach(function(input) { input.checked = false; });
   
   var feedbackDiv = box.querySelector('.learnr-feedback');
-  feedbackDiv.style.display = 'none';
-  feedbackDiv.className = 'learnr-feedback';
+  if (feedbackDiv) {
+    feedbackDiv.style.display = 'none';
+    feedbackDiv.className = 'learnr-feedback';
+  }
   
   box.querySelectorAll('.learnr-option').forEach(function(opt) {
     opt.classList.remove('correct-answer', 'wrong-answer', 'missed-answer');
@@ -318,17 +320,26 @@ function resetLearnrQuestion(qid) {
   box.removeAttribute('data-answered-correctly');
   
   var btn = box.querySelector('.learnr-submit-btn');
-  btn.style.display = 'inline-block';
-  btn.textContent = 'Enviar Respuesta';
-  btn.onclick = function() { checkLearnrQuestion(qid); };
+  if (btn) {
+    btn.style.display = 'inline-block';
+    btn.textContent = 'Enviar Respuesta';
+    btn.onclick = function() { checkLearnrQuestion(qid); };
+  }
 }
 
 function resetAllQuestions() {
+  // 1. Limpiar cada pregunta
   document.querySelectorAll('.learnr-question-box').forEach(function(box) {
     var qid = box.id;
     if (qid) resetLearnrQuestion(qid);
   });
-  // Re-mezclar opciones para nuevo orden aleatorio
+  
+  // 2. Limpiar reportes de puntaje
+  document.querySelectorAll('.score-report-box').forEach(function(report) {
+    report.remove();
+  });
+  
+  // 3. Re-mezclar opciones para nuevo orden aleatorio
   shuffleAllOptions();
 }
 
@@ -409,15 +420,23 @@ function showScoreReport(reportId, totalQuestions, recHigh, recMed, recLow) {
   reportBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Mezclar opciones aleatoriamente al cargar cada página
+/* ==========================================================================
+   Inyección del botón de reinicio y mezcla de opciones
+   Bookdown gitbook carga capítulos vía AJAX, por lo que usamos
+   múltiples estrategias para detectar cuando cambia el contenido.
+   ========================================================================== */
+
+function initLearnrPage() {
+  // 1. Mezclar opciones aleatoriamente
   shuffleAllOptions();
   
-  // Agregar botón de reinicio global si hay preguntas en la página
-  var questions = document.querySelectorAll('.learnr-question-box');
-  if (questions.length > 0) {
-    var h1 = document.querySelector('.book-body h1') || document.querySelector('h1');
-    if (h1) {
+  // 2. Agregar botón de reinicio si hay preguntas y aún no existe
+  var pageInner = document.querySelector('.page-inner') || document.body;
+  var questions = pageInner.querySelectorAll('.learnr-question-box');
+  
+  if (questions.length > 0 && !pageInner.querySelector('.learnr-reset-btn')) {
+    var h1 = pageInner.querySelector('h1');
+    if (h1 && h1.parentNode) {
       var resetBtn = document.createElement('button');
       resetBtn.type = 'button';
       resetBtn.className = 'learnr-reset-btn';
@@ -429,6 +448,50 @@ document.addEventListener('DOMContentLoaded', function() {
       };
       h1.parentNode.insertBefore(resetBtn, h1.nextSibling);
     }
+  }
+}
+
+// Estrategia 1: DOMContentLoaded
+document.addEventListener('DOMContentLoaded', initLearnrPage);
+
+// Estrategia 2: window.load (todo incluyendo imágenes está listo)
+window.addEventListener('load', initLearnrPage);
+
+// Estrategia 3: Polling periódico durante los primeros 10 segundos
+// Esto cubre la carga dinámica de gitbook y cualquier retraso en el DOM
+var learnrInitAttempts = 0;
+var learnrInitInterval = setInterval(function() {
+  initLearnrPage();
+  learnrInitAttempts++;
+  if (learnrInitAttempts >= 20) {
+    clearInterval(learnrInitInterval);
+  }
+}, 500);
+
+// Estrategia 4: MutationObserver sobre document.body (más robusto que .page-inner)
+// Si gitbook reemplaza .page-inner completamente, body sigue existiendo.
+document.addEventListener('DOMContentLoaded', function() {
+  var observer = new MutationObserver(function(mutations) {
+    // Solo re-inicializar si detectamos que aparecieron nuevas preguntas
+    // o si desapareció el botón de reinicio
+    var pageInner = document.querySelector('.page-inner') || document.body;
+    var hasQuestions = pageInner.querySelectorAll('.learnr-question-box').length > 0;
+    var hasResetBtn = !!pageInner.querySelector('.learnr-reset-btn');
+    if (hasQuestions && !hasResetBtn) {
+      setTimeout(initLearnrPage, 100);
+    }
+  });
+  
+  observer.observe(document.body, { childList: true, subtree: true });
+});
+
+// Estrategia 5: Evento nativo de gitbook SPA (si está disponible)
+// gitbook dispara 'page.change' cuando se carga un nuevo capítulo vía AJAX.
+window.addEventListener('load', function() {
+  if (typeof gitbook !== 'undefined' && gitbook.events) {
+    gitbook.events.bind('page.change', function() {
+      setTimeout(initLearnrPage, 200);
+    });
   }
 });
 </script>
@@ -1097,34 +1160,34 @@ h1, h2, h3, h4, .tutorial-title {
 <div id="pregunta-1-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.2.1">
 <h3><span class="header-section-number">3.2.1</span> Pregunta 1 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-1-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512932882991" class="learnr-question-box">
+<div id="q17796552958888607" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza el enunciado matemático: <span class="math display">\[3^2 \cdot 3\]</span> e identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512932882991" value="1" data-correct="true" > Es equivalente a <span class="math inline">\(3^3\)</span> debido a que se suman los exponentes (2 + 1).</label>
+<label><input type="checkbox" name="q17796552958888607" value="1" data-correct="true" > Es equivalente a <span class="math inline">\(3^3\)</span> debido a que se suman los exponentes (2 + 1).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512932882991" value="2" data-correct="true" > Su valor simplificado es igual a 27.</label>
+<label><input type="checkbox" name="q17796552958888607" value="2" data-correct="true" > Su valor simplificado es igual a 27.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512932882991" value="3" data-correct="true" > Es equivalente a realizar la multiplicación tradicional <span class="math inline">\(9 \cdot 3\)</span>.</label>
+<label><input type="checkbox" name="q17796552958888607" value="3" data-correct="true" > Es equivalente a realizar la multiplicación tradicional <span class="math inline">\(9 \cdot 3\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512932882991" value="4" data-correct="true" > Representa un producto de potencias con la misma base.</label>
+<label><input type="checkbox" name="q17796552958888607" value="4" data-correct="true" > Representa un producto de potencias con la misma base.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512932882991" value="5" data-correct="false" > Su valor simplificado es igual a 9.</label>
+<label><input type="checkbox" name="q17796552958888607" value="5" data-correct="false" > Su valor simplificado es igual a 9.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512932882991" value="6" data-correct="false" > Es equivalente a <span class="math inline">\(3^6\)</span> (multiplicando los exponentes).</label>
+<label><input type="checkbox" name="q17796552958888607" value="6" data-correct="false" > Es equivalente a <span class="math inline">\(3^6\)</span> (multiplicando los exponentes).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512932882991" value="7" data-correct="false" > Su valor simplificado es igual a 18.</label>
+<label><input type="checkbox" name="q17796552958888607" value="7" data-correct="false" > Su valor simplificado es igual a 18.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512932882991&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552958888607&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1147,31 +1210,31 @@ true
 <div id="pregunta-2-seleccionar-falsas" class="section level3 hasAnchor" number="3.2.2">
 <h3><span class="header-section-number">3.2.2</span> Pregunta 2 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-2-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512933017970" class="learnr-question-box">
+<div id="q17796552959003553" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza el enunciado algebraico: <span class="math display">\[a^2 \cdot a^3 \cdot a^5\]</span> e identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933017970" value="1" data-correct="true" > Es equivalente a <span class="math inline">\(a^{30}\)</span> ya que se deben multiplicar los exponentes.</label>
+<label><input type="checkbox" name="q17796552959003553" value="1" data-correct="true" > Es equivalente a <span class="math inline">\(a^{30}\)</span> ya que se deben multiplicar los exponentes.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933017970" value="2" data-correct="true" > El exponente final se calcula multiplicando <span class="math inline">\(2 \cdot 3 \cdot 5\)</span>.</label>
+<label><input type="checkbox" name="q17796552959003553" value="2" data-correct="true" > El exponente final se calcula multiplicando <span class="math inline">\(2 \cdot 3 \cdot 5\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933017970" value="3" data-correct="true" > Es equivalente a la expresión <span class="math inline">\(3a^{10}\)</span>.</label>
+<label><input type="checkbox" name="q17796552959003553" value="3" data-correct="true" > Es equivalente a la expresión <span class="math inline">\(3a^{10}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933017970" value="4" data-correct="false" > Es equivalente a la expresión <span class="math inline">\(a^{10}\)</span>.</label>
+<label><input type="checkbox" name="q17796552959003553" value="4" data-correct="false" > Es equivalente a la expresión <span class="math inline">\(a^{10}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933017970" value="5" data-correct="false" > La regla aplicada consiste en conservar la base común y sumar todos sus exponentes.</label>
+<label><input type="checkbox" name="q17796552959003553" value="5" data-correct="false" > La regla aplicada consiste en conservar la base común y sumar todos sus exponentes.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933017970" value="6" data-correct="false" > Si asignamos el valor de <span class="math inline">\(a = 2\)</span>, el resultado de evaluar la expresión simplificada es 1024.</label>
+<label><input type="checkbox" name="q17796552959003553" value="6" data-correct="false" > Si asignamos el valor de <span class="math inline">\(a = 2\)</span>, el resultado de evaluar la expresión simplificada es 1024.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933017970&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552959003553&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1194,31 +1257,31 @@ true
 <div id="pregunta-3-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.2.3">
 <h3><span class="header-section-number">3.2.3</span> Pregunta 3 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-3-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512933103018" class="learnr-question-box">
+<div id="q17796552959098725" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la expresión con coeficientes y variables: <span class="math display">\[2m \cdot 3m \cdot m^6\]</span> e identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933103018" value="1" data-correct="true" > El coeficiente numérico de la expresión simplificada es 6.</label>
+<label><input type="checkbox" name="q17796552959098725" value="1" data-correct="true" > El coeficiente numérico de la expresión simplificada es 6.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933103018" value="2" data-correct="true" > La expresión simplificada resultante es equivalente a <span class="math inline">\(6m^8\)</span>.</label>
+<label><input type="checkbox" name="q17796552959098725" value="2" data-correct="true" > La expresión simplificada resultante es equivalente a <span class="math inline">\(6m^8\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933103018" value="3" data-correct="true" > El exponente final de la variable <span class="math inline">\(m\)</span> se obtiene de la suma <span class="math inline">\(1 + 1 + 6\)</span>.</label>
+<label><input type="checkbox" name="q17796552959098725" value="3" data-correct="true" > El exponente final de la variable <span class="math inline">\(m\)</span> se obtiene de la suma <span class="math inline">\(1 + 1 + 6\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933103018" value="4" data-correct="true" > Si asignamos <span class="math inline">\(m = 1\)</span>, el valor numérico de la expresión es 6.</label>
+<label><input type="checkbox" name="q17796552959098725" value="4" data-correct="true" > Si asignamos <span class="math inline">\(m = 1\)</span>, el valor numérico de la expresión es 6.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933103018" value="5" data-correct="false" > La expresión simplificada es equivalente a <span class="math inline">\(5m^6\)</span>.</label>
+<label><input type="checkbox" name="q17796552959098725" value="5" data-correct="false" > La expresión simplificada es equivalente a <span class="math inline">\(5m^6\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933103018" value="6" data-correct="false" > La expresión simplificada es equivalente a <span class="math inline">\(6m^6\)</span>.</label>
+<label><input type="checkbox" name="q17796552959098725" value="6" data-correct="false" > La expresión simplificada es equivalente a <span class="math inline">\(6m^6\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933103018&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552959098725&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1241,31 +1304,31 @@ true
 <div id="pregunta-4-seleccionar-falsas" class="section level3 hasAnchor" number="3.2.4">
 <h3><span class="header-section-number">3.2.4</span> Pregunta 4 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-4-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512933191304" class="learnr-question-box">
+<div id="q17796552959173869" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza el enunciado numérico: <span class="math display">\[2^2 \cdot 2^3 \cdot 2^4\]</span> e identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933191304" value="1" data-correct="true" > Es equivalente a <span class="math inline">\(2^{24}\)</span> al multiplicar directamente los exponentes.</label>
+<label><input type="checkbox" name="q17796552959173869" value="1" data-correct="true" > Es equivalente a <span class="math inline">\(2^{24}\)</span> al multiplicar directamente los exponentes.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933191304" value="2" data-correct="true" > Su valor final simplificado es igual a 48.</label>
+<label><input type="checkbox" name="q17796552959173869" value="2" data-correct="true" > Su valor final simplificado es igual a 48.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933191304" value="3" data-correct="true" > Es equivalente a la potencia <span class="math inline">\(8^9\)</span> que resulta de multiplicar las bases.</label>
+<label><input type="checkbox" name="q17796552959173869" value="3" data-correct="true" > Es equivalente a la potencia <span class="math inline">\(8^9\)</span> que resulta de multiplicar las bases.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933191304" value="4" data-correct="false" > Es equivalente a la potencia simplificada <span class="math inline">\(2^9\)</span>.</label>
+<label><input type="checkbox" name="q17796552959173869" value="4" data-correct="false" > Es equivalente a la potencia simplificada <span class="math inline">\(2^9\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933191304" value="5" data-correct="false" > Su valor final evaluado es igual a 512.</label>
+<label><input type="checkbox" name="q17796552959173869" value="5" data-correct="false" > Su valor final evaluado es igual a 512.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933191304" value="6" data-correct="false" > Representa la multiplicación de los valores individuales <span class="math inline">\(4 \cdot 8 \cdot 16\)</span>.</label>
+<label><input type="checkbox" name="q17796552959173869" value="6" data-correct="false" > Representa la multiplicación de los valores individuales <span class="math inline">\(4 \cdot 8 \cdot 16\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933191304&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552959173869&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1288,31 +1351,31 @@ true
 <div id="pregunta-5-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.2.5">
 <h3><span class="header-section-number">3.2.5</span> Pregunta 5 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-5-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512933289692" class="learnr-question-box">
+<div id="q17796552959262541" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza la expresión con exponentes algebraicos: <span class="math display">\[4a \cdot a^x \cdot 5a^2\]</span> e identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933289692" value="1" data-correct="true" > La expresión completamente simplificada equivale a <span class="math inline">\(20a^{x+3}\)</span>.</label>
+<label><input type="checkbox" name="q17796552959262541" value="1" data-correct="true" > La expresión completamente simplificada equivale a <span class="math inline">\(20a^{x+3}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933289692" value="2" data-correct="true" > El coeficiente numérico resultante de la expresión es 20.</label>
+<label><input type="checkbox" name="q17796552959262541" value="2" data-correct="true" > El coeficiente numérico resultante de la expresión es 20.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933289692" value="3" data-correct="true" > El exponente final se obtiene mediante la suma algebraica de los exponentes: <span class="math inline">\(1 + x + 2\)</span>.</label>
+<label><input type="checkbox" name="q17796552959262541" value="3" data-correct="true" > El exponente final se obtiene mediante la suma algebraica de los exponentes: <span class="math inline">\(1 + x + 2\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933289692" value="4" data-correct="true" > Si <span class="math inline">\(x = 1\)</span>, la expresión resultante simplificada equivale a <span class="math inline">\(20a^4\)</span>.</label>
+<label><input type="checkbox" name="q17796552959262541" value="4" data-correct="true" > Si <span class="math inline">\(x = 1\)</span>, la expresión resultante simplificada equivale a <span class="math inline">\(20a^4\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933289692" value="5" data-correct="false" > La expresión simplificada equivale a <span class="math inline">\(9a^{2x}\)</span>.</label>
+<label><input type="checkbox" name="q17796552959262541" value="5" data-correct="false" > La expresión simplificada equivale a <span class="math inline">\(9a^{2x}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933289692" value="6" data-correct="false" > La expresión simplificada equivale a <span class="math inline">\(20a^{3x}\)</span>.</label>
+<label><input type="checkbox" name="q17796552959262541" value="6" data-correct="false" > La expresión simplificada equivale a <span class="math inline">\(20a^{3x}\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933289692&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552959262541&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1335,31 +1398,31 @@ true
 <div id="pregunta-6-seleccionar-falsas" class="section level3 hasAnchor" number="3.2.6">
 <h3><span class="header-section-number">3.2.6</span> Pregunta 6 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-6-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512933434234" class="learnr-question-box">
+<div id="q17796552959419015" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza el producto continuo de potencias: <span class="math display">\[3 \cdot 3^2 \cdot 3^3 \cdot 3^4\]</span> e identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933434234" value="1" data-correct="true" > Es equivalente a la potencia <span class="math inline">\(3^9\)</span> (al omitir el exponente implícito de valor 1 del primer término).</label>
+<label><input type="checkbox" name="q17796552959419015" value="1" data-correct="true" > Es equivalente a la potencia <span class="math inline">\(3^9\)</span> (al omitir el exponente implícito de valor 1 del primer término).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933434234" value="2" data-correct="true" > Es equivalente a la potencia <span class="math inline">\(3^{24}\)</span> que resulta de multiplicar los exponentes.</label>
+<label><input type="checkbox" name="q17796552959419015" value="2" data-correct="true" > Es equivalente a la potencia <span class="math inline">\(3^{24}\)</span> que resulta de multiplicar los exponentes.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933434234" value="3" data-correct="true" > Su valor final simplificado es igual a <span class="math inline">\(12^{10}\)</span> al multiplicar las bases.</label>
+<label><input type="checkbox" name="q17796552959419015" value="3" data-correct="true" > Su valor final simplificado es igual a <span class="math inline">\(12^{10}\)</span> al multiplicar las bases.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933434234" value="4" data-correct="false" > La expresión simplificada en una sola potencia equivale a <span class="math inline">\(3^{10}\)</span>.</label>
+<label><input type="checkbox" name="q17796552959419015" value="4" data-correct="false" > La expresión simplificada en una sola potencia equivale a <span class="math inline">\(3^{10}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933434234" value="5" data-correct="false" > Su valor final simplificado evaluado numéricamente es 59049.</label>
+<label><input type="checkbox" name="q17796552959419015" value="5" data-correct="false" > Su valor final simplificado evaluado numéricamente es 59049.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933434234" value="6" data-correct="false" > Representa una multiplicación de potencias que comparten la base 3.</label>
+<label><input type="checkbox" name="q17796552959419015" value="6" data-correct="false" > Representa una multiplicación de potencias que comparten la base 3.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933434234&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552959419015&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1382,31 +1445,31 @@ true
 <div id="pregunta-7-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.2.7">
 <h3><span class="header-section-number">3.2.7</span> Pregunta 7 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-7-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512933527093" class="learnr-question-box">
+<div id="q17796552959493080" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza el enunciado con variables mixtas en el exponente: <span class="math display">\[5 \cdot 5^2 \cdot 5^m\]</span> e identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933527093" value="1" data-correct="true" > La expresión simplificada final equivale a <span class="math inline">\(5^{m+3}\)</span>.</label>
+<label><input type="checkbox" name="q17796552959493080" value="1" data-correct="true" > La expresión simplificada final equivale a <span class="math inline">\(5^{m+3}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933527093" value="2" data-correct="true" > La base de la potencia resultante se mantiene igual a 5.</label>
+<label><input type="checkbox" name="q17796552959493080" value="2" data-correct="true" > La base de la potencia resultante se mantiene igual a 5.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933527093" value="3" data-correct="true" > El exponente final se obtiene mediante la suma directa de los exponentes <span class="math inline">\(1 + 2 + m\)</span>.</label>
+<label><input type="checkbox" name="q17796552959493080" value="3" data-correct="true" > El exponente final se obtiene mediante la suma directa de los exponentes <span class="math inline">\(1 + 2 + m\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933527093" value="4" data-correct="true" > Si el valor de <span class="math inline">\(m\)</span> es igual a 1, el valor simplificado final del número es 625.</label>
+<label><input type="checkbox" name="q17796552959493080" value="4" data-correct="true" > Si el valor de <span class="math inline">\(m\)</span> es igual a 1, el valor simplificado final del número es 625.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933527093" value="5" data-correct="false" > La expresión simplificada equivale a <span class="math inline">\(125^m\)</span>.</label>
+<label><input type="checkbox" name="q17796552959493080" value="5" data-correct="false" > La expresión simplificada equivale a <span class="math inline">\(125^m\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933527093" value="6" data-correct="false" > La expresión simplificada equivale a <span class="math inline">\(5^{2m}\)</span>.</label>
+<label><input type="checkbox" name="q17796552959493080" value="6" data-correct="false" > La expresión simplificada equivale a <span class="math inline">\(5^{2m}\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933527093&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552959493080&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1429,31 +1492,31 @@ true
 <div id="pregunta-8-seleccionar-falsas" class="section level3 hasAnchor" number="3.2.8">
 <h3><span class="header-section-number">3.2.8</span> Pregunta 8 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-8-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512933617010" class="learnr-question-box">
+<div id="q17796552959576317" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza el cociente algebraico simple: <span class="math display">\[a^3 \div a\]</span> e identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933617010" value="1" data-correct="true" > Es equivalente a <span class="math inline">\(a^3\)</span> al suponer incorrectamente que el divisor tiene exponente 0.</label>
+<label><input type="checkbox" name="q17796552959576317" value="1" data-correct="true" > Es equivalente a <span class="math inline">\(a^3\)</span> al suponer incorrectamente que el divisor tiene exponente 0.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933617010" value="2" data-correct="true" > Es equivalente a <span class="math inline">\(a^4\)</span> al realizar una suma de exponentes en lugar de una resta.</label>
+<label><input type="checkbox" name="q17796552959576317" value="2" data-correct="true" > Es equivalente a <span class="math inline">\(a^4\)</span> al realizar una suma de exponentes en lugar de una resta.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933617010" value="3" data-correct="true" > Es equivalente a la constante 3 cancelando la variable <span class="math inline">\(a\)</span>.</label>
+<label><input type="checkbox" name="q17796552959576317" value="3" data-correct="true" > Es equivalente a la constante 3 cancelando la variable <span class="math inline">\(a\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933617010" value="4" data-correct="false" > Es equivalente a la potencia simplificada <span class="math inline">\(a^2\)</span>.</label>
+<label><input type="checkbox" name="q17796552959576317" value="4" data-correct="false" > Es equivalente a la potencia simplificada <span class="math inline">\(a^2\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933617010" value="5" data-correct="false" > El exponente final se calcula restando el exponente del numerador menos el del denominador (3 - 1).</label>
+<label><input type="checkbox" name="q17796552959576317" value="5" data-correct="false" > El exponente final se calcula restando el exponente del numerador menos el del denominador (3 - 1).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933617010" value="6" data-correct="false" > Si asignamos <span class="math inline">\(a = 5\)</span>, el valor final simplificado es igual a 25.</label>
+<label><input type="checkbox" name="q17796552959576317" value="6" data-correct="false" > Si asignamos <span class="math inline">\(a = 5\)</span>, el valor final simplificado es igual a 25.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933617010&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552959576317&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1476,31 +1539,31 @@ true
 <div id="pregunta-9-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.2.9">
 <h3><span class="header-section-number">3.2.9</span> Pregunta 9 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-9-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512933713871" class="learnr-question-box">
+<div id="q17796552959658922" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza el cociente algebraico: <span class="math display">\[a^6 \div a^4\]</span> e identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933713871" value="1" data-correct="true" > La expresión reducida equivale a <span class="math inline">\(a^2\)</span>.</label>
+<label><input type="checkbox" name="q17796552959658922" value="1" data-correct="true" > La expresión reducida equivale a <span class="math inline">\(a^2\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933713871" value="2" data-correct="true" > Para resolver la división de potencias de igual base se resta el exponente inferior al superior.</label>
+<label><input type="checkbox" name="q17796552959658922" value="2" data-correct="true" > Para resolver la división de potencias de igual base se resta el exponente inferior al superior.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933713871" value="3" data-correct="true" > Esta expresión es geométricamente equivalente al área de un cuadrado de lado <span class="math inline">\(a\)</span>.</label>
+<label><input type="checkbox" name="q17796552959658922" value="3" data-correct="true" > Esta expresión es geométricamente equivalente al área de un cuadrado de lado <span class="math inline">\(a\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933713871" value="4" data-correct="true" > Si asignamos <span class="math inline">\(a = -3\)</span>, el valor evaluado de la expresión simplificada es 9.</label>
+<label><input type="checkbox" name="q17796552959658922" value="4" data-correct="true" > Si asignamos <span class="math inline">\(a = -3\)</span>, el valor evaluado de la expresión simplificada es 9.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933713871" value="5" data-correct="false" > La expresión reducida equivale a <span class="math inline">\(a^{1.5}\)</span> (dividiendo los exponentes).</label>
+<label><input type="checkbox" name="q17796552959658922" value="5" data-correct="false" > La expresión reducida equivale a <span class="math inline">\(a^{1.5}\)</span> (dividiendo los exponentes).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933713871" value="6" data-correct="false" > La expresión reducida equivale a <span class="math inline">\(a^{10}\)</span>.</label>
+<label><input type="checkbox" name="q17796552959658922" value="6" data-correct="false" > La expresión reducida equivale a <span class="math inline">\(a^{10}\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933713871&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552959658922&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1523,31 +1586,31 @@ true
 <div id="pregunta-10-seleccionar-falsas" class="section level3 hasAnchor" number="3.2.10">
 <h3><span class="header-section-number">3.2.10</span> Pregunta 10 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-10-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512933807319" class="learnr-question-box">
+<div id="q17796552959737857" class="learnr-question-box">
 <div class="learnr-question-text">
 Analiza el cociente de potencias idénticas: <span class="math display">\[3^5 \div 3^5\]</span> e identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933807319" value="1" data-correct="true" > El resultado final simplificado es igual a 0.</label>
+<label><input type="checkbox" name="q17796552959737857" value="1" data-correct="true" > El resultado final simplificado es igual a 0.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933807319" value="2" data-correct="true" > Es equivalente a la potencia <span class="math inline">\(3^{10}\)</span> al sumar erróneamente los exponentes.</label>
+<label><input type="checkbox" name="q17796552959737857" value="2" data-correct="true" > Es equivalente a la potencia <span class="math inline">\(3^{10}\)</span> al sumar erróneamente los exponentes.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933807319" value="3" data-correct="true" > El resultado final simplificado de la operación es igual a 3.</label>
+<label><input type="checkbox" name="q17796552959737857" value="3" data-correct="true" > El resultado final simplificado de la operación es igual a 3.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933807319" value="4" data-correct="false" > Es equivalente a la potencia <span class="math inline">\(3^0\)</span>.</label>
+<label><input type="checkbox" name="q17796552959737857" value="4" data-correct="false" > Es equivalente a la potencia <span class="math inline">\(3^0\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933807319" value="5" data-correct="false" > El valor simplificado evaluado equivale al número entero 1.</label>
+<label><input type="checkbox" name="q17796552959737857" value="5" data-correct="false" > El valor simplificado evaluado equivale al número entero 1.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933807319" value="6" data-correct="false" > Representa un número real distinto de cero dividido entre sí mismo, lo cual siempre es igual a 1.</label>
+<label><input type="checkbox" name="q17796552959737857" value="6" data-correct="false" > Representa un número real distinto de cero dividido entre sí mismo, lo cual siempre es igual a 1.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933807319&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552959737857&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1575,31 +1638,31 @@ true
 <div id="pregunta-11-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.3.1">
 <h3><span class="header-section-number">3.3.1</span> Pregunta 11 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-11-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512933898338" class="learnr-question-box">
+<div id="q17796552959811420" class="learnr-question-box">
 <div class="learnr-question-text">
 Usar propiedades de potenciación e identificar afirmaciones <strong>verdaderas</strong> sobre la expresión: <span class="math display">\[\left(-8\right)^{\frac{1}{3}}\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933898338" value="1" data-correct="true" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\sqrt[3]{-8}\]</span></label>
+<label><input type="checkbox" name="q17796552959811420" value="1" data-correct="true" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\sqrt[3]{-8}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933898338" value="2" data-correct="true" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\sqrt[3]{-2^{3}}\]</span></label>
+<label><input type="checkbox" name="q17796552959811420" value="2" data-correct="true" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\sqrt[3]{-2^{3}}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933898338" value="3" data-correct="true" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\left(-2^3\right)^{\frac{1}{3}}= \sqrt[3]{2^{3}} \sqrt[3]{-1}\]</span></label>
+<label><input type="checkbox" name="q17796552959811420" value="3" data-correct="true" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\left(-2^3\right)^{\frac{1}{3}}= \sqrt[3]{2^{3}} \sqrt[3]{-1}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933898338" value="4" data-correct="true" > Su resultado es exactamente igual a el número entero <span class="math inline">\(-2\)</span>.</label>
+<label><input type="checkbox" name="q17796552959811420" value="4" data-correct="true" > Su resultado es exactamente igual a el número entero <span class="math inline">\(-2\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933898338" value="5" data-correct="false" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\sqrt[3]{8}\]</span></label>
+<label><input type="checkbox" name="q17796552959811420" value="5" data-correct="false" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\sqrt[3]{8}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933898338" value="6" data-correct="false" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\sqrt[3]{2^{3}}\]</span></label>
+<label><input type="checkbox" name="q17796552959811420" value="6" data-correct="false" > <span class="math display">\[\left(-8\right)^{\frac{1}{3}}=\sqrt[3]{2^{3}}\]</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933898338&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552959811420&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1622,28 +1685,28 @@ true
 <div id="pregunta-12-seleccionar-falsas" class="section level3 hasAnchor" number="3.3.2">
 <h3><span class="header-section-number">3.3.2</span> Pregunta 12 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-12-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512933986928" class="learnr-question-box">
+<div id="q17796552959885050" class="learnr-question-box">
 <div class="learnr-question-text">
 Usar propiedades de potenciación e identificar únicamente las afirmaciones <strong>falsas</strong> sobre la expresión: <span class="math display">\[\left(-64\right)^{\frac{1}{5}}\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933986928" value="1" data-correct="true" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\sqrt[3]{64}\]</span></label>
+<label><input type="checkbox" name="q17796552959885050" value="1" data-correct="true" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\sqrt[3]{64}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933986928" value="2" data-correct="true" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\sqrt[5]{2^{6}}\]</span> (falta signo negativo en la base)</label>
+<label><input type="checkbox" name="q17796552959885050" value="2" data-correct="true" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\sqrt[5]{2^{6}}\]</span> (falta signo negativo en la base)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933986928" value="3" data-correct="true" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\left(-2^3\right)^{\frac{1}{5}}= \sqrt[5]{2^{3}}\]</span></label>
+<label><input type="checkbox" name="q17796552959885050" value="3" data-correct="true" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\left(-2^3\right)^{\frac{1}{5}}= \sqrt[5]{2^{3}}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933986928" value="4" data-correct="false" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\sqrt[5]{-2^6}= -2 \sqrt[5]{2}\]</span></label>
+<label><input type="checkbox" name="q17796552959885050" value="4" data-correct="false" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\sqrt[5]{-2^6}= -2 \sqrt[5]{2}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512933986928" value="5" data-correct="false" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\sqrt[5]{-2^{6}}\]</span></label>
+<label><input type="checkbox" name="q17796552959885050" value="5" data-correct="false" > <span class="math display">\[\left(-64\right)^{\frac{1}{5}}=\sqrt[5]{-2^{6}}\]</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512933986928&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552959885050&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1666,31 +1729,31 @@ true
 <div id="pregunta-13-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.3.3">
 <h3><span class="header-section-number">3.3.3</span> Pregunta 13 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-13-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512934073851" class="learnr-question-box">
+<div id="q17796552959963454" class="learnr-question-box">
 <div class="learnr-question-text">
 Usar propiedades de potenciación e identificar afirmaciones <strong>verdaderas</strong> sobre la expresión: <span class="math display">\[\left(512\right)^{\frac{1}{4}}\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934073851" value="1" data-correct="true" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=\sqrt[4]{2^4(32)}=2 \sqrt[4]{32}\]</span></label>
+<label><input type="checkbox" name="q17796552959963454" value="1" data-correct="true" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=\sqrt[4]{2^4(32)}=2 \sqrt[4]{32}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934073851" value="2" data-correct="true" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=2^2\sqrt[4]{2}\]</span></label>
+<label><input type="checkbox" name="q17796552959963454" value="2" data-correct="true" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=2^2\sqrt[4]{2}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934073851" value="3" data-correct="true" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=\sqrt[4]{2^9}\]</span></label>
+<label><input type="checkbox" name="q17796552959963454" value="3" data-correct="true" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=\sqrt[4]{2^9}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934073851" value="4" data-correct="true" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=4\sqrt[4]{2}\]</span></label>
+<label><input type="checkbox" name="q17796552959963454" value="4" data-correct="true" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=4\sqrt[4]{2}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934073851" value="5" data-correct="false" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=\sqrt[4]{-2^{9}}\]</span></label>
+<label><input type="checkbox" name="q17796552959963454" value="5" data-correct="false" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=\sqrt[4]{-2^{9}}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934073851" value="6" data-correct="false" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=\sqrt[4]{2^4(16)}\]</span></label>
+<label><input type="checkbox" name="q17796552959963454" value="6" data-correct="false" > <span class="math display">\[\left(512\right)^{\frac{1}{4}}=\sqrt[4]{2^4(16)}\]</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934073851&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552959963454&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1713,31 +1776,31 @@ true
 <div id="pregunta-14-seleccionar-falsas" class="section level3 hasAnchor" number="3.3.4">
 <h3><span class="header-section-number">3.3.4</span> Pregunta 14 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-14-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512934165305" class="learnr-question-box">
+<div id="q17796552960046401" class="learnr-question-box">
 <div class="learnr-question-text">
 Usar propiedades de potenciación e identificar únicamente las afirmaciones <strong>falsas</strong> sobre la expresión: <span class="math display">\[\left(-216\right)^{\frac{1}{3}}\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934165305" value="1" data-correct="true" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=\sqrt[4]{2^4(16)}\]</span></label>
+<label><input type="checkbox" name="q17796552960046401" value="1" data-correct="true" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=\sqrt[4]{2^4(16)}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934165305" value="2" data-correct="true" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=\sqrt[4]{-2^{9}}\]</span></label>
+<label><input type="checkbox" name="q17796552960046401" value="2" data-correct="true" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=\sqrt[4]{-2^{9}}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934165305" value="3" data-correct="true" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=\left(-2^9\right)^{\frac{1}{3}}= 4\sqrt[5]{-2^{3}}\]</span></label>
+<label><input type="checkbox" name="q17796552960046401" value="3" data-correct="true" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=\left(-2^9\right)^{\frac{1}{3}}= 4\sqrt[5]{-2^{3}}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934165305" value="4" data-correct="false" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=-\sqrt[3]{12(18)}=- \sqrt[3]{8(27)}\]</span></label>
+<label><input type="checkbox" name="q17796552960046401" value="4" data-correct="false" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=-\sqrt[3]{12(18)}=- \sqrt[3]{8(27)}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934165305" value="5" data-correct="false" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=-2(3)=-6\]</span></label>
+<label><input type="checkbox" name="q17796552960046401" value="5" data-correct="false" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=-2(3)=-6\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934165305" value="6" data-correct="false" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=\sqrt[3]{-216}\]</span></label>
+<label><input type="checkbox" name="q17796552960046401" value="6" data-correct="false" > <span class="math display">\[\left(-216\right)^{\frac{1}{3}}=\sqrt[3]{-216}\]</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934165305&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552960046401&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1760,31 +1823,31 @@ true
 <div id="pregunta-15-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.3.5">
 <h3><span class="header-section-number">3.3.5</span> Pregunta 15 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-15-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512934254632" class="learnr-question-box">
+<div id="q17796552960122308" class="learnr-question-box">
 <div class="learnr-question-text">
 Usar propiedades de potenciación e identificar afirmaciones <strong>verdaderas</strong> sobre la expresión: <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934254632" value="1" data-correct="true" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=\left(\frac{10}{2}\right)^7=5^7\]</span></label>
+<label><input type="checkbox" name="q17796552960122308" value="1" data-correct="true" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=\left(\frac{10}{2}\right)^7=5^7\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934254632" value="2" data-correct="true" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=\left(\frac{4}{100}\right)^{-\frac{7}{2}}=\left(\frac{100}{4}\right)^{\frac{7}{2}}=25^{\frac{7}{2}}\]</span></label>
+<label><input type="checkbox" name="q17796552960122308" value="2" data-correct="true" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=\left(\frac{4}{100}\right)^{-\frac{7}{2}}=\left(\frac{100}{4}\right)^{\frac{7}{2}}=25^{\frac{7}{2}}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934254632" value="3" data-correct="true" > El valor final simplificado es igual a la constante entera 78125.</label>
+<label><input type="checkbox" name="q17796552960122308" value="3" data-correct="true" > El valor final simplificado es igual a la constante entera 78125.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934254632" value="4" data-correct="true" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=\sqrt{0.04^{-7}}\]</span></label>
+<label><input type="checkbox" name="q17796552960122308" value="4" data-correct="true" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=\sqrt{0.04^{-7}}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934254632" value="5" data-correct="false" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=\sqrt[2]{-2^{9}}\]</span></label>
+<label><input type="checkbox" name="q17796552960122308" value="5" data-correct="false" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=\sqrt[2]{-2^{9}}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934254632" value="6" data-correct="false" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=5^{-7}\]</span></label>
+<label><input type="checkbox" name="q17796552960122308" value="6" data-correct="false" > <span class="math display">\[\left(0.04\right)^{\frac{-7}{2}}=5^{-7}\]</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934254632&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552960122308&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1807,28 +1870,28 @@ true
 <div id="pregunta-16-seleccionar-falsas" class="section level3 hasAnchor" number="3.3.6">
 <h3><span class="header-section-number">3.3.6</span> Pregunta 16 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-16-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512934349817" class="learnr-question-box">
+<div id="q17796552960197569" class="learnr-question-box">
 <div class="learnr-question-text">
 Usar propiedades de potenciación e identificar únicamente las afirmaciones <strong>falsas</strong> sobre la expresión: <span class="math display">\[\left(-32\right)^{\frac{1}{5}}\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934349817" value="1" data-correct="true" > <span class="math display">\[\left(-32\right)^{\frac{1}{5}}=\sqrt[2]{2^4(16)}\]</span></label>
+<label><input type="checkbox" name="q17796552960197569" value="1" data-correct="true" > <span class="math display">\[\left(-32\right)^{\frac{1}{5}}=\sqrt[2]{2^4(16)}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934349817" value="2" data-correct="true" > <span class="math display">\[\left(-32\right)^{\frac{1}{5}}=\sqrt[2]{-2^{9}3^3}\]</span></label>
+<label><input type="checkbox" name="q17796552960197569" value="2" data-correct="true" > <span class="math display">\[\left(-32\right)^{\frac{1}{5}}=\sqrt[2]{-2^{9}3^3}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934349817" value="3" data-correct="true" > Su resultado simplificado equivale al número real positivo 2.</label>
+<label><input type="checkbox" name="q17796552960197569" value="3" data-correct="true" > Su resultado simplificado equivale al número real positivo 2.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934349817" value="4" data-correct="false" > <span class="math display">\[\left(-32\right)^{\frac{1}{5}}= \sqrt[5]{(-1)^52^{5}}=-2\]</span></label>
+<label><input type="checkbox" name="q17796552960197569" value="4" data-correct="false" > <span class="math display">\[\left(-32\right)^{\frac{1}{5}}= \sqrt[5]{(-1)^52^{5}}=-2\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934349817" value="5" data-correct="false" > <span class="math display">\[\left(-32\right)^{\frac{1}{5}}=\left(-2^5\right)^{\frac{1}{5}}=(-2)^1\]</span></label>
+<label><input type="checkbox" name="q17796552960197569" value="5" data-correct="false" > <span class="math display">\[\left(-32\right)^{\frac{1}{5}}=\left(-2^5\right)^{\frac{1}{5}}=(-2)^1\]</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934349817&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552960197569&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1851,31 +1914,31 @@ true
 <div id="pregunta-17-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.3.7">
 <h3><span class="header-section-number">3.3.7</span> Pregunta 17 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-17-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512934422741" class="learnr-question-box">
+<div id="q17796552960286208" class="learnr-question-box">
 <div class="learnr-question-text">
 Usar propiedades de potenciación e identificar afirmaciones <strong>verdaderas</strong> sobre la expresión: <span class="math display">\[\sqrt[n]{\dfrac{4^{n}.6}{4^{2n+1}+2^{4n+1}}}\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934422741" value="1" data-correct="true" > <span class="math display">\[\sqrt[n]{\dfrac{4^{n}.6}{4^{2n+1}+2^{4n+1}}}=\sqrt[n]{\dfrac{2^{2n}.(2).(3)}{2^{4n+2}+2^{4n+1}}}\]</span></label>
+<label><input type="checkbox" name="q17796552960286208" value="1" data-correct="true" > <span class="math display">\[\sqrt[n]{\dfrac{4^{n}.6}{4^{2n+1}+2^{4n+1}}}=\sqrt[n]{\dfrac{2^{2n}.(2).(3)}{2^{4n+2}+2^{4n+1}}}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934422741" value="2" data-correct="true" > <span class="math display">\[\sqrt[n]{\dfrac{4^{n}.6}{4^{2n+1}+2^{4n+1}}}=\sqrt[n]{\dfrac{2^{2n}.(2).(3)}{2^{4n}2^2+2^{4n}2^1}}=\sqrt[n]{\dfrac{2^{2n}.(2).(3)}{2^{4n}(2^2+2^1)}}\]</span></label>
+<label><input type="checkbox" name="q17796552960286208" value="2" data-correct="true" > <span class="math display">\[\sqrt[n]{\dfrac{4^{n}.6}{4^{2n+1}+2^{4n+1}}}=\sqrt[n]{\dfrac{2^{2n}.(2).(3)}{2^{4n}2^2+2^{4n}2^1}}=\sqrt[n]{\dfrac{2^{2n}.(2).(3)}{2^{4n}(2^2+2^1)}}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934422741" value="3" data-correct="true" > <span class="math display">\[\sqrt[n]{\dfrac{4^{n}.6}{4^{2n+1}+2^{4n+1}}}=\sqrt[n]{\dfrac{2^{2n}.(2).(3)}{2^{4n}(6)}}=\sqrt[n]{\dfrac{2^{2n}}{2^{4n}}}\]</span></label>
+<label><input type="checkbox" name="q17796552960286208" value="3" data-correct="true" > <span class="math display">\[\sqrt[n]{\dfrac{4^{n}.6}{4^{2n+1}+2^{4n+1}}}=\sqrt[n]{\dfrac{2^{2n}.(2).(3)}{2^{4n}(6)}}=\sqrt[n]{\dfrac{2^{2n}}{2^{4n}}}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934422741" value="4" data-correct="true" > El resultado final de simplificar toda la expresión radical es exactamente <span class="math inline">\(\frac{1}{4}\)</span>.</label>
+<label><input type="checkbox" name="q17796552960286208" value="4" data-correct="true" > El resultado final de simplificar toda la expresión radical es exactamente <span class="math inline">\(\frac{1}{4}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934422741" value="5" data-correct="true" > <span class="math display">\[\sqrt[n]{\dfrac{4^{n}.6}{4^{2n+1}+2^{4n+1}}}=\sqrt[n]{\left( \dfrac{1}{2^2} \right)^n}\]</span></label>
+<label><input type="checkbox" name="q17796552960286208" value="5" data-correct="true" > <span class="math display">\[\sqrt[n]{\dfrac{4^{n}.6}{4^{2n+1}+2^{4n+1}}}=\sqrt[n]{\left( \dfrac{1}{2^2} \right)^n}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934422741" value="6" data-correct="false" > El resultado final de la expresión simplificada es igual a 2.</label>
+<label><input type="checkbox" name="q17796552960286208" value="6" data-correct="false" > El resultado final de la expresión simplificada es igual a 2.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934422741&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552960286208&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1898,28 +1961,28 @@ true
 <div id="pregunta-18-seleccionar-falsas" class="section level3 hasAnchor" number="3.3.8">
 <h3><span class="header-section-number">3.3.8</span> Pregunta 18 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-18-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512934525656" class="learnr-question-box">
+<div id="q17796552960374100" class="learnr-question-box">
 <div class="learnr-question-text">
 Usar propiedades de potenciación e identificar únicamente las afirmaciones <strong>falsas</strong> sobre la expresión: <span class="math display">\[\dfrac{2^{n+3}-2^{n}+7}{2^{n+1}-2^{n}+1}\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934525656" value="1" data-correct="true" > <span class="math display">\[\dfrac{2^{n+3}-2^{n}+7}{2^{n+1}-2^{n}+1}=\dfrac{1}{7}\]</span></label>
+<label><input type="checkbox" name="q17796552960374100" value="1" data-correct="true" > <span class="math display">\[\dfrac{2^{n+3}-2^{n}+7}{2^{n+1}-2^{n}+1}=\dfrac{1}{7}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934525656" value="2" data-correct="true" > <span class="math display">\[\dfrac{2^{n+3}-2^{n}+7}{2^{n+1}-2^{n}+1}=\dfrac{2^n(2^3-1)+7}{2^n(2^1-1)+1}=\frac{1}{7}\]</span></label>
+<label><input type="checkbox" name="q17796552960374100" value="2" data-correct="true" > <span class="math display">\[\dfrac{2^{n+3}-2^{n}+7}{2^{n+1}-2^{n}+1}=\dfrac{2^n(2^3-1)+7}{2^n(2^1-1)+1}=\frac{1}{7}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934525656" value="3" data-correct="true" > El resultado final simplificado para cualquier valor de <span class="math inline">\(n\)</span> es la fracción <span class="math inline">\(\frac{7}{2}\)</span>.</label>
+<label><input type="checkbox" name="q17796552960374100" value="3" data-correct="true" > El resultado final simplificado para cualquier valor de <span class="math inline">\(n\)</span> es la fracción <span class="math inline">\(\frac{7}{2}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934525656" value="4" data-correct="false" > <span class="math display">\[\dfrac{2^{n+3}-2^{n}+7}{2^{n+1}-2^{n}+1}=\dfrac{2^n2^3-2^{n}+7}{2^n2-2^{n}+1}\]</span></label>
+<label><input type="checkbox" name="q17796552960374100" value="4" data-correct="false" > <span class="math display">\[\dfrac{2^{n+3}-2^{n}+7}{2^{n+1}-2^{n}+1}=\dfrac{2^n2^3-2^{n}+7}{2^n2-2^{n}+1}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934525656" value="5" data-correct="false" > <span class="math display">\[\dfrac{2^{n+3}-2^{n}+7}{2^{n+1}-2^{n}+1}=\dfrac{2^n(2^3-1)+7}{2^n(2^1-1)+1}=\dfrac{7(2^n+1)}{2^n+1}=7\]</span></label>
+<label><input type="checkbox" name="q17796552960374100" value="5" data-correct="false" > <span class="math display">\[\dfrac{2^{n+3}-2^{n}+7}{2^{n+1}-2^{n}+1}=\dfrac{2^n(2^3-1)+7}{2^n(2^1-1)+1}=\dfrac{7(2^n+1)}{2^n+1}=7\]</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934525656&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552960374100&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1942,31 +2005,31 @@ true
 <div id="pregunta-19-seleccionar-verdaderas" class="section level3 hasAnchor" number="3.3.9">
 <h3><span class="header-section-number">3.3.9</span> Pregunta 19 (Seleccionar Verdaderas)<a href="evaluación-completa-de-potenciación.html#pregunta-19-seleccionar-verdaderas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796512934604915" class="learnr-question-box">
+<div id="q17796552960464677" class="learnr-question-box">
 <div class="learnr-question-text">
 Usar propiedades de potenciación e identificar afirmaciones <strong>verdaderas</strong> sobre la expresión: <span class="math display">\[\dfrac{2.2^{3n}-4.4^{n}}{(2.2^{n})^{3}-8.2^{2n+1}}\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934604915" value="1" data-correct="true" > <span class="math display">\[\dfrac{2.2^{3n}-4.4^{n}}{(2.2^{n})^{3}-8.2^{2n+1}}=\dfrac{2.2^{3n}-2^2.2^{2n}}{2^3.2^{3n}-2^3.2^{2n+1}}\]</span></label>
+<label><input type="checkbox" name="q17796552960464677" value="1" data-correct="true" > <span class="math display">\[\dfrac{2.2^{3n}-4.4^{n}}{(2.2^{n})^{3}-8.2^{2n+1}}=\dfrac{2.2^{3n}-2^2.2^{2n}}{2^3.2^{3n}-2^3.2^{2n+1}}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934604915" value="2" data-correct="true" > <span class="math display">\[\dfrac{2.2^{3n}-4.4^{n}}{(2.2^{n})^{3}-8.2^{2n+1}}=\dfrac{2.2^{2n}(2^n-2)}{2^3.2^{2n}(2^n-2)}=\dfrac{2.2^{2n}}{2^3.2^{2n}}\]</span></label>
+<label><input type="checkbox" name="q17796552960464677" value="2" data-correct="true" > <span class="math display">\[\dfrac{2.2^{3n}-4.4^{n}}{(2.2^{n})^{3}-8.2^{2n+1}}=\dfrac{2.2^{2n}(2^n-2)}{2^3.2^{2n}(2^n-2)}=\dfrac{2.2^{2n}}{2^3.2^{2n}}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934604915" value="3" data-correct="true" > El resultado simplificado final de toda la expresión es la constante racional <span class="math inline">\(\frac{1}{4}\)</span>.</label>
+<label><input type="checkbox" name="q17796552960464677" value="3" data-correct="true" > El resultado simplificado final de toda la expresión es la constante racional <span class="math inline">\(\frac{1}{4}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934604915" value="4" data-correct="true" > <span class="math display">\[\dfrac{2.2^{3n}-4.4^{n}}{(2.2^{n})^{3}-8.2^{2n+1}}=\dfrac{2.2^{2n}}{2^3.2^{2n}}=\dfrac{2}{2^3}=\dfrac{2}{8}\]</span></label>
+<label><input type="checkbox" name="q17796552960464677" value="4" data-correct="true" > <span class="math display">\[\dfrac{2.2^{3n}-4.4^{n}}{(2.2^{n})^{3}-8.2^{2n+1}}=\dfrac{2.2^{2n}}{2^3.2^{2n}}=\dfrac{2}{2^3}=\dfrac{2}{8}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934604915" value="5" data-correct="false" > El resultado simplificado final es igual a <span class="math inline">\(\frac{1}{8}\)</span>.</label>
+<label><input type="checkbox" name="q17796552960464677" value="5" data-correct="false" > El resultado simplificado final es igual a <span class="math inline">\(\frac{1}{8}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934604915" value="6" data-correct="false" > El resultado simplificado final es igual a 2.</label>
+<label><input type="checkbox" name="q17796552960464677" value="6" data-correct="false" > El resultado simplificado final es igual a 2.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934604915&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552960464677&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1989,28 +2052,28 @@ true
 <div id="pregunta-20-seleccionar-falsas" class="section level3 hasAnchor" number="3.3.10">
 <h3><span class="header-section-number">3.3.10</span> Pregunta 20 (Seleccionar Falsas)<a href="evaluación-completa-de-potenciación.html#pregunta-20-seleccionar-falsas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796512934703664" class="learnr-question-box">
+<div id="q17796552960543798" class="learnr-question-box">
 <div class="learnr-question-text">
 Usar propiedades de potenciación e identificar únicamente las afirmaciones <strong>falsas</strong> sobre la expresión: <span class="math display">\[\left(\dfrac{8x}{y^4}\right)^{\frac{1}{5}}.\left(\dfrac{4x^4}{y}\right)^{\frac{1}{5}}\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934703664" value="1" data-correct="true" > <span class="math display">\[\left(\dfrac{8x}{y^4}\right)^{\frac{1}{5}}.\left(\dfrac{4x^4}{y}\right)^{\frac{1}{5}}=\left(\dfrac{(8)(4)(8)xx^4}{y^4y}\right)^{\frac{1}{5}}\]</span> (se multiplicaron las constantes erróneamente)</label>
+<label><input type="checkbox" name="q17796552960543798" value="1" data-correct="true" > <span class="math display">\[\left(\dfrac{8x}{y^4}\right)^{\frac{1}{5}}.\left(\dfrac{4x^4}{y}\right)^{\frac{1}{5}}=\left(\dfrac{(8)(4)(8)xx^4}{y^4y}\right)^{\frac{1}{5}}\]</span> (se multiplicaron las constantes erróneamente)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934703664" value="2" data-correct="true" > <span class="math display">\[\left(\dfrac{8x}{y^4}\right)^{\frac{1}{5}}.\left(\dfrac{4x^4}{y}\right)^{\frac{1}{5}}=\sqrt[5]{\left(\dfrac{2^5x^5}{y^5}\right)}=\dfrac{2y}{x}\]</span> (las variables están invertidas)</label>
+<label><input type="checkbox" name="q17796552960543798" value="2" data-correct="true" > <span class="math display">\[\left(\dfrac{8x}{y^4}\right)^{\frac{1}{5}}.\left(\dfrac{4x^4}{y}\right)^{\frac{1}{5}}=\sqrt[5]{\left(\dfrac{2^5x^5}{y^5}\right)}=\dfrac{2y}{x}\]</span> (las variables están invertidas)</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934703664" value="3" data-correct="true" > El resultado simplificado final equivale a <span class="math inline">\(\dfrac{y}{2x}\)</span>.</label>
+<label><input type="checkbox" name="q17796552960543798" value="3" data-correct="true" > El resultado simplificado final equivale a <span class="math inline">\(\dfrac{y}{2x}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934703664" value="4" data-correct="false" > <span class="math display">\[\left(\dfrac{8x}{y^4}\right)^{\frac{1}{5}}.\left(\dfrac{4x^4}{y}\right)^{\frac{1}{5}}=\left(\dfrac{32x^5}{y^5}\right)^{\frac{1}{5}}=\dfrac{2x}{y}\]</span></label>
+<label><input type="checkbox" name="q17796552960543798" value="4" data-correct="false" > <span class="math display">\[\left(\dfrac{8x}{y^4}\right)^{\frac{1}{5}}.\left(\dfrac{4x^4}{y}\right)^{\frac{1}{5}}=\left(\dfrac{32x^5}{y^5}\right)^{\frac{1}{5}}=\dfrac{2x}{y}\]</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512934703664" value="5" data-correct="false" > <span class="math display">\[\left(\dfrac{8x}{y^4}\right)^{\frac{1}{5}}.\left(\dfrac{4x^4}{y}\right)^{\frac{1}{5}}=\sqrt[5]{\left(\dfrac{2^5x^5}{y^5}\right)}=\dfrac{2x}{y}\]</span></label>
+<label><input type="checkbox" name="q17796552960543798" value="5" data-correct="false" > <span class="math display">\[\left(\dfrac{8x}{y^4}\right)^{\frac{1}{5}}.\left(\dfrac{4x^4}{y}\right)^{\frac{1}{5}}=\sqrt[5]{\left(\dfrac{2^5x^5}{y^5}\right)}=\dfrac{2x}{y}\]</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512934703664&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552960543798&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2034,10 +2097,10 @@ true
 <div id="resultados-de-la-evaluación-1" class="section level2 hasAnchor" number="3.4">
 <h2><span class="header-section-number">3.4</span> Resultados de la Evaluación<a href="evaluación-completa-de-potenciación.html#resultados-de-la-evaluaci%C3%B3n-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Para ver el análisis de tu desempeño en esta prueba, haz clic en el siguiente botón. El sistema evaluará tus respuestas y te proporcionará recomendaciones personalizadas.</p>
-<button type="button" class="learnr-submit-btn" style="margin-bottom:1rem;" onclick="showScoreReport(&#39;sr17796512934917578&#39;, 20, &#39;&lt;strong&gt;¡Espectacular!&lt;/strong&gt; Tienes un dominio sobresaliente de las leyes de potenciación y radicales. Has alcanzado un nivel excelente. ¡Sigue así, estás listo para retos aún mayores!&#39;, &#39;&lt;strong&gt;¡Buen intento!&lt;/strong&gt; Has aprobado la evaluación, pero aún hay conceptos que puedes pulir. Te sugerimos repasar la ley de cociente de potencias ($a^m \\div a^n = a^{m-n}$) y la simplificación de exponentes fraccionarios con bases negativas. ¡Con un poco más de práctica lograrás la excelencia!&#39;, &#39;&lt;strong&gt;Se recomienda más práctica.&lt;/strong&gt; Has tenido varias respuestas incorrectas o preguntas sin responder. Te sugerimos repasar a fondo las propiedades básicas de la potenciación (suma de exponentes en el producto y resta en la división) y resolver de nuevo los ejercicios sencillos antes de intentar los de nivel avanzado. ¡No te desanimes, la práctica hace al maestro!&#39;)">
+<button type="button" class="learnr-submit-btn" style="margin-bottom:1rem;" onclick="showScoreReport(&#39;sr17796552960749260&#39;, 20, &#39;&lt;strong&gt;¡Espectacular!&lt;/strong&gt; Tienes un dominio sobresaliente de las leyes de potenciación y radicales. Has alcanzado un nivel excelente. ¡Sigue así, estás listo para retos aún mayores!&#39;, &#39;&lt;strong&gt;¡Buen intento!&lt;/strong&gt; Has aprobado la evaluación, pero aún hay conceptos que puedes pulir. Te sugerimos repasar la ley de cociente de potencias ($a^m \\div a^n = a^{m-n}$) y la simplificación de exponentes fraccionarios con bases negativas. ¡Con un poco más de práctica lograrás la excelencia!&#39;, &#39;&lt;strong&gt;Se recomienda más práctica.&lt;/strong&gt; Has tenido varias respuestas incorrectas o preguntas sin responder. Te sugerimos repasar a fondo las propiedades básicas de la potenciación (suma de exponentes en el producto y resta en la división) y resolver de nuevo los ejercicios sencillos antes de intentar los de nivel avanzado. ¡No te desanimes, la práctica hace al maestro!&#39;)">
 Calcular Mis Resultados
 </button>
-<div id="sr17796512934917578">
+<div id="sr17796552960749260">
 
 </div>
 

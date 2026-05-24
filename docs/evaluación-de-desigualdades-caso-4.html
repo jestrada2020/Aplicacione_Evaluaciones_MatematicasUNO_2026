@@ -306,8 +306,10 @@ function resetLearnrQuestion(qid) {
   inputs.forEach(function(input) { input.checked = false; });
   
   var feedbackDiv = box.querySelector('.learnr-feedback');
-  feedbackDiv.style.display = 'none';
-  feedbackDiv.className = 'learnr-feedback';
+  if (feedbackDiv) {
+    feedbackDiv.style.display = 'none';
+    feedbackDiv.className = 'learnr-feedback';
+  }
   
   box.querySelectorAll('.learnr-option').forEach(function(opt) {
     opt.classList.remove('correct-answer', 'wrong-answer', 'missed-answer');
@@ -318,17 +320,26 @@ function resetLearnrQuestion(qid) {
   box.removeAttribute('data-answered-correctly');
   
   var btn = box.querySelector('.learnr-submit-btn');
-  btn.style.display = 'inline-block';
-  btn.textContent = 'Enviar Respuesta';
-  btn.onclick = function() { checkLearnrQuestion(qid); };
+  if (btn) {
+    btn.style.display = 'inline-block';
+    btn.textContent = 'Enviar Respuesta';
+    btn.onclick = function() { checkLearnrQuestion(qid); };
+  }
 }
 
 function resetAllQuestions() {
+  // 1. Limpiar cada pregunta
   document.querySelectorAll('.learnr-question-box').forEach(function(box) {
     var qid = box.id;
     if (qid) resetLearnrQuestion(qid);
   });
-  // Re-mezclar opciones para nuevo orden aleatorio
+  
+  // 2. Limpiar reportes de puntaje
+  document.querySelectorAll('.score-report-box').forEach(function(report) {
+    report.remove();
+  });
+  
+  // 3. Re-mezclar opciones para nuevo orden aleatorio
   shuffleAllOptions();
 }
 
@@ -409,15 +420,23 @@ function showScoreReport(reportId, totalQuestions, recHigh, recMed, recLow) {
   reportBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Mezclar opciones aleatoriamente al cargar cada página
+/* ==========================================================================
+   Inyección del botón de reinicio y mezcla de opciones
+   Bookdown gitbook carga capítulos vía AJAX, por lo que usamos
+   múltiples estrategias para detectar cuando cambia el contenido.
+   ========================================================================== */
+
+function initLearnrPage() {
+  // 1. Mezclar opciones aleatoriamente
   shuffleAllOptions();
   
-  // Agregar botón de reinicio global si hay preguntas en la página
-  var questions = document.querySelectorAll('.learnr-question-box');
-  if (questions.length > 0) {
-    var h1 = document.querySelector('.book-body h1') || document.querySelector('h1');
-    if (h1) {
+  // 2. Agregar botón de reinicio si hay preguntas y aún no existe
+  var pageInner = document.querySelector('.page-inner') || document.body;
+  var questions = pageInner.querySelectorAll('.learnr-question-box');
+  
+  if (questions.length > 0 && !pageInner.querySelector('.learnr-reset-btn')) {
+    var h1 = pageInner.querySelector('h1');
+    if (h1 && h1.parentNode) {
       var resetBtn = document.createElement('button');
       resetBtn.type = 'button';
       resetBtn.className = 'learnr-reset-btn';
@@ -429,6 +448,50 @@ document.addEventListener('DOMContentLoaded', function() {
       };
       h1.parentNode.insertBefore(resetBtn, h1.nextSibling);
     }
+  }
+}
+
+// Estrategia 1: DOMContentLoaded
+document.addEventListener('DOMContentLoaded', initLearnrPage);
+
+// Estrategia 2: window.load (todo incluyendo imágenes está listo)
+window.addEventListener('load', initLearnrPage);
+
+// Estrategia 3: Polling periódico durante los primeros 10 segundos
+// Esto cubre la carga dinámica de gitbook y cualquier retraso en el DOM
+var learnrInitAttempts = 0;
+var learnrInitInterval = setInterval(function() {
+  initLearnrPage();
+  learnrInitAttempts++;
+  if (learnrInitAttempts >= 20) {
+    clearInterval(learnrInitInterval);
+  }
+}, 500);
+
+// Estrategia 4: MutationObserver sobre document.body (más robusto que .page-inner)
+// Si gitbook reemplaza .page-inner completamente, body sigue existiendo.
+document.addEventListener('DOMContentLoaded', function() {
+  var observer = new MutationObserver(function(mutations) {
+    // Solo re-inicializar si detectamos que aparecieron nuevas preguntas
+    // o si desapareció el botón de reinicio
+    var pageInner = document.querySelector('.page-inner') || document.body;
+    var hasQuestions = pageInner.querySelectorAll('.learnr-question-box').length > 0;
+    var hasResetBtn = !!pageInner.querySelector('.learnr-reset-btn');
+    if (hasQuestions && !hasResetBtn) {
+      setTimeout(initLearnrPage, 100);
+    }
+  });
+  
+  observer.observe(document.body, { childList: true, subtree: true });
+});
+
+// Estrategia 5: Evento nativo de gitbook SPA (si está disponible)
+// gitbook dispara 'page.change' cuando se carga un nuevo capítulo vía AJAX.
+window.addEventListener('load', function() {
+  if (typeof gitbook !== 'undefined' && gitbook.events) {
+    gitbook.events.bind('page.change', function() {
+      setTimeout(initLearnrPage, 200);
+    });
   }
 });
 </script>
@@ -1104,31 +1167,31 @@ h1, h2, h3, h4, .tutorial-title {
 <div id="pregunta-1-seleccionar-verdaderas-6" class="section level3 hasAnchor" number="9.2.1">
 <h3><span class="header-section-number">9.2.1</span> Pregunta 1 (Seleccionar Verdaderas)<a href="evaluación-de-desigualdades-caso-4.html#pregunta-1-seleccionar-verdaderas-6" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796513008347755" class="learnr-question-box">
+<div id="q17796553033538104" class="learnr-question-box">
 <div class="learnr-question-text">
 Si <span class="math inline">\(x &lt; -3\)</span>, entonces <span class="math inline">\(|3 + x| = ?\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008347755" value="1" data-correct="true" > <span class="math inline">\(-3 - x\)</span></label>
+<label><input type="checkbox" name="q17796553033538104" value="1" data-correct="true" > <span class="math inline">\(-3 - x\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008347755" value="2" data-correct="true" > La expresión dentro del valor absoluto, <span class="math inline">\(3 + x\)</span>, es estrictamente negativa para cualquier <span class="math inline">\(x &lt; -3\)</span>, por lo que su valor absoluto equivale a su opuesto algebraico.</label>
+<label><input type="checkbox" name="q17796553033538104" value="2" data-correct="true" > La expresión dentro del valor absoluto, <span class="math inline">\(3 + x\)</span>, es estrictamente negativa para cualquier <span class="math inline">\(x &lt; -3\)</span>, por lo que su valor absoluto equivale a su opuesto algebraico.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008347755" value="3" data-correct="true" > Si evaluamos un caso particular en el dominio como <span class="math inline">\(x = -4\)</span>, obtenemos <span class="math inline">\(|3 + (-4)| = |-1| = 1\)</span>, lo cual coincide con la fórmula simplificada <span class="math inline">\(-3 - (-4) = 1\)</span>.</label>
+<label><input type="checkbox" name="q17796553033538104" value="3" data-correct="true" > Si evaluamos un caso particular en el dominio como <span class="math inline">\(x = -4\)</span>, obtenemos <span class="math inline">\(|3 + (-4)| = |-1| = 1\)</span>, lo cual coincide con la fórmula simplificada <span class="math inline">\(-3 - (-4) = 1\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008347755" value="4" data-correct="false" > <span class="math inline">\(3 + x\)</span></label>
+<label><input type="checkbox" name="q17796553033538104" value="4" data-correct="false" > <span class="math inline">\(3 + x\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008347755" value="5" data-correct="false" > <span class="math inline">\(x - 3\)</span></label>
+<label><input type="checkbox" name="q17796553033538104" value="5" data-correct="false" > <span class="math inline">\(x - 3\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008347755" value="6" data-correct="false" > El resultado simplificado es un número negativo para cualquier valor de <span class="math inline">\(x\)</span>.</label>
+<label><input type="checkbox" name="q17796553033538104" value="6" data-correct="false" > El resultado simplificado es un número negativo para cualquier valor de <span class="math inline">\(x\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513008347755&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553033538104&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1151,31 +1214,31 @@ true
 <div id="pregunta-2-seleccionar-falsas-6" class="section level3 hasAnchor" number="9.2.2">
 <h3><span class="header-section-number">9.2.2</span> Pregunta 2 (Seleccionar Falsas)<a href="evaluación-de-desigualdades-caso-4.html#pregunta-2-seleccionar-falsas-6" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796513008466757" class="learnr-question-box">
+<div id="q17796553033644732" class="learnr-question-box">
 <div class="learnr-question-text">
 Si <span class="math inline">\(x &gt; 5\)</span>, entonces <span class="math inline">\(|5 - x| = ?\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008466757" value="1" data-correct="true" > <span class="math inline">\(5 - x\)</span></label>
+<label><input type="checkbox" name="q17796553033644732" value="1" data-correct="true" > <span class="math inline">\(5 - x\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008466757" value="2" data-correct="true" > La expresión dentro del valor absoluto es positiva porque el valor absoluto nunca puede devolver un resultado negativo.</label>
+<label><input type="checkbox" name="q17796553033644732" value="2" data-correct="true" > La expresión dentro del valor absoluto es positiva porque el valor absoluto nunca puede devolver un resultado negativo.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008466757" value="3" data-correct="true" > El resultado simplificado es <span class="math inline">\(-x - 5\)</span>.</label>
+<label><input type="checkbox" name="q17796553033644732" value="3" data-correct="true" > El resultado simplificado es <span class="math inline">\(-x - 5\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008466757" value="4" data-correct="false" > <span class="math inline">\(x - 5\)</span></label>
+<label><input type="checkbox" name="q17796553033644732" value="4" data-correct="false" > <span class="math inline">\(x - 5\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008466757" value="5" data-correct="false" > Dado que <span class="math inline">\(x &gt; 5\)</span>, la cantidad <span class="math inline">\(5 - x\)</span> es menor que cero, por lo que su valor absoluto equivale a su negativo <span class="math inline">\(-(5 - x) = x - 5\)</span>.</label>
+<label><input type="checkbox" name="q17796553033644732" value="5" data-correct="false" > Dado que <span class="math inline">\(x &gt; 5\)</span>, la cantidad <span class="math inline">\(5 - x\)</span> es menor que cero, por lo que su valor absoluto equivale a su negativo <span class="math inline">\(-(5 - x) = x - 5\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008466757" value="6" data-correct="false" > Para el caso particular <span class="math inline">\(x = 6\)</span>, la simplificación correcta da <span class="math inline">\(1\)</span>.</label>
+<label><input type="checkbox" name="q17796553033644732" value="6" data-correct="false" > Para el caso particular <span class="math inline">\(x = 6\)</span>, la simplificación correcta da <span class="math inline">\(1\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513008466757&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553033644732&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1198,31 +1261,31 @@ true
 <div id="pregunta-3-seleccionar-verdaderas-6" class="section level3 hasAnchor" number="9.2.3">
 <h3><span class="header-section-number">9.2.3</span> Pregunta 3 (Seleccionar Verdaderas)<a href="evaluación-de-desigualdades-caso-4.html#pregunta-3-seleccionar-verdaderas-6" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796513008545522" class="learnr-question-box">
+<div id="q17796553033726025" class="learnr-question-box">
 <div class="learnr-question-text">
 Si <span class="math inline">\(x &lt; 2\)</span>, entonces <span class="math inline">\(|2 - x| = ?\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008545522" value="1" data-correct="true" > <span class="math inline">\(2 - x\)</span></label>
+<label><input type="checkbox" name="q17796553033726025" value="1" data-correct="true" > <span class="math inline">\(2 - x\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008545522" value="2" data-correct="true" > Puesto que <span class="math inline">\(x &lt; 2\)</span>, la diferencia <span class="math inline">\(2 - x\)</span> es estrictamente positiva, por lo que el valor absoluto no altera la expresión.</label>
+<label><input type="checkbox" name="q17796553033726025" value="2" data-correct="true" > Puesto que <span class="math inline">\(x &lt; 2\)</span>, la diferencia <span class="math inline">\(2 - x\)</span> es estrictamente positiva, por lo que el valor absoluto no altera la expresión.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008545522" value="3" data-correct="true" > El valor absoluto de cualquier expresión estrictamente positiva es la expresión misma.</label>
+<label><input type="checkbox" name="q17796553033726025" value="3" data-correct="true" > El valor absoluto de cualquier expresión estrictamente positiva es la expresión misma.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008545522" value="4" data-correct="false" > <span class="math inline">\(x - 2\)</span></label>
+<label><input type="checkbox" name="q17796553033726025" value="4" data-correct="false" > <span class="math inline">\(x - 2\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008545522" value="5" data-correct="false" > <span class="math inline">\(-2 - x\)</span></label>
+<label><input type="checkbox" name="q17796553033726025" value="5" data-correct="false" > <span class="math inline">\(-2 - x\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008545522" value="6" data-correct="false" > La expresión se reduce a la constante <span class="math inline">\(2\)</span> para cualquier valor de <span class="math inline">\(x\)</span>.</label>
+<label><input type="checkbox" name="q17796553033726025" value="6" data-correct="false" > La expresión se reduce a la constante <span class="math inline">\(2\)</span> para cualquier valor de <span class="math inline">\(x\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513008545522&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553033726025&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1245,31 +1308,31 @@ true
 <div id="pregunta-4-seleccionar-falsas-6" class="section level3 hasAnchor" number="9.2.4">
 <h3><span class="header-section-number">9.2.4</span> Pregunta 4 (Seleccionar Falsas)<a href="evaluación-de-desigualdades-caso-4.html#pregunta-4-seleccionar-falsas-6" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796513008627237" class="learnr-question-box">
+<div id="q17796553033809462" class="learnr-question-box">
 <div class="learnr-question-text">
 Si <span class="math inline">\(x \ge -7\)</span>, entonces <span class="math inline">\(|7 + x| = ?\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008627237" value="1" data-correct="true" > <span class="math inline">\(-7 - x\)</span></label>
+<label><input type="checkbox" name="q17796553033809462" value="1" data-correct="true" > <span class="math inline">\(-7 - x\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008627237" value="2" data-correct="true" > La expresión dentro del valor absoluto es estrictamente negativa en todo el dominio indicado.</label>
+<label><input type="checkbox" name="q17796553033809462" value="2" data-correct="true" > La expresión dentro del valor absoluto es estrictamente negativa en todo el dominio indicado.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008627237" value="3" data-correct="true" > El resultado simplificado es <span class="math inline">\(x - 7\)</span>.</label>
+<label><input type="checkbox" name="q17796553033809462" value="3" data-correct="true" > El resultado simplificado es <span class="math inline">\(x - 7\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008627237" value="4" data-correct="false" > <span class="math inline">\(7 + x\)</span></label>
+<label><input type="checkbox" name="q17796553033809462" value="4" data-correct="false" > <span class="math inline">\(7 + x\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008627237" value="5" data-correct="false" > Dado que <span class="math inline">\(x \ge -7\)</span>, la expresión <span class="math inline">\(7 + x\)</span> es mayor o igual a cero, por lo que su valor absoluto conserva la misma expresión.</label>
+<label><input type="checkbox" name="q17796553033809462" value="5" data-correct="false" > Dado que <span class="math inline">\(x \ge -7\)</span>, la expresión <span class="math inline">\(7 + x\)</span> es mayor o igual a cero, por lo que su valor absoluto conserva la misma expresión.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008627237" value="6" data-correct="false" > Si elegimos el valor extremo <span class="math inline">\(x = -7\)</span>, la expresión se anula de forma válida: <span class="math inline">\(|7 + (-7)| = 0\)</span>.</label>
+<label><input type="checkbox" name="q17796553033809462" value="6" data-correct="false" > Si elegimos el valor extremo <span class="math inline">\(x = -7\)</span>, la expresión se anula de forma válida: <span class="math inline">\(|7 + (-7)| = 0\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513008627237&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553033809462&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1292,31 +1355,31 @@ true
 <div id="pregunta-5-seleccionar-verdaderas-6" class="section level3 hasAnchor" number="9.2.5">
 <h3><span class="header-section-number">9.2.5</span> Pregunta 5 (Seleccionar Verdaderas)<a href="evaluación-de-desigualdades-caso-4.html#pregunta-5-seleccionar-verdaderas-6" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796513008701910" class="learnr-question-box">
+<div id="q17796553033885392" class="learnr-question-box">
 <div class="learnr-question-text">
 Si <span class="math inline">\(a &lt; b\)</span>, entonces <span class="math inline">\(|a - b| = ?\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008701910" value="1" data-correct="true" > <span class="math inline">\(b - a\)</span></label>
+<label><input type="checkbox" name="q17796553033885392" value="1" data-correct="true" > <span class="math inline">\(b - a\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008701910" value="2" data-correct="true" > Al ser <span class="math inline">\(a &lt; b\)</span>, la diferencia <span class="math inline">\(a - b\)</span> es estrictamente menor a cero, lo cual requiere multiplicar por <span class="math inline">\(-1\)</span> para obtener un resultado positivo.</label>
+<label><input type="checkbox" name="q17796553033885392" value="2" data-correct="true" > Al ser <span class="math inline">\(a &lt; b\)</span>, la diferencia <span class="math inline">\(a - b\)</span> es estrictamente menor a cero, lo cual requiere multiplicar por <span class="math inline">\(-1\)</span> para obtener un resultado positivo.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008701910" value="3" data-correct="true" > La distancia geométrica entre <span class="math inline">\(a\)</span> y <span class="math inline">\(b\)</span> cuando <span class="math inline">\(a\)</span> está a la izquierda de <span class="math inline">\(b\)</span> se representa como la longitud del segmento <span class="math inline">\(b - a\)</span>.</label>
+<label><input type="checkbox" name="q17796553033885392" value="3" data-correct="true" > La distancia geométrica entre <span class="math inline">\(a\)</span> y <span class="math inline">\(b\)</span> cuando <span class="math inline">\(a\)</span> está a la izquierda de <span class="math inline">\(b\)</span> se representa como la longitud del segmento <span class="math inline">\(b - a\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008701910" value="4" data-correct="false" > <span class="math inline">\(a - b\)</span></label>
+<label><input type="checkbox" name="q17796553033885392" value="4" data-correct="false" > <span class="math inline">\(a - b\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008701910" value="5" data-correct="false" > <span class="math inline">\(-a - b\)</span></label>
+<label><input type="checkbox" name="q17796553033885392" value="5" data-correct="false" > <span class="math inline">\(-a - b\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008701910" value="6" data-correct="false" > El valor absoluto se cancela directamente dando como resultado cero.</label>
+<label><input type="checkbox" name="q17796553033885392" value="6" data-correct="false" > El valor absoluto se cancela directamente dando como resultado cero.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513008701910&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553033885392&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1339,31 +1402,31 @@ true
 <div id="pregunta-6-seleccionar-falsas-5" class="section level3 hasAnchor" number="9.2.6">
 <h3><span class="header-section-number">9.2.6</span> Pregunta 6 (Seleccionar Falsas)<a href="evaluación-de-desigualdades-caso-4.html#pregunta-6-seleccionar-falsas-5" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796513008776743" class="learnr-question-box">
+<div id="q17796553033966921" class="learnr-question-box">
 <div class="learnr-question-text">
 Si <span class="math inline">\(a &gt; b\)</span>, entonces <span class="math inline">\(|a - b| = ?\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008776743" value="1" data-correct="true" > <span class="math inline">\(b - a\)</span></label>
+<label><input type="checkbox" name="q17796553033966921" value="1" data-correct="true" > <span class="math inline">\(b - a\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008776743" value="2" data-correct="true" > La diferencia <span class="math inline">\(a - b\)</span> es siempre negativa ya que estamos restando variables.</label>
+<label><input type="checkbox" name="q17796553033966921" value="2" data-correct="true" > La diferencia <span class="math inline">\(a - b\)</span> es siempre negativa ya que estamos restando variables.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008776743" value="3" data-correct="true" > El resultado simplificado de la distancia es <span class="math inline">\(-a + b\)</span>.</label>
+<label><input type="checkbox" name="q17796553033966921" value="3" data-correct="true" > El resultado simplificado de la distancia es <span class="math inline">\(-a + b\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008776743" value="4" data-correct="false" > <span class="math inline">\(a - b\)</span></label>
+<label><input type="checkbox" name="q17796553033966921" value="4" data-correct="false" > <span class="math inline">\(a - b\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008776743" value="5" data-correct="false" > Dado que <span class="math inline">\(a\)</span> es mayor que <span class="math inline">\(b\)</span>, la resta de <span class="math inline">\(a\)</span> menos <span class="math inline">\(b\)</span> produce una cantidad mayor a cero.</label>
+<label><input type="checkbox" name="q17796553033966921" value="5" data-correct="false" > Dado que <span class="math inline">\(a\)</span> es mayor que <span class="math inline">\(b\)</span>, la resta de <span class="math inline">\(a\)</span> menos <span class="math inline">\(b\)</span> produce una cantidad mayor a cero.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008776743" value="6" data-correct="false" > La expresión <span class="math inline">\(|a - b|\)</span> representa la distancia entre <span class="math inline">\(a\)</span> y <span class="math inline">\(b\)</span>, que al ser <span class="math inline">\(a &gt; b\)</span> equivale a la resta directa <span class="math inline">\(a - b\)</span>.</label>
+<label><input type="checkbox" name="q17796553033966921" value="6" data-correct="false" > La expresión <span class="math inline">\(|a - b|\)</span> representa la distancia entre <span class="math inline">\(a\)</span> y <span class="math inline">\(b\)</span>, que al ser <span class="math inline">\(a &gt; b\)</span> equivale a la resta directa <span class="math inline">\(a - b\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513008776743&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553033966921&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1386,31 +1449,31 @@ true
 <div id="pregunta-7-seleccionar-verdaderas-5" class="section level3 hasAnchor" number="9.2.7">
 <h3><span class="header-section-number">9.2.7</span> Pregunta 7 (Seleccionar Verdaderas)<a href="evaluación-de-desigualdades-caso-4.html#pregunta-7-seleccionar-verdaderas-5" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar VERDADERAS</span></p>
-<div id="q17796513008852833" class="learnr-question-box">
+<div id="q17796553034065339" class="learnr-question-box">
 <div class="learnr-question-text">
 Simplificar <span class="math inline">\(|x^2 + 4| = ?\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008852833" value="1" data-correct="true" > <span class="math inline">\(x^2 + 4\)</span></label>
+<label><input type="checkbox" name="q17796553034065339" value="1" data-correct="true" > <span class="math inline">\(x^2 + 4\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008852833" value="2" data-correct="true" > El término <span class="math inline">\(x^2\)</span> es siempre mayor o igual a cero para cualquier número real <span class="math inline">\(x\)</span>, por lo que <span class="math inline">\(x^2 + 4\)</span> es estrictamente positivo en todo su dominio.</label>
+<label><input type="checkbox" name="q17796553034065339" value="2" data-correct="true" > El término <span class="math inline">\(x^2\)</span> es siempre mayor o igual a cero para cualquier número real <span class="math inline">\(x\)</span>, por lo que <span class="math inline">\(x^2 + 4\)</span> es estrictamente positivo en todo su dominio.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008852833" value="3" data-correct="true" > Al ser el argumento siempre positivo, no se requiere ningún cambio de signo al quitar las barras de valor absoluto.</label>
+<label><input type="checkbox" name="q17796553034065339" value="3" data-correct="true" > Al ser el argumento siempre positivo, no se requiere ningún cambio de signo al quitar las barras de valor absoluto.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008852833" value="4" data-correct="false" > <span class="math inline">\(-x^2 - 4\)</span></label>
+<label><input type="checkbox" name="q17796553034065339" value="4" data-correct="false" > <span class="math inline">\(-x^2 - 4\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008852833" value="5" data-correct="false" > <span class="math inline">\(x^2 - 4\)</span></label>
+<label><input type="checkbox" name="q17796553034065339" value="5" data-correct="false" > <span class="math inline">\(x^2 - 4\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008852833" value="6" data-correct="false" > La expresión depende del signo de la variable <span class="math inline">\(x\)</span> y se debe separar en dos ramas para su resolución.</label>
+<label><input type="checkbox" name="q17796553034065339" value="6" data-correct="false" > La expresión depende del signo de la variable <span class="math inline">\(x\)</span> y se debe separar en dos ramas para su resolución.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513008852833&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553034065339&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1433,31 +1496,31 @@ true
 <div id="pregunta-8-seleccionar-falsas-5" class="section level3 hasAnchor" number="9.2.8">
 <h3><span class="header-section-number">9.2.8</span> Pregunta 8 (Seleccionar Falsas)<a href="evaluación-de-desigualdades-caso-4.html#pregunta-8-seleccionar-falsas-5" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-false">✗ Seleccionar FALSAS</span></p>
-<div id="q17796513008935494" class="learnr-question-box">
+<div id="q17796553034157237" class="learnr-question-box">
 <div class="learnr-question-text">
 Simplificar <span class="math inline">\(|-x^2 - 1| = ?\)</span>. Identifica únicamente cuáles de las siguientes afirmaciones son <strong>falsas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008935494" value="1" data-correct="true" > <span class="math inline">\(-x^2 - 1\)</span></label>
+<label><input type="checkbox" name="q17796553034157237" value="1" data-correct="true" > <span class="math inline">\(-x^2 - 1\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008935494" value="2" data-correct="true" > El valor absoluto simplemente elimina el signo menos de adelante dando como resultado <span class="math inline">\(-x^2 + 1\)</span>.</label>
+<label><input type="checkbox" name="q17796553034157237" value="2" data-correct="true" > El valor absoluto simplemente elimina el signo menos de adelante dando como resultado <span class="math inline">\(-x^2 + 1\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008935494" value="3" data-correct="true" > La expresión resultante es negativa para valores negativos de la variable <span class="math inline">\(x\)</span>.</label>
+<label><input type="checkbox" name="q17796553034157237" value="3" data-correct="true" > La expresión resultante es negativa para valores negativos de la variable <span class="math inline">\(x\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008935494" value="4" data-correct="false" > <span class="math inline">\(x^2 + 1\)</span></label>
+<label><input type="checkbox" name="q17796553034157237" value="4" data-correct="false" > <span class="math inline">\(x^2 + 1\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008935494" value="5" data-correct="false" > Puesto que <span class="math inline">\(-x^2 - 1\)</span> es siempre estrictamente menor que cero para cualquier real <span class="math inline">\(x\)</span>, su valor absoluto es su opuesto algebraico, el cual es <span class="math inline">\(x^2 + 1\)</span>.</label>
+<label><input type="checkbox" name="q17796553034157237" value="5" data-correct="false" > Puesto que <span class="math inline">\(-x^2 - 1\)</span> es siempre estrictamente menor que cero para cualquier real <span class="math inline">\(x\)</span>, su valor absoluto es su opuesto algebraico, el cual es <span class="math inline">\(x^2 + 1\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513008935494" value="6" data-correct="false" > Para cualquier valor de <span class="math inline">\(x\)</span> (por ejemplo, <span class="math inline">\(x = 0\)</span>), la expresión se evalúa de manera correcta dando un resultado positivo (<span class="math inline">\(1\)</span>).</label>
+<label><input type="checkbox" name="q17796553034157237" value="6" data-correct="false" > Para cualquier valor de <span class="math inline">\(x\)</span> (por ejemplo, <span class="math inline">\(x = 0\)</span>), la expresión se evalúa de manera correcta dando un resultado positivo (<span class="math inline">\(1\)</span>).</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513008935494&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553034157237&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1482,10 +1545,10 @@ true
 <div id="resultados-de-la-evaluación-7" class="section level2 hasAnchor" number="9.3">
 <h2><span class="header-section-number">9.3</span> Resultados de la Evaluación<a href="evaluación-de-desigualdades-caso-4.html#resultados-de-la-evaluaci%C3%B3n-7" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Para ver el análisis de tu desempeño en esta prueba, haz clic en el siguiente botón. El sistema evaluará tus respuestas y te proporcionará recomendaciones personalizadas.</p>
-<button type="button" class="learnr-submit-btn" style="margin-bottom:1rem;" onclick="showScoreReport(&#39;sr17796513009113177&#39;, 8, &#39;&lt;strong&gt;¡Espectacular!&lt;/strong&gt; Tienes un dominio sobresaliente en la simplificación y el análisis analítico de expresiones con valor absoluto bajo condiciones dadas. Has alcanzado un nivel de lógica excelente y comprendes con total claridad cuándo una cantidad es negativa y cómo opera el valor absoluto sobre ella. ¡Sigue así, estás listo para desafíos mayores!&#39;, &#39;&lt;strong&gt;¡Buen intento!&lt;/strong&gt; Has aprobado la evaluación, pero aún puedes pulir la aplicación de signos al remover barras de valor absoluto cuando el argumento es negativo (como en el caso de $|-x^2 - 1|$ o $|3+x|$ cuando $x &lt; -3$). Recuerda que un argumento negativo requiere multiplicar por $-1$ a toda la expresión. ¡Con un poco más de repaso lograrás la excelencia!&#39;, &#39;&lt;strong&gt;Se recomienda más práctica.&lt;/strong&gt; Has tenido varias respuestas incorrectas o preguntas sin responder. Te sugerimos repasar a fondo la definición formal de valor absoluto y el análisis de signos de variables, diferencias ($a - b$ según su orden) y expresiones cuadráticas. ¡No te desanimes, con la práctica y la atención al detalle dominarás el valor absoluto!&#39;)">
+<button type="button" class="learnr-submit-btn" style="margin-bottom:1rem;" onclick="showScoreReport(&#39;sr17796553034336878&#39;, 8, &#39;&lt;strong&gt;¡Espectacular!&lt;/strong&gt; Tienes un dominio sobresaliente en la simplificación y el análisis analítico de expresiones con valor absoluto bajo condiciones dadas. Has alcanzado un nivel de lógica excelente y comprendes con total claridad cuándo una cantidad es negativa y cómo opera el valor absoluto sobre ella. ¡Sigue así, estás listo para desafíos mayores!&#39;, &#39;&lt;strong&gt;¡Buen intento!&lt;/strong&gt; Has aprobado la evaluación, pero aún puedes pulir la aplicación de signos al remover barras de valor absoluto cuando el argumento es negativo (como en el caso de $|-x^2 - 1|$ o $|3+x|$ cuando $x &lt; -3$). Recuerda que un argumento negativo requiere multiplicar por $-1$ a toda la expresión. ¡Con un poco más de repaso lograrás la excelencia!&#39;, &#39;&lt;strong&gt;Se recomienda más práctica.&lt;/strong&gt; Has tenido varias respuestas incorrectas o preguntas sin responder. Te sugerimos repasar a fondo la definición formal de valor absoluto y el análisis de signos de variables, diferencias ($a - b$ según su orden) y expresiones cuadráticas. ¡No te desanimes, con la práctica y la atención al detalle dominarás el valor absoluto!&#39;)">
 Calcular Mis Resultados
 </button>
-<div id="sr17796513009113177">
+<div id="sr17796553034336878">
 
 </div>
 

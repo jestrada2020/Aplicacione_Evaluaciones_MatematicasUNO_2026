@@ -306,8 +306,10 @@ function resetLearnrQuestion(qid) {
   inputs.forEach(function(input) { input.checked = false; });
   
   var feedbackDiv = box.querySelector('.learnr-feedback');
-  feedbackDiv.style.display = 'none';
-  feedbackDiv.className = 'learnr-feedback';
+  if (feedbackDiv) {
+    feedbackDiv.style.display = 'none';
+    feedbackDiv.className = 'learnr-feedback';
+  }
   
   box.querySelectorAll('.learnr-option').forEach(function(opt) {
     opt.classList.remove('correct-answer', 'wrong-answer', 'missed-answer');
@@ -318,17 +320,26 @@ function resetLearnrQuestion(qid) {
   box.removeAttribute('data-answered-correctly');
   
   var btn = box.querySelector('.learnr-submit-btn');
-  btn.style.display = 'inline-block';
-  btn.textContent = 'Enviar Respuesta';
-  btn.onclick = function() { checkLearnrQuestion(qid); };
+  if (btn) {
+    btn.style.display = 'inline-block';
+    btn.textContent = 'Enviar Respuesta';
+    btn.onclick = function() { checkLearnrQuestion(qid); };
+  }
 }
 
 function resetAllQuestions() {
+  // 1. Limpiar cada pregunta
   document.querySelectorAll('.learnr-question-box').forEach(function(box) {
     var qid = box.id;
     if (qid) resetLearnrQuestion(qid);
   });
-  // Re-mezclar opciones para nuevo orden aleatorio
+  
+  // 2. Limpiar reportes de puntaje
+  document.querySelectorAll('.score-report-box').forEach(function(report) {
+    report.remove();
+  });
+  
+  // 3. Re-mezclar opciones para nuevo orden aleatorio
   shuffleAllOptions();
 }
 
@@ -409,15 +420,23 @@ function showScoreReport(reportId, totalQuestions, recHigh, recMed, recLow) {
   reportBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Mezclar opciones aleatoriamente al cargar cada página
+/* ==========================================================================
+   Inyección del botón de reinicio y mezcla de opciones
+   Bookdown gitbook carga capítulos vía AJAX, por lo que usamos
+   múltiples estrategias para detectar cuando cambia el contenido.
+   ========================================================================== */
+
+function initLearnrPage() {
+  // 1. Mezclar opciones aleatoriamente
   shuffleAllOptions();
   
-  // Agregar botón de reinicio global si hay preguntas en la página
-  var questions = document.querySelectorAll('.learnr-question-box');
-  if (questions.length > 0) {
-    var h1 = document.querySelector('.book-body h1') || document.querySelector('h1');
-    if (h1) {
+  // 2. Agregar botón de reinicio si hay preguntas y aún no existe
+  var pageInner = document.querySelector('.page-inner') || document.body;
+  var questions = pageInner.querySelectorAll('.learnr-question-box');
+  
+  if (questions.length > 0 && !pageInner.querySelector('.learnr-reset-btn')) {
+    var h1 = pageInner.querySelector('h1');
+    if (h1 && h1.parentNode) {
       var resetBtn = document.createElement('button');
       resetBtn.type = 'button';
       resetBtn.className = 'learnr-reset-btn';
@@ -429,6 +448,50 @@ document.addEventListener('DOMContentLoaded', function() {
       };
       h1.parentNode.insertBefore(resetBtn, h1.nextSibling);
     }
+  }
+}
+
+// Estrategia 1: DOMContentLoaded
+document.addEventListener('DOMContentLoaded', initLearnrPage);
+
+// Estrategia 2: window.load (todo incluyendo imágenes está listo)
+window.addEventListener('load', initLearnrPage);
+
+// Estrategia 3: Polling periódico durante los primeros 10 segundos
+// Esto cubre la carga dinámica de gitbook y cualquier retraso en el DOM
+var learnrInitAttempts = 0;
+var learnrInitInterval = setInterval(function() {
+  initLearnrPage();
+  learnrInitAttempts++;
+  if (learnrInitAttempts >= 20) {
+    clearInterval(learnrInitInterval);
+  }
+}, 500);
+
+// Estrategia 4: MutationObserver sobre document.body (más robusto que .page-inner)
+// Si gitbook reemplaza .page-inner completamente, body sigue existiendo.
+document.addEventListener('DOMContentLoaded', function() {
+  var observer = new MutationObserver(function(mutations) {
+    // Solo re-inicializar si detectamos que aparecieron nuevas preguntas
+    // o si desapareció el botón de reinicio
+    var pageInner = document.querySelector('.page-inner') || document.body;
+    var hasQuestions = pageInner.querySelectorAll('.learnr-question-box').length > 0;
+    var hasResetBtn = !!pageInner.querySelector('.learnr-reset-btn');
+    if (hasQuestions && !hasResetBtn) {
+      setTimeout(initLearnrPage, 100);
+    }
+  });
+  
+  observer.observe(document.body, { childList: true, subtree: true });
+});
+
+// Estrategia 5: Evento nativo de gitbook SPA (si está disponible)
+// gitbook dispara 'page.change' cuando se carga un nuevo capítulo vía AJAX.
+window.addEventListener('load', function() {
+  if (typeof gitbook !== 'undefined' && gitbook.events) {
+    gitbook.events.bind('page.change', function() {
+      setTimeout(initLearnrPage, 200);
+    });
   }
 });
 </script>
@@ -940,37 +1003,37 @@ document.addEventListener('DOMContentLoaded', function() {
 <h1><span class="header-section-number">Capítulo 2</span> Simulacro de Evaluación Uno<a href="simulacro-de-evaluación-uno.html#simulacro-de-evaluaci%C3%B3n-uno" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <iframe src="https://procesouces2020.shinyapps.io/FormulaEstudianteV2/?showcase=0" width="672" height="1000px" data-external="1">
 </iframe>
-<div id="q17796512920801259" class="learnr-question-box">
+<div id="q17796552946784742" class="learnr-question-box">
 <div class="learnr-question-text">
 Use la aplicación Shiny (fórmula del estudiante). Seleccione sólo las afirmaciones verdaderas sobre la ecuación: <span class="math display">\[\ 2x^{2}+ x-1=0\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920801259" value="1" data-correct="true" > El Discriminante es un real positivo </label>
+<label><input type="checkbox" name="q17796552946784742" value="1" data-correct="true" > El Discriminante es un real positivo </label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920801259" value="2" data-correct="false" > Tiene ambas raíces en el lado negativo de los reales</label>
+<label><input type="checkbox" name="q17796552946784742" value="2" data-correct="false" > Tiene ambas raíces en el lado negativo de los reales</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920801259" value="3" data-correct="true" > Una raíz de la ecuación <span class="math inline">\(2x^{2}+ x-1=0\)</span> es <span class="math inline">\(x=-1\)</span></label>
+<label><input type="checkbox" name="q17796552946784742" value="3" data-correct="true" > Una raíz de la ecuación <span class="math inline">\(2x^{2}+ x-1=0\)</span> es <span class="math inline">\(x=-1\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920801259" value="4" data-correct="true" > Una raíz de la ecuación <span class="math inline">\(2x^{2}+ x-1=0\)</span> es <span class="math inline">\(x=0.5\)</span></label>
+<label><input type="checkbox" name="q17796552946784742" value="4" data-correct="true" > Una raíz de la ecuación <span class="math inline">\(2x^{2}+ x-1=0\)</span> es <span class="math inline">\(x=0.5\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920801259" value="5" data-correct="true" > El vértice de la parábola <span class="math inline">\(y=2x^{2}+ x-1\)</span> está bajo el eje <span class="math inline">\(X\)</span></label>
+<label><input type="checkbox" name="q17796552946784742" value="5" data-correct="true" > El vértice de la parábola <span class="math inline">\(y=2x^{2}+ x-1\)</span> está bajo el eje <span class="math inline">\(X\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920801259" value="6" data-correct="false" > Las raices son de un polinómio de cuarto grado</label>
+<label><input type="checkbox" name="q17796552946784742" value="6" data-correct="false" > Las raices son de un polinómio de cuarto grado</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920801259" value="7" data-correct="false" > El Discriminante es un real negativo</label>
+<label><input type="checkbox" name="q17796552946784742" value="7" data-correct="false" > El Discriminante es un real negativo</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920801259" value="8" data-correct="false" > Ambas raices de la ecuación <span class="math inline">\(2x^{2}+ x-1=0\)</span> son complejas</label>
+<label><input type="checkbox" name="q17796552946784742" value="8" data-correct="false" > Ambas raices de la ecuación <span class="math inline">\(2x^{2}+ x-1=0\)</span> son complejas</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512920801259&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552946784742&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -989,37 +1052,37 @@ Intentelo nuevamente
 true
 </div>
 </div>
-<div id="q17796512920893300" class="learnr-question-box">
+<div id="q17796552946895529" class="learnr-question-box">
 <div class="learnr-question-text">
 Use la aplicación Shiny (fórmula del estudiante). Seleccione sólo las afirmaciones verdaderas sobre la ecuación: <span class="math display">\[\ 2x^{2}= x+1\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920893300" value="1" data-correct="true" > El Discriminante es un real positivo </label>
+<label><input type="checkbox" name="q17796552946895529" value="1" data-correct="true" > El Discriminante es un real positivo </label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920893300" value="2" data-correct="false" > Tiene ambas raíces en el lado negativo de los reales</label>
+<label><input type="checkbox" name="q17796552946895529" value="2" data-correct="false" > Tiene ambas raíces en el lado negativo de los reales</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920893300" value="3" data-correct="true" > Una raíz de la ecuación <span class="math inline">\(2x^{2}= x+1\)</span> es <span class="math inline">\(x = 1\)</span></label>
+<label><input type="checkbox" name="q17796552946895529" value="3" data-correct="true" > Una raíz de la ecuación <span class="math inline">\(2x^{2}= x+1\)</span> es <span class="math inline">\(x = 1\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920893300" value="4" data-correct="true" > Una raíz de la ecuación <span class="math inline">\(2x^{2}= x+1\)</span> es <span class="math inline">\(x=-0.5\)</span></label>
+<label><input type="checkbox" name="q17796552946895529" value="4" data-correct="true" > Una raíz de la ecuación <span class="math inline">\(2x^{2}= x+1\)</span> es <span class="math inline">\(x=-0.5\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920893300" value="5" data-correct="true" > El vértice de la parábola <span class="math inline">\(y=2x^{2}- x-1\)</span> está bajo el eje <span class="math inline">\(X\)</span></label>
+<label><input type="checkbox" name="q17796552946895529" value="5" data-correct="true" > El vértice de la parábola <span class="math inline">\(y=2x^{2}- x-1\)</span> está bajo el eje <span class="math inline">\(X\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920893300" value="6" data-correct="false" > Las raices son de un polinómio de cuarto grado</label>
+<label><input type="checkbox" name="q17796552946895529" value="6" data-correct="false" > Las raices son de un polinómio de cuarto grado</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920893300" value="7" data-correct="false" > El Discriminante es un real negativo</label>
+<label><input type="checkbox" name="q17796552946895529" value="7" data-correct="false" > El Discriminante es un real negativo</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920893300" value="8" data-correct="true" > Ambas raices de la ecuación <span class="math inline">\(2x^{2}= x+1\)</span> son números reales y no enteras</label>
+<label><input type="checkbox" name="q17796552946895529" value="8" data-correct="true" > Ambas raices de la ecuación <span class="math inline">\(2x^{2}= x+1\)</span> son números reales y no enteras</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512920893300&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552946895529&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1038,37 +1101,37 @@ Intentelo nuevamente
 true
 </div>
 </div>
-<div id="q17796512920971928" class="learnr-question-box">
+<div id="q17796552946996371" class="learnr-question-box">
 <div class="learnr-question-text">
 Use la aplicación Shiny (fórmula del estudiante). Seleccione sólo las afirmaciones verdaderas sobre la ecuación: <span class="math display">\[\ 16x^{2}= 1\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920971928" value="1" data-correct="true" > El Discriminante es un real positivo </label>
+<label><input type="checkbox" name="q17796552946996371" value="1" data-correct="true" > El Discriminante es un real positivo </label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920971928" value="2" data-correct="false" > Tiene ambas raíces en el lado negativo de los reales</label>
+<label><input type="checkbox" name="q17796552946996371" value="2" data-correct="false" > Tiene ambas raíces en el lado negativo de los reales</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920971928" value="3" data-correct="true" > Una raíz de la ecuación <span class="math inline">\(16x^{2}= 1\)</span> es <span class="math inline">\(x=0.25\)</span></label>
+<label><input type="checkbox" name="q17796552946996371" value="3" data-correct="true" > Una raíz de la ecuación <span class="math inline">\(16x^{2}= 1\)</span> es <span class="math inline">\(x=0.25\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920971928" value="4" data-correct="true" > Una raíz de la ecuación <span class="math inline">\(16x^{2}= 1\)</span> es <span class="math inline">\(x=-0.25\)</span></label>
+<label><input type="checkbox" name="q17796552946996371" value="4" data-correct="true" > Una raíz de la ecuación <span class="math inline">\(16x^{2}= 1\)</span> es <span class="math inline">\(x=-0.25\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920971928" value="5" data-correct="true" > El vértice de la parábola <span class="math inline">\(y=16x^{2}-1\)</span> está bajo el eje <span class="math inline">\(X\)</span></label>
+<label><input type="checkbox" name="q17796552946996371" value="5" data-correct="true" > El vértice de la parábola <span class="math inline">\(y=16x^{2}-1\)</span> está bajo el eje <span class="math inline">\(X\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920971928" value="6" data-correct="false" > Las raices son de un polinómio de cuarto grado</label>
+<label><input type="checkbox" name="q17796552946996371" value="6" data-correct="false" > Las raices son de un polinómio de cuarto grado</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920971928" value="7" data-correct="false" > El Discriminante es un real negativo</label>
+<label><input type="checkbox" name="q17796552946996371" value="7" data-correct="false" > El Discriminante es un real negativo</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512920971928" value="8" data-correct="false" > Ambas raices de la ecuación <span class="math inline">\(16x^{2}= 1\)</span> son complejas</label>
+<label><input type="checkbox" name="q17796552946996371" value="8" data-correct="false" > Ambas raices de la ecuación <span class="math inline">\(16x^{2}= 1\)</span> son complejas</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512920971928&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552946996371&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1087,37 +1150,37 @@ Intentelo nuevamente
 true
 </div>
 </div>
-<div id="q17796512921067854" class="learnr-question-box">
+<div id="q17796552947084395" class="learnr-question-box">
 <div class="learnr-question-text">
 Use la aplicación Shiny (fórmula del estudiante). Seleccione sólo las afirmaciones verdaderas sobre la ecuación: <span class="math display">\[\ -(16x^{2}+1)= 8x\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921067854" value="1" data-correct="false" > El Discriminante es un real positivo </label>
+<label><input type="checkbox" name="q17796552947084395" value="1" data-correct="false" > El Discriminante es un real positivo </label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921067854" value="2" data-correct="true" > Tiene ambas raíces en el lado negativo de los reales</label>
+<label><input type="checkbox" name="q17796552947084395" value="2" data-correct="true" > Tiene ambas raíces en el lado negativo de los reales</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921067854" value="3" data-correct="false" > Una raíz de la ecuación <span class="math inline">\(-(16x^{2}+1)= 8x\)</span> es <span class="math inline">\(x=0.25\)</span></label>
+<label><input type="checkbox" name="q17796552947084395" value="3" data-correct="false" > Una raíz de la ecuación <span class="math inline">\(-(16x^{2}+1)= 8x\)</span> es <span class="math inline">\(x=0.25\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921067854" value="4" data-correct="true" > Una raíz de la ecuación <span class="math inline">\(-(16x^{2}+1)= 8x\)</span> es <span class="math inline">\(x=-0.25\)</span></label>
+<label><input type="checkbox" name="q17796552947084395" value="4" data-correct="true" > Una raíz de la ecuación <span class="math inline">\(-(16x^{2}+1)= 8x\)</span> es <span class="math inline">\(x=-0.25\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921067854" value="5" data-correct="true" > El vértice de la parábola <span class="math inline">\(y=-16x^{2}-8x-1\)</span> está en el eje <span class="math inline">\(X\)</span></label>
+<label><input type="checkbox" name="q17796552947084395" value="5" data-correct="true" > El vértice de la parábola <span class="math inline">\(y=-16x^{2}-8x-1\)</span> está en el eje <span class="math inline">\(X\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921067854" value="6" data-correct="false" > Las raices son de un polinómio de cuarto grado</label>
+<label><input type="checkbox" name="q17796552947084395" value="6" data-correct="false" > Las raices son de un polinómio de cuarto grado</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921067854" value="7" data-correct="false" > El Discriminante es un real negativo</label>
+<label><input type="checkbox" name="q17796552947084395" value="7" data-correct="false" > El Discriminante es un real negativo</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921067854" value="8" data-correct="false" > Ambas raices de la ecuación <span class="math inline">\(-(16x^{2}+1)= 8x\)</span> son complejas</label>
+<label><input type="checkbox" name="q17796552947084395" value="8" data-correct="false" > Ambas raices de la ecuación <span class="math inline">\(-(16x^{2}+1)= 8x\)</span> son complejas</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512921067854&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552947084395&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1138,37 +1201,37 @@ true
 </div>
 <iframe src="https://procesouces2020.shinyapps.io/ParabolaV2/?showcase=0" width="672" height="1150px" data-external="1">
 </iframe>
-<div id="q17796512921289947" class="learnr-question-box">
+<div id="q17796552947326534" class="learnr-question-box">
 <div class="learnr-question-text">
 Use la aplicación Shiny (Parábola y Recta). Seleccione sólo las afirmaciones verdaderas sobre la función: <span class="math display">\[\ (x+5)^{2}= -4(y+1)\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921289947" value="1" data-correct="false" > La parábola es concava hacia arriba</label>
+<label><input type="checkbox" name="q17796552947326534" value="1" data-correct="false" > La parábola es concava hacia arriba</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921289947" value="2" data-correct="true" > La parábola es concava hacia abajo</label>
+<label><input type="checkbox" name="q17796552947326534" value="2" data-correct="true" > La parábola es concava hacia abajo</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921289947" value="3" data-correct="true" > La parábola tiene vértice por debajo del eje <span class="math inline">\(X\)</span></label>
+<label><input type="checkbox" name="q17796552947326534" value="3" data-correct="true" > La parábola tiene vértice por debajo del eje <span class="math inline">\(X\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921289947" value="4" data-correct="false" > La parábola tiene vértice por arriba del eje <span class="math inline">\(X\)</span></label>
+<label><input type="checkbox" name="q17796552947326534" value="4" data-correct="false" > La parábola tiene vértice por arriba del eje <span class="math inline">\(X\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921289947" value="5" data-correct="true" > Todas las raíces son complejas en la parábola <span class="math inline">\((x+5)^{2}= -4(y+1)\)</span></label>
+<label><input type="checkbox" name="q17796552947326534" value="5" data-correct="true" > Todas las raíces son complejas en la parábola <span class="math inline">\((x+5)^{2}= -4(y+1)\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921289947" value="6" data-correct="false" > Todas las raíces son reales en la parábola <span class="math inline">\((x+5)^{2}= -4(y+1)\)</span></label>
+<label><input type="checkbox" name="q17796552947326534" value="6" data-correct="false" > Todas las raíces son reales en la parábola <span class="math inline">\((x+5)^{2}= -4(y+1)\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921289947" value="7" data-correct="false" > La parábola tiene como Discriminante <span class="math inline">\(D=1.75\)</span></label>
+<label><input type="checkbox" name="q17796552947326534" value="7" data-correct="false" > La parábola tiene como Discriminante <span class="math inline">\(D=1.75\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921289947" value="8" data-correct="false" > Una raìz positiva de la parábola es <span class="math inline">\(x \cong 0.64575\)</span></label>
+<label><input type="checkbox" name="q17796552947326534" value="8" data-correct="false" > Una raìz positiva de la parábola es <span class="math inline">\(x \cong 0.64575\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512921289947&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552947326534&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1187,37 +1250,37 @@ Intentelo nuevamente
 true
 </div>
 </div>
-<div id="q17796512921361416" class="learnr-question-box">
+<div id="q17796552947406787" class="learnr-question-box">
 <div class="learnr-question-text">
 Use la aplicación Shiny (Parábola y Recta). Seleccione sólo las afirmaciones verdaderas sobre la función: <span class="math display">\[\ x^{2}+6x+y+11=0\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921361416" value="1" data-correct="false" > La parábola es concava hacia arriba</label>
+<label><input type="checkbox" name="q17796552947406787" value="1" data-correct="false" > La parábola es concava hacia arriba</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921361416" value="2" data-correct="true" > La parábola es concava hacia abajo</label>
+<label><input type="checkbox" name="q17796552947406787" value="2" data-correct="true" > La parábola es concava hacia abajo</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921361416" value="3" data-correct="true" > La parábola tiene vértice por debajo del eje <span class="math inline">\(X\)</span></label>
+<label><input type="checkbox" name="q17796552947406787" value="3" data-correct="true" > La parábola tiene vértice por debajo del eje <span class="math inline">\(X\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921361416" value="4" data-correct="false" > La parábola tiene vértice por arriba del eje <span class="math inline">\(X\)</span></label>
+<label><input type="checkbox" name="q17796552947406787" value="4" data-correct="false" > La parábola tiene vértice por arriba del eje <span class="math inline">\(X\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921361416" value="5" data-correct="true" > Todas las raíces son complejas en la parábola <span class="math inline">\(x^{2}+6x+y+11=0\)</span></label>
+<label><input type="checkbox" name="q17796552947406787" value="5" data-correct="true" > Todas las raíces son complejas en la parábola <span class="math inline">\(x^{2}+6x+y+11=0\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921361416" value="6" data-correct="false" > Todas las raíces son reales en la parábola <span class="math inline">\(x^{2}+6x+y+11=0\)</span></label>
+<label><input type="checkbox" name="q17796552947406787" value="6" data-correct="false" > Todas las raíces son reales en la parábola <span class="math inline">\(x^{2}+6x+y+11=0\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921361416" value="7" data-correct="true" > La parábola es tiene como Discriminante <span class="math inline">\(D=-8\)</span></label>
+<label><input type="checkbox" name="q17796552947406787" value="7" data-correct="true" > La parábola es tiene como Discriminante <span class="math inline">\(D=-8\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921361416" value="8" data-correct="false" > Una raìz positiva de la parábola es <span class="math inline">\(x \cong 0.15\)</span></label>
+<label><input type="checkbox" name="q17796552947406787" value="8" data-correct="false" > Una raìz positiva de la parábola es <span class="math inline">\(x \cong 0.15\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512921361416&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552947406787&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1236,37 +1299,37 @@ Intentelo nuevamente
 true
 </div>
 </div>
-<div id="q17796512921444070" class="learnr-question-box">
+<div id="q17796552947485142" class="learnr-question-box">
 <div class="learnr-question-text">
 Use la aplicación Shiny (Parábola y Recta). Seleccione sólo las afirmaciones verdaderas sobre la función: <span class="math display">\[\ -2x^{2}+12x-8y-18=0\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921444070" value="1" data-correct="false" > La parábola es concava hacia arriba</label>
+<label><input type="checkbox" name="q17796552947485142" value="1" data-correct="false" > La parábola es concava hacia arriba</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921444070" value="2" data-correct="true" > La parábola es concava hacia abajo</label>
+<label><input type="checkbox" name="q17796552947485142" value="2" data-correct="true" > La parábola es concava hacia abajo</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921444070" value="3" data-correct="false" > La parábola tiene vértice por debajo del eje <span class="math inline">\(X\)</span></label>
+<label><input type="checkbox" name="q17796552947485142" value="3" data-correct="false" > La parábola tiene vértice por debajo del eje <span class="math inline">\(X\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921444070" value="4" data-correct="true" > La parábola tiene vértice en el eje <span class="math inline">\(X\)</span></label>
+<label><input type="checkbox" name="q17796552947485142" value="4" data-correct="true" > La parábola tiene vértice en el eje <span class="math inline">\(X\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921444070" value="5" data-correct="false" > Todas las raíces son complejas en la parábola <span class="math inline">\(-2x^{2}+12x-8y-18=0\)</span></label>
+<label><input type="checkbox" name="q17796552947485142" value="5" data-correct="false" > Todas las raíces son complejas en la parábola <span class="math inline">\(-2x^{2}+12x-8y-18=0\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921444070" value="6" data-correct="true" > Todas las raíces son reales en la parábola <span class="math inline">\(-2x^{2}+12x-8y-18=0\)</span></label>
+<label><input type="checkbox" name="q17796552947485142" value="6" data-correct="true" > Todas las raíces son reales en la parábola <span class="math inline">\(-2x^{2}+12x-8y-18=0\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921444070" value="7" data-correct="true" > La parábola es tiene como Discriminante $D=0</label>
+<label><input type="checkbox" name="q17796552947485142" value="7" data-correct="true" > La parábola es tiene como Discriminante $D=0</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921444070" value="8" data-correct="false" > Una raìz positiva de la parábola es <span class="math inline">\(x \cong 0.215\)</span></label>
+<label><input type="checkbox" name="q17796552947485142" value="8" data-correct="false" > Una raìz positiva de la parábola es <span class="math inline">\(x \cong 0.215\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512921444070&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552947485142&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1285,37 +1348,37 @@ Intentelo nuevamente
 true
 </div>
 </div>
-<div id="q17796512921539465" class="learnr-question-box">
+<div id="q17796552947567720" class="learnr-question-box">
 <div class="learnr-question-text">
 Use la aplicación Shiny (Parábola y Recta). Seleccione sólo las afirmaciones verdaderas sobre la función: <span class="math display">\[\ 4x^{2}-2y=0\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921539465" value="1" data-correct="true" > La parábola es concava hacia arriba</label>
+<label><input type="checkbox" name="q17796552947567720" value="1" data-correct="true" > La parábola es concava hacia arriba</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921539465" value="2" data-correct="false" > La parábola es concava hacia abajo</label>
+<label><input type="checkbox" name="q17796552947567720" value="2" data-correct="false" > La parábola es concava hacia abajo</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921539465" value="3" data-correct="false" > La parábola tiene vértice por debajo del eje <span class="math inline">\(X\)</span></label>
+<label><input type="checkbox" name="q17796552947567720" value="3" data-correct="false" > La parábola tiene vértice por debajo del eje <span class="math inline">\(X\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921539465" value="4" data-correct="false" > La parábola tiene vértice por arriba del eje <span class="math inline">\(X\)</span></label>
+<label><input type="checkbox" name="q17796552947567720" value="4" data-correct="false" > La parábola tiene vértice por arriba del eje <span class="math inline">\(X\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921539465" value="5" data-correct="false" > Todas las raíces son complejas en la parábola <span class="math inline">\(4x^{2}-2y=0\)</span></label>
+<label><input type="checkbox" name="q17796552947567720" value="5" data-correct="false" > Todas las raíces son complejas en la parábola <span class="math inline">\(4x^{2}-2y=0\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921539465" value="6" data-correct="true" > Todas las raíces son reales en la parábola <span class="math inline">\(4x^{2}-2y=0\)</span></label>
+<label><input type="checkbox" name="q17796552947567720" value="6" data-correct="true" > Todas las raíces son reales en la parábola <span class="math inline">\(4x^{2}-2y=0\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921539465" value="7" data-correct="false" > La parábola es tiene como Discriminante <span class="math inline">\(D=1.125\)</span></label>
+<label><input type="checkbox" name="q17796552947567720" value="7" data-correct="false" > La parábola es tiene como Discriminante <span class="math inline">\(D=1.125\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921539465" value="8" data-correct="true" > Una raìz positiva de la parábola es <span class="math inline">\(x =0\)</span></label>
+<label><input type="checkbox" name="q17796552947567720" value="8" data-correct="true" > Una raìz positiva de la parábola es <span class="math inline">\(x =0\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512921539465&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552947567720&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1334,43 +1397,43 @@ Intentelo nuevamente
 true
 </div>
 </div>
-<div id="q17796512921638019" class="learnr-question-box">
+<div id="q17796552947644694" class="learnr-question-box">
 <div class="learnr-question-text">
 Use la aplicación Shiny (Parábola y Recta). Seleccione sólo las afirmaciones verdaderas sobre la función: <span class="math display">\[\ 3x-4y+12=0\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921638019" value="1" data-correct="true" > La recta <span class="math inline">\(3x-4y+12\)</span> esta entre el <span class="math inline">\(I\)</span> y <span class="math inline">\(III\)</span> cuadrante</label>
+<label><input type="checkbox" name="q17796552947644694" value="1" data-correct="true" > La recta <span class="math inline">\(3x-4y+12\)</span> esta entre el <span class="math inline">\(I\)</span> y <span class="math inline">\(III\)</span> cuadrante</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921638019" value="2" data-correct="false" > La recta esta entre el <span class="math inline">\(II\)</span> y <span class="math inline">\(IV\)</span> cuadrante</label>
+<label><input type="checkbox" name="q17796552947644694" value="2" data-correct="false" > La recta esta entre el <span class="math inline">\(II\)</span> y <span class="math inline">\(IV\)</span> cuadrante</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921638019" value="3" data-correct="false" > La recta corta al eje <span class="math inline">\(X\)</span> en <span class="math inline">\(x=2\)</span></label>
+<label><input type="checkbox" name="q17796552947644694" value="3" data-correct="false" > La recta corta al eje <span class="math inline">\(X\)</span> en <span class="math inline">\(x=2\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921638019" value="4" data-correct="true" > La recta corta al eje <span class="math inline">\(X\)</span> en <span class="math inline">\(x=-4\)</span></label>
+<label><input type="checkbox" name="q17796552947644694" value="4" data-correct="true" > La recta corta al eje <span class="math inline">\(X\)</span> en <span class="math inline">\(x=-4\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921638019" value="5" data-correct="false" > La recta corta al eje <span class="math inline">\(Y\)</span> en <span class="math inline">\(y=2\)</span></label>
+<label><input type="checkbox" name="q17796552947644694" value="5" data-correct="false" > La recta corta al eje <span class="math inline">\(Y\)</span> en <span class="math inline">\(y=2\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921638019" value="6" data-correct="true" > La recta corta al eje <span class="math inline">\(Y\)</span> en <span class="math inline">\(y=3\)</span></label>
+<label><input type="checkbox" name="q17796552947644694" value="6" data-correct="true" > La recta corta al eje <span class="math inline">\(Y\)</span> en <span class="math inline">\(y=3\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921638019" value="7" data-correct="true" > La recta corta a ambos ejes coordenados en puntos diferentes del origen</label>
+<label><input type="checkbox" name="q17796552947644694" value="7" data-correct="true" > La recta corta a ambos ejes coordenados en puntos diferentes del origen</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921638019" value="8" data-correct="true" > La recta es inclinada ya que el corte con el eje <span class="math inline">\(Y\)</span> es diferente de cero</label>
+<label><input type="checkbox" name="q17796552947644694" value="8" data-correct="true" > La recta es inclinada ya que el corte con el eje <span class="math inline">\(Y\)</span> es diferente de cero</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921638019" value="9" data-correct="false" > La recta tiene pendiente <span class="math inline">\(m&lt;0\)</span></label>
+<label><input type="checkbox" name="q17796552947644694" value="9" data-correct="false" > La recta tiene pendiente <span class="math inline">\(m&lt;0\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921638019" value="10" data-correct="true" > La recta pasa por el punto <span class="math inline">\(P\)</span> de coordenadas <span class="math inline">\(P(0,3)\)</span></label>
+<label><input type="checkbox" name="q17796552947644694" value="10" data-correct="true" > La recta pasa por el punto <span class="math inline">\(P\)</span> de coordenadas <span class="math inline">\(P(0,3)\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512921638019&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552947644694&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1389,43 +1452,43 @@ Intentelo nuevamente
 true
 </div>
 </div>
-<div id="q17796512921711755" class="learnr-question-box">
+<div id="q17796552947727671" class="learnr-question-box">
 <div class="learnr-question-text">
 Use la aplicación Shiny (Parábola y Recta). Seleccione sólo las afirmaciones verdaderas sobre la función: <span class="math display">\[\frac{1}{2}x-3y=3\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921711755" value="1" data-correct="true" > La recta esta entre el <span class="math inline">\(I\)</span> y <span class="math inline">\(III\)</span> cuadrante</label>
+<label><input type="checkbox" name="q17796552947727671" value="1" data-correct="true" > La recta esta entre el <span class="math inline">\(I\)</span> y <span class="math inline">\(III\)</span> cuadrante</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921711755" value="2" data-correct="false" > La recta esta entre el <span class="math inline">\(II\)</span> y <span class="math inline">\(IV\)</span> cuadrante</label>
+<label><input type="checkbox" name="q17796552947727671" value="2" data-correct="false" > La recta esta entre el <span class="math inline">\(II\)</span> y <span class="math inline">\(IV\)</span> cuadrante</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921711755" value="3" data-correct="true" > La recta corta al eje <span class="math inline">\(X\)</span> en <span class="math inline">\(x=6\)</span></label>
+<label><input type="checkbox" name="q17796552947727671" value="3" data-correct="true" > La recta corta al eje <span class="math inline">\(X\)</span> en <span class="math inline">\(x=6\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921711755" value="4" data-correct="false" > La recta corta al eje <span class="math inline">\(X\)</span> en <span class="math inline">\(x=-4\)</span></label>
+<label><input type="checkbox" name="q17796552947727671" value="4" data-correct="false" > La recta corta al eje <span class="math inline">\(X\)</span> en <span class="math inline">\(x=-4\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921711755" value="5" data-correct="false" > La recta corta al eje <span class="math inline">\(Y\)</span> en <span class="math inline">\(y=2\)</span></label>
+<label><input type="checkbox" name="q17796552947727671" value="5" data-correct="false" > La recta corta al eje <span class="math inline">\(Y\)</span> en <span class="math inline">\(y=2\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921711755" value="6" data-correct="true" > La recta corta al eje <span class="math inline">\(Y\)</span> en <span class="math inline">\(y=-1\)</span></label>
+<label><input type="checkbox" name="q17796552947727671" value="6" data-correct="true" > La recta corta al eje <span class="math inline">\(Y\)</span> en <span class="math inline">\(y=-1\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921711755" value="7" data-correct="true" > La recta corta a ambos ejes coordenados en puntos diferentes del origen</label>
+<label><input type="checkbox" name="q17796552947727671" value="7" data-correct="true" > La recta corta a ambos ejes coordenados en puntos diferentes del origen</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921711755" value="8" data-correct="true" > La recta es inclinada ya que el corte con el eje <span class="math inline">\(Y\)</span> es diferente de cero</label>
+<label><input type="checkbox" name="q17796552947727671" value="8" data-correct="true" > La recta es inclinada ya que el corte con el eje <span class="math inline">\(Y\)</span> es diferente de cero</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921711755" value="9" data-correct="false" > La recta tiene pendiente <span class="math inline">\(m&lt;0\)</span></label>
+<label><input type="checkbox" name="q17796552947727671" value="9" data-correct="false" > La recta tiene pendiente <span class="math inline">\(m&lt;0\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921711755" value="10" data-correct="true" > La recta pasa por el punto <span class="math inline">\(P\)</span> de coordenadas <span class="math inline">\(P(0,-1)\)</span></label>
+<label><input type="checkbox" name="q17796552947727671" value="10" data-correct="true" > La recta pasa por el punto <span class="math inline">\(P\)</span> de coordenadas <span class="math inline">\(P(0,-1)\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512921711755&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552947727671&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1444,43 +1507,43 @@ Intentelo nuevamente
 true
 </div>
 </div>
-<div id="q17796512921816429" class="learnr-question-box">
+<div id="q17796552947802062" class="learnr-question-box">
 <div class="learnr-question-text">
 Use la aplicación Shiny (Parábola y Recta). Seleccione sólo las afirmaciones verdaderas sobre la función: <span class="math display">\[3x+5y+4=0\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921816429" value="1" data-correct="false" > La recta <span class="math inline">\(3x+5y+4=0\)</span> esta entre el <span class="math inline">\(I\)</span> y <span class="math inline">\(III\)</span> cuadrante</label>
+<label><input type="checkbox" name="q17796552947802062" value="1" data-correct="false" > La recta <span class="math inline">\(3x+5y+4=0\)</span> esta entre el <span class="math inline">\(I\)</span> y <span class="math inline">\(III\)</span> cuadrante</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921816429" value="2" data-correct="true" > La recta esta entre el <span class="math inline">\(II\)</span> y <span class="math inline">\(IV\)</span> cuadrante</label>
+<label><input type="checkbox" name="q17796552947802062" value="2" data-correct="true" > La recta esta entre el <span class="math inline">\(II\)</span> y <span class="math inline">\(IV\)</span> cuadrante</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921816429" value="3" data-correct="false" > La recta corta al eje <span class="math inline">\(X\)</span> en <span class="math inline">\(x=6\)</span></label>
+<label><input type="checkbox" name="q17796552947802062" value="3" data-correct="false" > La recta corta al eje <span class="math inline">\(X\)</span> en <span class="math inline">\(x=6\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921816429" value="4" data-correct="true" > La recta corta al eje <span class="math inline">\(X\)</span> en <span class="math inline">\(x=\frac{-4}{3}\)</span></label>
+<label><input type="checkbox" name="q17796552947802062" value="4" data-correct="true" > La recta corta al eje <span class="math inline">\(X\)</span> en <span class="math inline">\(x=\frac{-4}{3}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921816429" value="5" data-correct="false" > La recta corta al eje <span class="math inline">\(Y\)</span> en <span class="math inline">\(y=2\)</span></label>
+<label><input type="checkbox" name="q17796552947802062" value="5" data-correct="false" > La recta corta al eje <span class="math inline">\(Y\)</span> en <span class="math inline">\(y=2\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921816429" value="6" data-correct="true" > La recta corta al eje <span class="math inline">\(Y\)</span> en <span class="math inline">\(y=\frac{-4}{5}\)</span></label>
+<label><input type="checkbox" name="q17796552947802062" value="6" data-correct="true" > La recta corta al eje <span class="math inline">\(Y\)</span> en <span class="math inline">\(y=\frac{-4}{5}\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921816429" value="7" data-correct="true" > La recta corta a ambos ejes coordenados en puntos diferentes del origen</label>
+<label><input type="checkbox" name="q17796552947802062" value="7" data-correct="true" > La recta corta a ambos ejes coordenados en puntos diferentes del origen</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921816429" value="8" data-correct="true" > La recta es inclinada ya que el corte con el eje <span class="math inline">\(Y\)</span> es diferente de cero</label>
+<label><input type="checkbox" name="q17796552947802062" value="8" data-correct="true" > La recta es inclinada ya que el corte con el eje <span class="math inline">\(Y\)</span> es diferente de cero</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921816429" value="9" data-correct="false" > La recta tiene pendiente <span class="math inline">\(m&gt;0\)</span></label>
+<label><input type="checkbox" name="q17796552947802062" value="9" data-correct="false" > La recta tiene pendiente <span class="math inline">\(m&gt;0\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921816429" value="10" data-correct="true" > La recta pasa por el punto <span class="math inline">\(P\)</span> de coordenadas <span class="math inline">\(P(2,-2)\)</span></label>
+<label><input type="checkbox" name="q17796552947802062" value="10" data-correct="true" > La recta pasa por el punto <span class="math inline">\(P\)</span> de coordenadas <span class="math inline">\(P(2,-2)\)</span></label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512921816429&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552947802062&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1499,34 +1562,34 @@ Intentelo nuevamente
 true
 </div>
 </div>
-<div id="q17796512921898987" class="learnr-question-box">
+<div id="q17796552947889290" class="learnr-question-box">
 <div class="learnr-question-text">
 Seleccione todas las afirmaciones verdaderas sobre la expresión matemática: <span class="math display">\[3^2 \cdot 3\]</span>
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921898987" value="1" data-correct="true" > Es equivalente a <span class="math inline">\(3^3\)</span></label>
+<label><input type="checkbox" name="q17796552947889290" value="1" data-correct="true" > Es equivalente a <span class="math inline">\(3^3\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921898987" value="2" data-correct="true" > Su valor simplificado es igual a 27</label>
+<label><input type="checkbox" name="q17796552947889290" value="2" data-correct="true" > Su valor simplificado es igual a 27</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921898987" value="3" data-correct="true" > Es equivalente a la operación <span class="math inline">\(9 \cdot 3\)</span></label>
+<label><input type="checkbox" name="q17796552947889290" value="3" data-correct="true" > Es equivalente a la operación <span class="math inline">\(9 \cdot 3\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921898987" value="4" data-correct="true" > Representa una multiplicación de potencias con la misma base</label>
+<label><input type="checkbox" name="q17796552947889290" value="4" data-correct="true" > Representa una multiplicación de potencias con la misma base</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921898987" value="5" data-correct="false" > Su valor simplificado es igual a 9</label>
+<label><input type="checkbox" name="q17796552947889290" value="5" data-correct="false" > Su valor simplificado es igual a 9</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921898987" value="6" data-correct="false" > Es equivalente a <span class="math inline">\(3^6\)</span></label>
+<label><input type="checkbox" name="q17796552947889290" value="6" data-correct="false" > Es equivalente a <span class="math inline">\(3^6\)</span></label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796512921898987" value="7" data-correct="false" > Su valor simplificado es igual a 18</label>
+<label><input type="checkbox" name="q17796552947889290" value="7" data-correct="false" > Su valor simplificado es igual a 18</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796512921898987&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796552947889290&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">

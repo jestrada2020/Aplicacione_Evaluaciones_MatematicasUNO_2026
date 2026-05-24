@@ -306,8 +306,10 @@ function resetLearnrQuestion(qid) {
   inputs.forEach(function(input) { input.checked = false; });
   
   var feedbackDiv = box.querySelector('.learnr-feedback');
-  feedbackDiv.style.display = 'none';
-  feedbackDiv.className = 'learnr-feedback';
+  if (feedbackDiv) {
+    feedbackDiv.style.display = 'none';
+    feedbackDiv.className = 'learnr-feedback';
+  }
   
   box.querySelectorAll('.learnr-option').forEach(function(opt) {
     opt.classList.remove('correct-answer', 'wrong-answer', 'missed-answer');
@@ -318,17 +320,26 @@ function resetLearnrQuestion(qid) {
   box.removeAttribute('data-answered-correctly');
   
   var btn = box.querySelector('.learnr-submit-btn');
-  btn.style.display = 'inline-block';
-  btn.textContent = 'Enviar Respuesta';
-  btn.onclick = function() { checkLearnrQuestion(qid); };
+  if (btn) {
+    btn.style.display = 'inline-block';
+    btn.textContent = 'Enviar Respuesta';
+    btn.onclick = function() { checkLearnrQuestion(qid); };
+  }
 }
 
 function resetAllQuestions() {
+  // 1. Limpiar cada pregunta
   document.querySelectorAll('.learnr-question-box').forEach(function(box) {
     var qid = box.id;
     if (qid) resetLearnrQuestion(qid);
   });
-  // Re-mezclar opciones para nuevo orden aleatorio
+  
+  // 2. Limpiar reportes de puntaje
+  document.querySelectorAll('.score-report-box').forEach(function(report) {
+    report.remove();
+  });
+  
+  // 3. Re-mezclar opciones para nuevo orden aleatorio
   shuffleAllOptions();
 }
 
@@ -409,15 +420,23 @@ function showScoreReport(reportId, totalQuestions, recHigh, recMed, recLow) {
   reportBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Mezclar opciones aleatoriamente al cargar cada página
+/* ==========================================================================
+   Inyección del botón de reinicio y mezcla de opciones
+   Bookdown gitbook carga capítulos vía AJAX, por lo que usamos
+   múltiples estrategias para detectar cuando cambia el contenido.
+   ========================================================================== */
+
+function initLearnrPage() {
+  // 1. Mezclar opciones aleatoriamente
   shuffleAllOptions();
   
-  // Agregar botón de reinicio global si hay preguntas en la página
-  var questions = document.querySelectorAll('.learnr-question-box');
-  if (questions.length > 0) {
-    var h1 = document.querySelector('.book-body h1') || document.querySelector('h1');
-    if (h1) {
+  // 2. Agregar botón de reinicio si hay preguntas y aún no existe
+  var pageInner = document.querySelector('.page-inner') || document.body;
+  var questions = pageInner.querySelectorAll('.learnr-question-box');
+  
+  if (questions.length > 0 && !pageInner.querySelector('.learnr-reset-btn')) {
+    var h1 = pageInner.querySelector('h1');
+    if (h1 && h1.parentNode) {
       var resetBtn = document.createElement('button');
       resetBtn.type = 'button';
       resetBtn.className = 'learnr-reset-btn';
@@ -429,6 +448,50 @@ document.addEventListener('DOMContentLoaded', function() {
       };
       h1.parentNode.insertBefore(resetBtn, h1.nextSibling);
     }
+  }
+}
+
+// Estrategia 1: DOMContentLoaded
+document.addEventListener('DOMContentLoaded', initLearnrPage);
+
+// Estrategia 2: window.load (todo incluyendo imágenes está listo)
+window.addEventListener('load', initLearnrPage);
+
+// Estrategia 3: Polling periódico durante los primeros 10 segundos
+// Esto cubre la carga dinámica de gitbook y cualquier retraso en el DOM
+var learnrInitAttempts = 0;
+var learnrInitInterval = setInterval(function() {
+  initLearnrPage();
+  learnrInitAttempts++;
+  if (learnrInitAttempts >= 20) {
+    clearInterval(learnrInitInterval);
+  }
+}, 500);
+
+// Estrategia 4: MutationObserver sobre document.body (más robusto que .page-inner)
+// Si gitbook reemplaza .page-inner completamente, body sigue existiendo.
+document.addEventListener('DOMContentLoaded', function() {
+  var observer = new MutationObserver(function(mutations) {
+    // Solo re-inicializar si detectamos que aparecieron nuevas preguntas
+    // o si desapareció el botón de reinicio
+    var pageInner = document.querySelector('.page-inner') || document.body;
+    var hasQuestions = pageInner.querySelectorAll('.learnr-question-box').length > 0;
+    var hasResetBtn = !!pageInner.querySelector('.learnr-reset-btn');
+    if (hasQuestions && !hasResetBtn) {
+      setTimeout(initLearnrPage, 100);
+    }
+  });
+  
+  observer.observe(document.body, { childList: true, subtree: true });
+});
+
+// Estrategia 5: Evento nativo de gitbook SPA (si está disponible)
+// gitbook dispara 'page.change' cuando se carga un nuevo capítulo vía AJAX.
+window.addEventListener('load', function() {
+  if (typeof gitbook !== 'undefined' && gitbook.events) {
+    gitbook.events.bind('page.change', function() {
+      setTimeout(initLearnrPage, 200);
+    });
   }
 });
 </script>
@@ -1106,34 +1169,34 @@ h1, h2, h3, h4, .tutorial-title {
 <h3><span class="header-section-number">11.2.1</span> Pregunta 1 (Problema Geométrico de los Tres Vértices)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-1-problema-geom%C3%A9trico-de-los-tres-v%C3%A9rtices" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
 <p><img src="images/TrianguloVertice.jpg" alt="" width="35%" style="display: block; margin: auto;" /></p>
-<div id="q17796513032223504" class="learnr-question-box">
+<div id="q17796553057612650" class="learnr-question-box">
 <div class="learnr-question-text">
 En la figura anterior se muestran los puntos medios de los lados de un triángulo, los cuales son <span class="math inline">\(M_1(-1, 2)\)</span> entre <span class="math inline">\(P_1\)</span> y <span class="math inline">\(P_3\)</span>, <span class="math inline">\(M_2(2, 3)\)</span> entre <span class="math inline">\(P_3\)</span> y <span class="math inline">\(P_2\)</span>, y <span class="math inline">\(M_3(1, 1)\)</span> entre <span class="math inline">\(P_1\)</span> y <span class="math inline">\(P_2\)</span>. Determine los vértices del triángulo <span class="math inline">\(P_1(x_1, y_1)\)</span>, <span class="math inline">\(P_2(x_2, y_2)\)</span> y <span class="math inline">\(P_3(x_3, y_3)\)</span> construyendo y resolviendo el sistema lineal <span class="math inline">\(3 \times 3\)</span>. Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032223504" value="1" data-correct="true" > El primer vértice del triángulo es <span class="math inline">\(P_1(x_1, y_1) = (-2, 0)\)</span>.</label>
+<label><input type="checkbox" name="q17796553057612650" value="1" data-correct="true" > El primer vértice del triángulo es <span class="math inline">\(P_1(x_1, y_1) = (-2, 0)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032223504" value="2" data-correct="true" > El segundo vértice del triángulo es <span class="math inline">\(P_2(x_2, y_2) = (4, 2)\)</span>.</label>
+<label><input type="checkbox" name="q17796553057612650" value="2" data-correct="true" > El segundo vértice del triángulo es <span class="math inline">\(P_2(x_2, y_2) = (4, 2)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032223504" value="3" data-correct="true" > El tercer vértice del triángulo es <span class="math inline">\(P_3(x_3, y_3) = (0, 4)\)</span>.</label>
+<label><input type="checkbox" name="q17796553057612650" value="3" data-correct="true" > El tercer vértice del triángulo es <span class="math inline">\(P_3(x_3, y_3) = (0, 4)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032223504" value="4" data-correct="true" > La suma total de todas las coordenadas de los tres vértices es igual a <span class="math inline">\(8\)</span> (es decir, <span class="math inline">\(x_1+y_1+x_2+y_2+x_3+y_3 = 8\)</span>).</label>
+<label><input type="checkbox" name="q17796553057612650" value="4" data-correct="true" > La suma total de todas las coordenadas de los tres vértices es igual a <span class="math inline">\(8\)</span> (es decir, <span class="math inline">\(x_1+y_1+x_2+y_2+x_3+y_3 = 8\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032223504" value="5" data-correct="false" > El vértice <span class="math inline">\(P_1\)</span> está ubicado en el origen de coordenadas <span class="math inline">\((0,0)\)</span>.</label>
+<label><input type="checkbox" name="q17796553057612650" value="5" data-correct="false" > El vértice <span class="math inline">\(P_1\)</span> está ubicado en el origen de coordenadas <span class="math inline">\((0,0)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032223504" value="6" data-correct="false" > El punto <span class="math inline">\(P_3\)</span> se encuentra en el tercer cuadrante del plano cartesiano.</label>
+<label><input type="checkbox" name="q17796553057612650" value="6" data-correct="false" > El punto <span class="math inline">\(P_3\)</span> se encuentra en el tercer cuadrante del plano cartesiano.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032223504" value="7" data-correct="false" > Los puntos medios conocidos corresponden directamente a los vértices del triángulo.</label>
+<label><input type="checkbox" name="q17796553057612650" value="7" data-correct="false" > Los puntos medios conocidos corresponden directamente a los vértices del triángulo.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513032223504&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553057612650&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1156,31 +1219,31 @@ true
 <div id="pregunta-2-sistema-lineal-2-times-2" class="section level3 hasAnchor" number="11.2.2">
 <h3><span class="header-section-number">11.2.2</span> Pregunta 2 (Sistema Lineal <span class="math inline">\(2 \times 2\)</span>)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-2-sistema-lineal-2-times-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513032339428" class="learnr-question-box">
+<div id="q17796553057734472" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema lineal:<br><span class="math display">\[\left\{ \begin{array}{clrr} x &amp; - &amp; 4y+1=0 &amp; (1) \\\\ 3x &amp; + &amp; 2y-1=0 &amp; (2) \end{array} \right.\]</span><br>Seleccione las afirmaciones que son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032339428" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y) = (\frac{1}{7}, \frac{2}{7})\)</span>.</label>
+<label><input type="checkbox" name="q17796553057734472" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y) = (\frac{1}{7}, \frac{2}{7})\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032339428" value="2" data-correct="true" > El sistema es consistente y determinado.</label>
+<label><input type="checkbox" name="q17796553057734472" value="2" data-correct="true" > El sistema es consistente y determinado.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032339428" value="3" data-correct="true" > Al representar las ecuaciones gráficamente, corresponden a dos rectas que se intersectan en un único punto del plano cartesiano.</label>
+<label><input type="checkbox" name="q17796553057734472" value="3" data-correct="true" > Al representar las ecuaciones gráficamente, corresponden a dos rectas que se intersectan en un único punto del plano cartesiano.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032339428" value="4" data-correct="false" > La solución del sistema es <span class="math inline">\((x, y) = (1, 2)\)</span>.</label>
+<label><input type="checkbox" name="q17796553057734472" value="4" data-correct="false" > La solución del sistema es <span class="math inline">\((x, y) = (1, 2)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032339428" value="5" data-correct="false" > El sistema es inconsistente y no tiene solución.</label>
+<label><input type="checkbox" name="q17796553057734472" value="5" data-correct="false" > El sistema es inconsistente y no tiene solución.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032339428" value="6" data-correct="false" > El sistema es consistente e indeterminado, con infinitas soluciones.</label>
+<label><input type="checkbox" name="q17796553057734472" value="6" data-correct="false" > El sistema es consistente e indeterminado, con infinitas soluciones.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513032339428&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553057734472&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1203,31 +1266,31 @@ true
 <div id="pregunta-3-sistema-lineal-2-times-2-sin-solución" class="section level3 hasAnchor" number="11.2.3">
 <h3><span class="header-section-number">11.2.3</span> Pregunta 3 (Sistema Lineal <span class="math inline">\(2 \times 2\)</span> sin solución)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-3-sistema-lineal-2-times-2-sin-soluci%C3%B3n" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513032423128" class="learnr-question-box">
+<div id="q17796553057813971" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema lineal:<br><span class="math display">\[\left\{ \begin{array}{clrr} x &amp; - &amp; 2y=6 &amp; (1) \\\\ -0.5x &amp; + &amp; y=1 &amp; (2) \end{array} \right.\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032423128" value="1" data-correct="true" > El sistema no tiene solución (es inconsistente).</label>
+<label><input type="checkbox" name="q17796553057813971" value="1" data-correct="true" > El sistema no tiene solución (es inconsistente).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032423128" value="2" data-correct="true" > Las dos ecuaciones corresponden a rectas estrictamente paralelas en el plano cartesiano.</label>
+<label><input type="checkbox" name="q17796553057813971" value="2" data-correct="true" > Las dos ecuaciones corresponden a rectas estrictamente paralelas en el plano cartesiano.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032423128" value="3" data-correct="true" > El determinante de la matriz de coeficientes del sistema es cero.</label>
+<label><input type="checkbox" name="q17796553057813971" value="3" data-correct="true" > El determinante de la matriz de coeficientes del sistema es cero.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032423128" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y) = (6, 1)\)</span>.</label>
+<label><input type="checkbox" name="q17796553057813971" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y) = (6, 1)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032423128" value="5" data-correct="false" > El sistema tiene infinitas soluciones del tipo indeterminado.</label>
+<label><input type="checkbox" name="q17796553057813971" value="5" data-correct="false" > El sistema tiene infinitas soluciones del tipo indeterminado.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032423128" value="6" data-correct="false" > Las dos rectas son coincidentes (corresponden a la misma recta).</label>
+<label><input type="checkbox" name="q17796553057813971" value="6" data-correct="false" > Las dos rectas son coincidentes (corresponden a la misma recta).</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513032423128&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553057813971&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1250,31 +1313,31 @@ true
 <div id="pregunta-4-sistema-lineal-2-times-2" class="section level3 hasAnchor" number="11.2.4">
 <h3><span class="header-section-number">11.2.4</span> Pregunta 4 (Sistema Lineal <span class="math inline">\(2 \times 2\)</span>)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-4-sistema-lineal-2-times-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513032508006" class="learnr-question-box">
+<div id="q17796553057898863" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema lineal:<br><span class="math display">\[\left\{ \begin{array}{clrr} x &amp; - &amp; y=2 &amp; (1) \\\\ x &amp; + &amp; y=1 &amp; (2) \end{array} \right.\]</span><br>Seleccione cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032508006" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y) = (1.5, -0.5)\)</span> (o <span class="math inline">\((3/2, -1/2)\)</span>).</label>
+<label><input type="checkbox" name="q17796553057898863" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y) = (1.5, -0.5)\)</span> (o <span class="math inline">\((3/2, -1/2)\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032508006" value="2" data-correct="true" > El sistema es consistente determinado.</label>
+<label><input type="checkbox" name="q17796553057898863" value="2" data-correct="true" > El sistema es consistente determinado.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032508006" value="3" data-correct="true" > La suma algebraica de las coordenadas de la solución es igual a <span class="math inline">\(1\)</span> (es decir, <span class="math inline">\(x + y = 1\)</span>).</label>
+<label><input type="checkbox" name="q17796553057898863" value="3" data-correct="true" > La suma algebraica de las coordenadas de la solución es igual a <span class="math inline">\(1\)</span> (es decir, <span class="math inline">\(x + y = 1\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032508006" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y) = (2, 0)\)</span>.</label>
+<label><input type="checkbox" name="q17796553057898863" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y) = (2, 0)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032508006" value="5" data-correct="false" > El sistema es inconsistente y carece de solución.</label>
+<label><input type="checkbox" name="q17796553057898863" value="5" data-correct="false" > El sistema es inconsistente y carece de solución.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032508006" value="6" data-correct="false" > El sistema es compatible e indeterminado con infinitas soluciones.</label>
+<label><input type="checkbox" name="q17796553057898863" value="6" data-correct="false" > El sistema es compatible e indeterminado con infinitas soluciones.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513032508006&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553057898863&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1297,31 +1360,31 @@ true
 <div id="pregunta-5-sistema-lineal-2-times-2-con-infinitas-soluciones" class="section level3 hasAnchor" number="11.2.5">
 <h3><span class="header-section-number">11.2.5</span> Pregunta 5 (Sistema Lineal <span class="math inline">\(2 \times 2\)</span> con infinitas soluciones)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-5-sistema-lineal-2-times-2-con-infinitas-soluciones" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513032606233" class="learnr-question-box">
+<div id="q17796553057963832" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema lineal:<br><span class="math display">\[\left\{ \begin{array}{clrr} -x &amp; - &amp; 2y=-4 &amp; (1) \\\\ 5x &amp; + &amp; 10y=20 &amp; (2) \end{array} \right.\]</span><br>Identifica cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032606233" value="1" data-correct="true" > El sistema tiene infinitas soluciones expresadas de la forma <span class="math inline">\(x = 4 - 2y\)</span> para cualquier <span class="math inline">\(y \in \mathbb{R}\)</span>.</label>
+<label><input type="checkbox" name="q17796553057963832" value="1" data-correct="true" > El sistema tiene infinitas soluciones expresadas de la forma <span class="math inline">\(x = 4 - 2y\)</span> para cualquier <span class="math inline">\(y \in \mathbb{R}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032606233" value="2" data-correct="true" > El sistema es consistente e indeterminado (compatible indeterminado).</label>
+<label><input type="checkbox" name="q17796553057963832" value="2" data-correct="true" > El sistema es consistente e indeterminado (compatible indeterminado).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032606233" value="3" data-correct="true" > Las dos ecuaciones representan exactamente la misma recta geométrica en el plano.</label>
+<label><input type="checkbox" name="q17796553057963832" value="3" data-correct="true" > Las dos ecuaciones representan exactamente la misma recta geométrica en el plano.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032606233" value="4" data-correct="false" > El sistema no tiene solución en el conjunto de los reales.</label>
+<label><input type="checkbox" name="q17796553057963832" value="4" data-correct="false" > El sistema no tiene solución en el conjunto de los reales.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032606233" value="5" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y) = (2, 1)\)</span>.</label>
+<label><input type="checkbox" name="q17796553057963832" value="5" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y) = (2, 1)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032606233" value="6" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y) = (4, 0)\)</span>.</label>
+<label><input type="checkbox" name="q17796553057963832" value="6" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y) = (4, 0)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513032606233&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553057963832&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1344,31 +1407,31 @@ true
 <div id="pregunta-6-sistema-lineal-3-times-3" class="section level3 hasAnchor" number="11.2.6">
 <h3><span class="header-section-number">11.2.6</span> Pregunta 6 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span>)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-6-sistema-lineal-3-times-3" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513032689224" class="learnr-question-box">
+<div id="q17796553058045448" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema lineal:<br><span class="math display">\[\left\{ \begin{array}{clrrr} x &amp; + &amp; y &amp; -z=0 &amp; (1) \\\\ x &amp; - &amp; y &amp; +z=2 &amp; (2) \\\\ 2x &amp; + &amp; y &amp; -4z=-8 &amp; (3) \end{array} \right.\]</span><br>Seleccione las afirmaciones que son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032689224" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y, z) = (1, 2, 3)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058045448" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y, z) = (1, 2, 3)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032689224" value="2" data-correct="true" > El sistema es consistente y determinado.</label>
+<label><input type="checkbox" name="q17796553058045448" value="2" data-correct="true" > El sistema es consistente y determinado.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032689224" value="3" data-correct="true" > El determinante de la matriz de coeficientes del sistema es diferente de cero.</label>
+<label><input type="checkbox" name="q17796553058045448" value="3" data-correct="true" > El determinante de la matriz de coeficientes del sistema es diferente de cero.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032689224" value="4" data-correct="false" > La solución del sistema es <span class="math inline">\((x, y, z) = (1, -2, -3)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058045448" value="4" data-correct="false" > La solución del sistema es <span class="math inline">\((x, y, z) = (1, -2, -3)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032689224" value="5" data-correct="false" > El sistema es inconsistente y carece de soluciones reales.</label>
+<label><input type="checkbox" name="q17796553058045448" value="5" data-correct="false" > El sistema es inconsistente y carece de soluciones reales.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032689224" value="6" data-correct="false" > El sistema tiene infinitas soluciones lineales.</label>
+<label><input type="checkbox" name="q17796553058045448" value="6" data-correct="false" > El sistema tiene infinitas soluciones lineales.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513032689224&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553058045448&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1391,31 +1454,31 @@ true
 <div id="pregunta-7-sistema-lineal-3-times-3" class="section level3 hasAnchor" number="11.2.7">
 <h3><span class="header-section-number">11.2.7</span> Pregunta 7 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span>)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-7-sistema-lineal-3-times-3" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513032775808" class="learnr-question-box">
+<div id="q17796553058128634" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema lineal:<br><span class="math display">\[\left\{ \begin{array}{clrrr} x &amp; + &amp; y &amp; +z=8 &amp; (1) \\\\ x &amp; - &amp; 2y &amp; +z=4 &amp; (2) \\\\ x &amp; + &amp; y &amp; -z=-4 &amp; (3) \end{array} \right.\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032775808" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y, z) = (\frac{2}{3}, \frac{4}{3}, 6)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058128634" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y, z) = (\frac{2}{3}, \frac{4}{3}, 6)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032775808" value="2" data-correct="true" > El determinante de la matriz de coeficientes del sistema es igual a <span class="math inline">\(-6\)</span>.</label>
+<label><input type="checkbox" name="q17796553058128634" value="2" data-correct="true" > El determinante de la matriz de coeficientes del sistema es igual a <span class="math inline">\(-6\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032775808" value="3" data-correct="true" > El valor de la coordenada <span class="math inline">\(z\)</span> de la solución es un número entero (<span class="math inline">\(z = 6\)</span>).</label>
+<label><input type="checkbox" name="q17796553058128634" value="3" data-correct="true" > El valor de la coordenada <span class="math inline">\(z\)</span> de la solución es un número entero (<span class="math inline">\(z = 6\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032775808" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (2, 4, 6)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058128634" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (2, 4, 6)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032775808" value="5" data-correct="false" > El sistema es inconsistente y no tiene solución.</label>
+<label><input type="checkbox" name="q17796553058128634" value="5" data-correct="false" > El sistema es inconsistente y no tiene solución.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032775808" value="6" data-correct="false" > El sistema admite infinitas soluciones reales.</label>
+<label><input type="checkbox" name="q17796553058128634" value="6" data-correct="false" > El sistema admite infinitas soluciones reales.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513032775808&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553058128634&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1438,31 +1501,31 @@ true
 <div id="pregunta-8-sistema-lineal-3-times-3" class="section level3 hasAnchor" number="11.2.8">
 <h3><span class="header-section-number">11.2.8</span> Pregunta 8 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span>)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-8-sistema-lineal-3-times-3" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513032848227" class="learnr-question-box">
+<div id="q17796553058215567" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema lineal:<br><span class="math display">\[\left\{ \begin{array}{clrrr} 2x &amp; + &amp; 6y &amp; +z=-2 &amp; (1) \\\\ 3x &amp; - &amp; 4y &amp; -z=2 &amp; (2) \\\\ 5x &amp; - &amp; 2y &amp; -2z=0 &amp; (3) \end{array} \right.\]</span><br>Seleccione cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032848227" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y, z) = (0.25, -0.625, 1.25)\)</span> (o <span class="math inline">\((1/4, -5/8, 5/4)\)</span>).</label>
+<label><input type="checkbox" name="q17796553058215567" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y, z) = (0.25, -0.625, 1.25)\)</span> (o <span class="math inline">\((1/4, -5/8, 5/4)\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032848227" value="2" data-correct="true" > El sistema es consistente determinado.</label>
+<label><input type="checkbox" name="q17796553058215567" value="2" data-correct="true" > El sistema es consistente determinado.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032848227" value="3" data-correct="true" > La suma de las tres variables correspondientes a la solución es <span class="math inline">\(x + y + z = 0.875\)</span> (o <span class="math inline">\(7/8\)</span>).</label>
+<label><input type="checkbox" name="q17796553058215567" value="3" data-correct="true" > La suma de las tres variables correspondientes a la solución es <span class="math inline">\(x + y + z = 0.875\)</span> (o <span class="math inline">\(7/8\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032848227" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (1, -1, 2)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058215567" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (1, -1, 2)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032848227" value="5" data-correct="false" > El sistema no tiene solución real.</label>
+<label><input type="checkbox" name="q17796553058215567" value="5" data-correct="false" > El sistema no tiene solución real.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032848227" value="6" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (-0.25, 0.625, -1.25)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058215567" value="6" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (-0.25, 0.625, -1.25)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513032848227&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553058215567&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1485,28 +1548,28 @@ true
 <div id="pregunta-9-sistema-lineal-3-times-3-sin-solución" class="section level3 hasAnchor" number="11.2.9">
 <h3><span class="header-section-number">11.2.9</span> Pregunta 9 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span> sin solución)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-9-sistema-lineal-3-times-3-sin-soluci%C3%B3n" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513032922647" class="learnr-question-box">
+<div id="q17796553058312972" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema lineal:<br><span class="math display">\[\left\{ \begin{array}{clrrr} x &amp; + &amp; 7y &amp; -4z=1 &amp; (1) \\\\ 2x &amp; + &amp; 3y &amp; +z=-3 &amp; (2) \\\\ -x &amp; - &amp; -18y &amp; +13z=2 &amp; (3) \end{array} \right.\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032922647" value="1" data-correct="true" > El sistema no tiene solución (es inconsistente).</label>
+<label><input type="checkbox" name="q17796553058312972" value="1" data-correct="true" > El sistema no tiene solución (es inconsistente).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032922647" value="2" data-correct="true" > Existe una contradicción matemática al intentar realizar la eliminación, indicando que no hay un punto común de intersección de los tres planos en <span class="math inline">\(\mathbb{R}^3\)</span>.</label>
+<label><input type="checkbox" name="q17796553058312972" value="2" data-correct="true" > Existe una contradicción matemática al intentar realizar la eliminación, indicando que no hay un punto común de intersección de los tres planos en <span class="math inline">\(\mathbb{R}^3\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032922647" value="3" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (1, -1, -2)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058312972" value="3" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (1, -1, -2)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032922647" value="4" data-correct="false" > El sistema es compatible e indeterminado con infinitas soluciones.</label>
+<label><input type="checkbox" name="q17796553058312972" value="4" data-correct="false" > El sistema es compatible e indeterminado con infinitas soluciones.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513032922647" value="5" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (0, 0, 0)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058312972" value="5" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (0, 0, 0)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513032922647&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553058312972&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1529,31 +1592,31 @@ true
 <div id="pregunta-10-sistema-lineal-3-times-3" class="section level3 hasAnchor" number="11.2.10">
 <h3><span class="header-section-number">11.2.10</span> Pregunta 10 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span>)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-10-sistema-lineal-3-times-3" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513033003499" class="learnr-question-box">
+<div id="q17796553058397562" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema lineal:<br><span class="math display">\[\left\{ \begin{array}{clrrr} 2x &amp;  &amp;  &amp; -z=12 &amp; (1) \\\\ x &amp; + &amp; y &amp; =7 &amp; (2) \\\\ 5x &amp;  &amp;  &amp; +4z=-9 &amp; (3) \end{array} \right.\]</span><br>Seleccione cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033003499" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y, z) = (3, 4, -6)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058397562" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y, z) = (3, 4, -6)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033003499" value="2" data-correct="true" > El valor de la variable <span class="math inline">\(y\)</span> correspondiente a la solución es <span class="math inline">\(4\)</span>.</label>
+<label><input type="checkbox" name="q17796553058397562" value="2" data-correct="true" > El valor de la variable <span class="math inline">\(y\)</span> correspondiente a la solución es <span class="math inline">\(4\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033003499" value="3" data-correct="true" > El sistema es consistente y determinado.</label>
+<label><input type="checkbox" name="q17796553058397562" value="3" data-correct="true" > El sistema es consistente y determinado.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033003499" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (3, 4, 6)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058397562" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (3, 4, 6)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033003499" value="5" data-correct="false" > El sistema es inconsistente y carece de soluciones.</label>
+<label><input type="checkbox" name="q17796553058397562" value="5" data-correct="false" > El sistema es inconsistente y carece de soluciones.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033003499" value="6" data-correct="false" > El sistema admite infinitas soluciones lineales de la forma <span class="math inline">\(z = 2x-12\)</span>.</label>
+<label><input type="checkbox" name="q17796553058397562" value="6" data-correct="false" > El sistema admite infinitas soluciones lineales de la forma <span class="math inline">\(z = 2x-12\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513033003499&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553058397562&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1576,22 +1639,22 @@ true
 <div id="pregunta-11-sistema-lineal-3-times-3-con-infinitas-soluciones" class="section level3 hasAnchor" number="11.2.11">
 <h3><span class="header-section-number">11.2.11</span> Pregunta 11 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span> con infinitas soluciones)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-11-sistema-lineal-3-times-3-con-infinitas-soluciones" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513033087705" class="learnr-question-box">
+<div id="q17796553058473548" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema lineal:<br><span class="math display">\[\left\{ \begin{array}{clrrr} -x &amp; + &amp; 3y &amp; +2z=2 &amp; (1) \\\\ \frac{1}{2}x &amp; - &amp; \frac{3}{2}y &amp; -z=-1 &amp; (2) \\\\ -\frac{1}{3}x &amp; + &amp; y  &amp; +\frac{2}{3}z=\frac{2}{3} &amp; (3) \end{array} \right.\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033087705" value="1" data-correct="true" > El sistema tiene infinitas soluciones ya que las tres ecuaciones representan el mismo plano geométrico en <span class="math inline">\(\mathbb{R}^3\)</span>.</label>
+<label><input type="checkbox" name="q17796553058473548" value="1" data-correct="true" > El sistema tiene infinitas soluciones ya que las tres ecuaciones representan el mismo plano geométrico en <span class="math inline">\(\mathbb{R}^3\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033087705" value="2" data-correct="true" > El sistema es consistente e indeterminado.</label>
+<label><input type="checkbox" name="q17796553058473548" value="2" data-correct="true" > El sistema es consistente e indeterminado.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033087705" value="3" data-correct="true" > Las tres ecuaciones son linealmente dependientes (multiplicando la primera ecuación por <span class="math inline">\(-0.5\)</span> se obtiene la segunda, y multiplicando la primera por <span class="math inline">\(1/3\)</span> se obtiene la tercera).</label>
+<label><input type="checkbox" name="q17796553058473548" value="3" data-correct="true" > Las tres ecuaciones son linealmente dependientes (multiplicando la primera ecuación por <span class="math inline">\(-0.5\)</span> se obtiene la segunda, y multiplicando la primera por <span class="math inline">\(1/3\)</span> se obtiene la tercera).</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513033087705&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553058473548&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1614,31 +1677,31 @@ true
 <div id="pregunta-12-sistema-lineal-3-times-3" class="section level3 hasAnchor" number="11.2.12">
 <h3><span class="header-section-number">11.2.12</span> Pregunta 12 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span>)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-12-sistema-lineal-3-times-3" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513033154477" class="learnr-question-box">
+<div id="q17796553058549452" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema lineal:<br><span class="math display">\[\left\{ \begin{array}{clrrr} x &amp; + &amp; 6y &amp; +z=9 &amp; (1) \\\\ 3x &amp; + &amp; y &amp; -2z=7 &amp; (2) \\\\ -6x &amp; + &amp; 3y  &amp; +7z=-2 &amp; (3) \end{array} \right.\]</span><br>Seleccione cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033154477" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y, z) = (5, 0, 4)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058549452" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y, z) = (5, 0, 4)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033154477" value="2" data-correct="true" > La coordenada <span class="math inline">\(y\)</span> de la solución es nula (<span class="math inline">\(y = 0\)</span>).</label>
+<label><input type="checkbox" name="q17796553058549452" value="2" data-correct="true" > La coordenada <span class="math inline">\(y\)</span> de la solución es nula (<span class="math inline">\(y = 0\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033154477" value="3" data-correct="true" > El sistema es consistente y determinado.</label>
+<label><input type="checkbox" name="q17796553058549452" value="3" data-correct="true" > El sistema es consistente y determinado.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033154477" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (1, 1, 2)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058549452" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (1, 1, 2)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033154477" value="5" data-correct="false" > El sistema no tiene solución real.</label>
+<label><input type="checkbox" name="q17796553058549452" value="5" data-correct="false" > El sistema no tiene solución real.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033154477" value="6" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (5, 1, 3)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058549452" value="6" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (5, 1, 3)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513033154477&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553058549452&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1661,28 +1724,28 @@ true
 <div id="pregunta-13-sistema-lineal-3-times-3-sin-solución" class="section level3 hasAnchor" number="11.2.13">
 <h3><span class="header-section-number">11.2.13</span> Pregunta 13 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span> sin solución)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-13-sistema-lineal-3-times-3-sin-soluci%C3%B3n" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513033283517" class="learnr-question-box">
+<div id="q17796553058674383" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema lineal:<br><span class="math display">\[\left\{ \begin{array}{clrrr} x &amp; + &amp; y &amp; -z=0 &amp; (1) \\\\ 2x &amp; + &amp; 2y &amp; -2z=1 &amp; (2) \\\\ 5x &amp; + &amp; 5y  &amp; -5z=2 &amp; (3) \end{array} \right.\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033283517" value="1" data-correct="true" > El sistema es inconsistente y carece de soluciones.</label>
+<label><input type="checkbox" name="q17796553058674383" value="1" data-correct="true" > El sistema es inconsistente y carece de soluciones.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033283517" value="2" data-correct="true" > Al multiplicar la primera ecuación por 2 y por 5, se obtienen miembros izquierdos idénticos pero con términos independientes diferentes, lo que genera una contradicción.</label>
+<label><input type="checkbox" name="q17796553058674383" value="2" data-correct="true" > Al multiplicar la primera ecuación por 2 y por 5, se obtienen miembros izquierdos idénticos pero con términos independientes diferentes, lo que genera una contradicción.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033283517" value="3" data-correct="false" > El sistema tiene infinitas soluciones representadas por el plano <span class="math inline">\(x + y - z = 0\)</span>.</label>
+<label><input type="checkbox" name="q17796553058674383" value="3" data-correct="false" > El sistema tiene infinitas soluciones representadas por el plano <span class="math inline">\(x + y - z = 0\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033283517" value="4" data-correct="false" > La solución única del sistema es el origen de coordenadas <span class="math inline">\((0, 0, 0)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058674383" value="4" data-correct="false" > La solución única del sistema es el origen de coordenadas <span class="math inline">\((0, 0, 0)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033283517" value="5" data-correct="false" > El sistema es consistente determinado.</label>
+<label><input type="checkbox" name="q17796553058674383" value="5" data-correct="false" > El sistema es consistente determinado.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513033283517&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553058674383&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1705,31 +1768,31 @@ true
 <div id="pregunta-14-sistema-lineal-3-times-3" class="section level3 hasAnchor" number="11.2.14">
 <h3><span class="header-section-number">11.2.14</span> Pregunta 14 (Sistema Lineal <span class="math inline">\(3 \times 3\)</span>)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-14-sistema-lineal-3-times-3" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513033364707" class="learnr-question-box">
+<div id="q17796553058755986" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución si existe para el sistema lineal:<br><span class="math display">\[\left\{ \begin{array}{clrrr} x &amp; + &amp; y &amp; +z=4 &amp; (1) \\\\ 2x &amp; - &amp; y &amp; +2z=11 &amp; (2) \\\\ 4x &amp; + &amp; 3y  &amp; -6z=-18 &amp; (3) \end{array} \right.\]</span><br>Seleccione cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033364707" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y, z) = (1.5, -1, 3.5)\)</span> (o en fracciones <span class="math inline">\((\frac{3}{2}, -1, \frac{7}{2})\)</span>).</label>
+<label><input type="checkbox" name="q17796553058755986" value="1" data-correct="true" > La solución única del sistema es <span class="math inline">\((x, y, z) = (1.5, -1, 3.5)\)</span> (o en fracciones <span class="math inline">\((\frac{3}{2}, -1, \frac{7}{2})\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033364707" value="2" data-correct="true" > El valor de la coordenada <span class="math inline">\(y\)</span> es exactamente <span class="math inline">\(-1\)</span>.</label>
+<label><input type="checkbox" name="q17796553058755986" value="2" data-correct="true" > El valor de la coordenada <span class="math inline">\(y\)</span> es exactamente <span class="math inline">\(-1\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033364707" value="3" data-correct="true" > El sistema es consistente y determinado.</label>
+<label><input type="checkbox" name="q17796553058755986" value="3" data-correct="true" > El sistema es consistente y determinado.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033364707" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (2, 1, 1)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058755986" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (2, 1, 1)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033364707" value="5" data-correct="false" > El sistema es inconsistente y no tiene solución.</label>
+<label><input type="checkbox" name="q17796553058755986" value="5" data-correct="false" > El sistema es inconsistente y no tiene solución.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033364707" value="6" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (1.5, 1, 3.5)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058755986" value="6" data-correct="false" > La solución única del sistema es <span class="math inline">\((x, y, z) = (1.5, 1, 3.5)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513033364707&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553058755986&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1757,28 +1820,28 @@ true
 <div id="pregunta-15-sistema-no-lineal" class="section level3 hasAnchor" number="11.3.1">
 <h3><span class="header-section-number">11.3.1</span> Pregunta 15 (Sistema No Lineal)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-15-sistema-no-lineal" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513033446349" class="learnr-question-box">
+<div id="q17796553058833832" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva el sistema no lineal si existe solución:<br><span class="math display">\[\left\{ \begin{array}{clrr} x &amp; = &amp; 5 &amp; (1) \\\\ x &amp; = &amp; y^2 &amp; (2) \end{array} \right.\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033446349" value="1" data-correct="true" > Las soluciones reales del sistema son <span class="math inline">\((5, \sqrt{5})\)</span> y <span class="math inline">\((5, -\sqrt{5})\)</span>.</label>
+<label><input type="checkbox" name="q17796553058833832" value="1" data-correct="true" > Las soluciones reales del sistema son <span class="math inline">\((5, \sqrt{5})\)</span> y <span class="math inline">\((5, -\sqrt{5})\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033446349" value="2" data-correct="true" > El sistema posee exactamente dos soluciones reales distintas.</label>
+<label><input type="checkbox" name="q17796553058833832" value="2" data-correct="true" > El sistema posee exactamente dos soluciones reales distintas.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033446349" value="3" data-correct="false" > La solución única es <span class="math inline">\((5, 25)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058833832" value="3" data-correct="false" > La solución única es <span class="math inline">\((5, 25)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033446349" value="4" data-correct="false" > El sistema no tiene soluciones en el conjunto de los reales.</label>
+<label><input type="checkbox" name="q17796553058833832" value="4" data-correct="false" > El sistema no tiene soluciones en el conjunto de los reales.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033446349" value="5" data-correct="false" > La solución única es <span class="math inline">\((5, 5)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058833832" value="5" data-correct="false" > La solución única es <span class="math inline">\((5, 5)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513033446349&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553058833832&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1801,28 +1864,28 @@ true
 <div id="pregunta-16-sistema-no-lineal" class="section level3 hasAnchor" number="11.3.2">
 <h3><span class="header-section-number">11.3.2</span> Pregunta 16 (Sistema No Lineal)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-16-sistema-no-lineal" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513033525443" class="learnr-question-box">
+<div id="q17796553058909888" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva el sistema no lineal si existe solución:<br><span class="math display">\[\left\{ \begin{array}{clrr} y &amp; = &amp; 3 &amp; (1) \\\\ (x+1)^2+y^2 &amp; = &amp; 10 &amp; (2) \end{array} \right.\]</span><br>Seleccione las afirmaciones que son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033525443" value="1" data-correct="true" > Las soluciones reales del sistema son <span class="math inline">\((0, 3)\)</span> y <span class="math inline">\((-2, 3)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058909888" value="1" data-correct="true" > Las soluciones reales del sistema son <span class="math inline">\((0, 3)\)</span> y <span class="math inline">\((-2, 3)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033525443" value="2" data-correct="true" > El sistema posee exactamente dos soluciones reales.</label>
+<label><input type="checkbox" name="q17796553058909888" value="2" data-correct="true" > El sistema posee exactamente dos soluciones reales.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033525443" value="3" data-correct="false" > La solución única es <span class="math inline">\((0, 3)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058909888" value="3" data-correct="false" > La solución única es <span class="math inline">\((0, 3)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033525443" value="4" data-correct="false" > El sistema no tiene solución en los reales.</label>
+<label><input type="checkbox" name="q17796553058909888" value="4" data-correct="false" > El sistema no tiene solución en los reales.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033525443" value="5" data-correct="false" > Las soluciones reales del sistema son <span class="math inline">\((1, 3)\)</span> y <span class="math inline">\((-3, 3)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058909888" value="5" data-correct="false" > Las soluciones reales del sistema son <span class="math inline">\((1, 3)\)</span> y <span class="math inline">\((-3, 3)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513033525443&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553058909888&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1845,28 +1908,28 @@ true
 <div id="pregunta-17-sistema-no-lineal" class="section level3 hasAnchor" number="11.3.3">
 <h3><span class="header-section-number">11.3.3</span> Pregunta 17 (Sistema No Lineal)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-17-sistema-no-lineal" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513033626834" class="learnr-question-box">
+<div id="q17796553058989901" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva el sistema no lineal si existe solución:<br><span class="math display">\[\left\{ \begin{array}{clrr} -x^2+y &amp; = &amp; -1 &amp; (1) \\\\ x^2+y &amp; = &amp; 4 &amp; (2) \end{array} \right.\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033626834" value="1" data-correct="true" > Las soluciones reales del sistema son <span class="math inline">\((\sqrt{2.5}, 1.5)\)</span> y <span class="math inline">\((-\sqrt{2.5}, 1.5)\)</span> (o <span class="math inline">\((\frac{\sqrt{10}}{2}, 1.5)\)</span> y <span class="math inline">\((-\frac{\sqrt{10}}{2}, 1.5)\)</span>).</label>
+<label><input type="checkbox" name="q17796553058989901" value="1" data-correct="true" > Las soluciones reales del sistema son <span class="math inline">\((\sqrt{2.5}, 1.5)\)</span> y <span class="math inline">\((-\sqrt{2.5}, 1.5)\)</span> (o <span class="math inline">\((\frac{\sqrt{10}}{2}, 1.5)\)</span> y <span class="math inline">\((-\frac{\sqrt{10}}{2}, 1.5)\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033626834" value="2" data-correct="true" > La coordenada <span class="math inline">\(y\)</span> de ambas soluciones reales es <span class="math inline">\(1.5\)</span> (o <span class="math inline">\(\frac{3}{2}\)</span>).</label>
+<label><input type="checkbox" name="q17796553058989901" value="2" data-correct="true" > La coordenada <span class="math inline">\(y\)</span> de ambas soluciones reales es <span class="math inline">\(1.5\)</span> (o <span class="math inline">\(\frac{3}{2}\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033626834" value="3" data-correct="false" > La solución única del sistema es <span class="math inline">\((1.58, 1.5)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058989901" value="3" data-correct="false" > La solución única del sistema es <span class="math inline">\((1.58, 1.5)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033626834" value="4" data-correct="false" > El sistema no posee soluciones en el conjunto real.</label>
+<label><input type="checkbox" name="q17796553058989901" value="4" data-correct="false" > El sistema no posee soluciones en el conjunto real.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033626834" value="5" data-correct="false" > Las soluciones reales son <span class="math inline">\((\sqrt{3}, 1.5)\)</span> y <span class="math inline">\((-\sqrt{3}, 1.5)\)</span>.</label>
+<label><input type="checkbox" name="q17796553058989901" value="5" data-correct="false" > Las soluciones reales son <span class="math inline">\((\sqrt{3}, 1.5)\)</span> y <span class="math inline">\((-\sqrt{3}, 1.5)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513033626834&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553058989901&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1889,28 +1952,28 @@ true
 <div id="pregunta-18-sistema-no-lineal-sin-solución-real" class="section level3 hasAnchor" number="11.3.4">
 <h3><span class="header-section-number">11.3.4</span> Pregunta 18 (Sistema No Lineal sin solución real)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-18-sistema-no-lineal-sin-soluci%C3%B3n-real" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513033713034" class="learnr-question-box">
+<div id="q17796553059069753" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva el sistema no lineal si existe solución:<br><span class="math display">\[\left\{ \begin{array}{clrr} x+y &amp; = &amp; 5 &amp; (1) \\\\ x^2+y^2 &amp; = &amp; 1 &amp; (2) \end{array} \right.\]</span><br>Seleccione cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033713034" value="1" data-correct="true" > El sistema no posee soluciones reales (las soluciones son números complejos ya que la recta <span class="math inline">\(x+y=5\)</span> no intersecta a la circunferencia unitaria <span class="math inline">\(x^2+y^2=1\)</span>).</label>
+<label><input type="checkbox" name="q17796553059069753" value="1" data-correct="true" > El sistema no posee soluciones reales (las soluciones son números complejos ya que la recta <span class="math inline">\(x+y=5\)</span> no intersecta a la circunferencia unitaria <span class="math inline">\(x^2+y^2=1\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033713034" value="2" data-correct="true" > Al sustituir <span class="math inline">\(y = 5 - x\)</span> en la segunda ecuación se obtiene la ecuación cuadrática <span class="math inline">\(2x^2 - 10x + 24 = 0\)</span> (o <span class="math inline">\(x^2-5x+12=0\)</span>), cuyo discriminante es negativo (<span class="math inline">\(\Delta = -23\)</span>).</label>
+<label><input type="checkbox" name="q17796553059069753" value="2" data-correct="true" > Al sustituir <span class="math inline">\(y = 5 - x\)</span> en la segunda ecuación se obtiene la ecuación cuadrática <span class="math inline">\(2x^2 - 10x + 24 = 0\)</span> (o <span class="math inline">\(x^2-5x+12=0\)</span>), cuyo discriminante es negativo (<span class="math inline">\(\Delta = -23\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033713034" value="3" data-correct="false" > La solución única en los reales es <span class="math inline">\((2.5, 2.5)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059069753" value="3" data-correct="false" > La solución única en los reales es <span class="math inline">\((2.5, 2.5)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033713034" value="4" data-correct="false" > Las soluciones reales son <span class="math inline">\((3, 2)\)</span> y <span class="math inline">\((2, 3)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059069753" value="4" data-correct="false" > Las soluciones reales son <span class="math inline">\((3, 2)\)</span> y <span class="math inline">\((2, 3)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033713034" value="5" data-correct="false" > El sistema admite infinitas soluciones reales.</label>
+<label><input type="checkbox" name="q17796553059069753" value="5" data-correct="false" > El sistema admite infinitas soluciones reales.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513033713034&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553059069753&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1933,28 +1996,28 @@ true
 <div id="pregunta-19-sistema-no-lineal-con-solución-única" class="section level3 hasAnchor" number="11.3.5">
 <h3><span class="header-section-number">11.3.5</span> Pregunta 19 (Sistema No Lineal con solución única)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-19-sistema-no-lineal-con-soluci%C3%B3n-%C3%BAnica" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513033798901" class="learnr-question-box">
+<div id="q17796553059142012" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva el sistema no lineal si existe solución:<br><span class="math display">\[\left\{ \begin{array}{clrr} x^2+y^2 &amp; = &amp; 1 &amp; (1) \\\\ x^2-4x+y^2 &amp; = &amp; -3 &amp; (2) \end{array} \right.\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033798901" value="1" data-correct="true" > El sistema posee una única solución real, la cual es <span class="math inline">\((1, 0)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059142012" value="1" data-correct="true" > El sistema posee una única solución real, la cual es <span class="math inline">\((1, 0)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033798901" value="2" data-correct="true" > El sistema representa la intersección de dos circunferencias que son tangentes exteriores en el punto <span class="math inline">\((1, 0)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059142012" value="2" data-correct="true" > El sistema representa la intersección de dos circunferencias que son tangentes exteriores en el punto <span class="math inline">\((1, 0)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033798901" value="3" data-correct="false" > El sistema no tiene soluciones en el conjunto de los números reales.</label>
+<label><input type="checkbox" name="q17796553059142012" value="3" data-correct="false" > El sistema no tiene soluciones en el conjunto de los números reales.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033798901" value="4" data-correct="false" > Las soluciones reales son <span class="math inline">\((1, 0)\)</span> y <span class="math inline">\((-1, 0)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059142012" value="4" data-correct="false" > Las soluciones reales son <span class="math inline">\((1, 0)\)</span> y <span class="math inline">\((-1, 0)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033798901" value="5" data-correct="false" > Las soluciones reales son <span class="math inline">\((1, 1)\)</span> y <span class="math inline">\((1, -1)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059142012" value="5" data-correct="false" > Las soluciones reales son <span class="math inline">\((1, 1)\)</span> y <span class="math inline">\((1, -1)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513033798901&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553059142012&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -1977,28 +2040,28 @@ true
 <div id="pregunta-20-sistema-no-lineal" class="section level3 hasAnchor" number="11.3.6">
 <h3><span class="header-section-number">11.3.6</span> Pregunta 20 (Sistema No Lineal)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-20-sistema-no-lineal" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513033869302" class="learnr-question-box">
+<div id="q17796553059233690" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva el sistema no lineal si existe solución:<br><span class="math display">\[\left\{ \begin{array}{clrr} xy &amp; = &amp; 3 &amp; (1) \\\\ x+y &amp; = &amp; 4 &amp; (2) \end{array} \right.\]</span><br>Seleccione cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033869302" value="1" data-correct="true" > Las soluciones reales del sistema son <span class="math inline">\((1, 3)\)</span> y <span class="math inline">\((3, 1)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059233690" value="1" data-correct="true" > Las soluciones reales del sistema son <span class="math inline">\((1, 3)\)</span> y <span class="math inline">\((3, 1)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033869302" value="2" data-correct="true" > La suma de las coordenadas de las soluciones es <span class="math inline">\(4\)</span> y su producto es <span class="math inline">\(3\)</span> (obedeciendo la relación de Cardano-Vieta para la ecuación cuadrática <span class="math inline">\(u^2 - 4u + 3 = 0\)</span>).</label>
+<label><input type="checkbox" name="q17796553059233690" value="2" data-correct="true" > La suma de las coordenadas de las soluciones es <span class="math inline">\(4\)</span> y su producto es <span class="math inline">\(3\)</span> (obedeciendo la relación de Cardano-Vieta para la ecuación cuadrática <span class="math inline">\(u^2 - 4u + 3 = 0\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033869302" value="3" data-correct="false" > El sistema posee infinitas soluciones reales.</label>
+<label><input type="checkbox" name="q17796553059233690" value="3" data-correct="false" > El sistema posee infinitas soluciones reales.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033869302" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((2, 2)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059233690" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((2, 2)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033869302" value="5" data-correct="false" > Las soluciones reales del sistema son <span class="math inline">\((1, -3)\)</span> y <span class="math inline">\((-3, 1)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059233690" value="5" data-correct="false" > Las soluciones reales del sistema son <span class="math inline">\((1, -3)\)</span> y <span class="math inline">\((-3, 1)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513033869302&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553059233690&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2021,28 +2084,28 @@ true
 <div id="pregunta-21-sistema-no-lineal" class="section level3 hasAnchor" number="11.3.7">
 <h3><span class="header-section-number">11.3.7</span> Pregunta 21 (Sistema No Lineal)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-21-sistema-no-lineal" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513033945436" class="learnr-question-box">
+<div id="q17796553059328479" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva el sistema no lineal si existe solución:<br><span class="math display">\[\left\{ \begin{array}{clrr} xy &amp; = &amp; 1 &amp; (1) \\\\ x^2 &amp; = &amp; y^2+2 &amp; (2) \end{array} \right.\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033945436" value="1" data-correct="true" > Las dos soluciones reales del sistema para <span class="math inline">\((x, y)\)</span> son <span class="math inline">\((\sqrt{1+\sqrt{2}}, \sqrt{\sqrt{2}-1})\)</span> y <span class="math inline">\((-\sqrt{1+\sqrt{2}}, -\sqrt{\sqrt{2}-1})\)</span>.</label>
+<label><input type="checkbox" name="q17796553059328479" value="1" data-correct="true" > Las dos soluciones reales del sistema para <span class="math inline">\((x, y)\)</span> son <span class="math inline">\((\sqrt{1+\sqrt{2}}, \sqrt{\sqrt{2}-1})\)</span> y <span class="math inline">\((-\sqrt{1+\sqrt{2}}, -\sqrt{\sqrt{2}-1})\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033945436" value="2" data-correct="true" > Las aproximaciones decimales de las dos soluciones reales son <span class="math inline">\((1.554, 0.644)\)</span> y <span class="math inline">\((-1.554, -0.644)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059328479" value="2" data-correct="true" > Las aproximaciones decimales de las dos soluciones reales son <span class="math inline">\((1.554, 0.644)\)</span> y <span class="math inline">\((-1.554, -0.644)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033945436" value="3" data-correct="false" > Las soluciones reales del sistema son <span class="math inline">\((\sqrt{3}, \frac{\sqrt{3}}{3})\)</span> y <span class="math inline">\((-\sqrt{3}, -\frac{\sqrt{3}}{3})\)</span>.</label>
+<label><input type="checkbox" name="q17796553059328479" value="3" data-correct="false" > Las soluciones reales del sistema son <span class="math inline">\((\sqrt{3}, \frac{\sqrt{3}}{3})\)</span> y <span class="math inline">\((-\sqrt{3}, -\frac{\sqrt{3}}{3})\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033945436" value="4" data-correct="false" > El sistema no posee ninguna solución en el campo real.</label>
+<label><input type="checkbox" name="q17796553059328479" value="4" data-correct="false" > El sistema no posee ninguna solución en el campo real.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513033945436" value="5" data-correct="false" > El sistema tiene exactamente cuatro soluciones reales distintas.</label>
+<label><input type="checkbox" name="q17796553059328479" value="5" data-correct="false" > El sistema tiene exactamente cuatro soluciones reales distintas.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513033945436&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553059328479&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2065,31 +2128,31 @@ true
 <div id="pregunta-22-sistema-no-lineal" class="section level3 hasAnchor" number="11.3.8">
 <h3><span class="header-section-number">11.3.8</span> Pregunta 22 (Sistema No Lineal)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-22-sistema-no-lineal" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513034023299" class="learnr-question-box">
+<div id="q17796553059404345" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva el sistema no lineal si existe solución:<br><span class="math display">\[\left\{ \begin{array}{clrr} 16x^2-y^4 &amp; = &amp; 16y &amp; (1) \\\\ y^2+y &amp; = &amp; x^2 &amp; (2) \end{array} \right.\]</span><br>Seleccione cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034023299" value="1" data-correct="true" > El sistema tiene exactamente cinco soluciones reales: <span class="math inline">\((0, 0)\)</span>, <span class="math inline">\((2\sqrt{5}, 4)\)</span>, <span class="math inline">\((-2\sqrt{5}, 4)\)</span>, <span class="math inline">\((2\sqrt{3}, -4)\)</span> y <span class="math inline">\((-2\sqrt{3}, -4)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059404345" value="1" data-correct="true" > El sistema tiene exactamente cinco soluciones reales: <span class="math inline">\((0, 0)\)</span>, <span class="math inline">\((2\sqrt{5}, 4)\)</span>, <span class="math inline">\((-2\sqrt{5}, 4)\)</span>, <span class="math inline">\((2\sqrt{3}, -4)\)</span> y <span class="math inline">\((-2\sqrt{3}, -4)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034023299" value="2" data-correct="true" > Si <span class="math inline">\(y = 0\)</span>, la única solución real para <span class="math inline">\(x\)</span> es <span class="math inline">\(x = 0\)</span>.</label>
+<label><input type="checkbox" name="q17796553059404345" value="2" data-correct="true" > Si <span class="math inline">\(y = 0\)</span>, la única solución real para <span class="math inline">\(x\)</span> es <span class="math inline">\(x = 0\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034023299" value="3" data-correct="true" > Si <span class="math inline">\(y = 4\)</span>, las coordenadas reales de <span class="math inline">\(x\)</span> son <span class="math inline">\(\pm 2\sqrt{5}\)</span>.</label>
+<label><input type="checkbox" name="q17796553059404345" value="3" data-correct="true" > Si <span class="math inline">\(y = 4\)</span>, las coordenadas reales de <span class="math inline">\(x\)</span> son <span class="math inline">\(\pm 2\sqrt{5}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034023299" value="4" data-correct="true" > Si <span class="math inline">\(y = -4\)</span>, las coordenadas reales de <span class="math inline">\(x\)</span> son <span class="math inline">\(\pm 2\sqrt{3}\)</span>.</label>
+<label><input type="checkbox" name="q17796553059404345" value="4" data-correct="true" > Si <span class="math inline">\(y = -4\)</span>, las coordenadas reales de <span class="math inline">\(x\)</span> son <span class="math inline">\(\pm 2\sqrt{3}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034023299" value="5" data-correct="false" > El sistema solo tiene tres soluciones reales distintas.</label>
+<label><input type="checkbox" name="q17796553059404345" value="5" data-correct="false" > El sistema solo tiene tres soluciones reales distintas.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034023299" value="6" data-correct="false" > El sistema no tiene soluciones en el conjunto de los reales.</label>
+<label><input type="checkbox" name="q17796553059404345" value="6" data-correct="false" > El sistema no tiene soluciones en el conjunto de los reales.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513034023299&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553059404345&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2112,28 +2175,28 @@ true
 <div id="pregunta-23-sistema-no-lineal" class="section level3 hasAnchor" number="11.3.9">
 <h3><span class="header-section-number">11.3.9</span> Pregunta 23 (Sistema No Lineal)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-23-sistema-no-lineal" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513034119345" class="learnr-question-box">
+<div id="q17796553059481069" class="learnr-question-box">
 <div class="learnr-question-text">
 Resuelva el sistema no lineal si existe solución:<br><span class="math display">\[\left\{ \begin{array}{clrr} y^3+3y &amp; = &amp; 26 &amp; (1) \\\\ y &amp; = &amp; x(x+1) &amp; (2) \end{array} \right.\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034119345" value="1" data-correct="true" > La ecuación cúbica en la variable <span class="math inline">\(y\)</span> posee una única solución real real, que es aproximadamente <span class="math inline">\(y \approx 2.627\)</span>.</label>
+<label><input type="checkbox" name="q17796553059481069" value="1" data-correct="true" > La ecuación cúbica en la variable <span class="math inline">\(y\)</span> posee una única solución real real, que es aproximadamente <span class="math inline">\(y \approx 2.627\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034119345" value="2" data-correct="true" > Las soluciones reales del sistema para <span class="math inline">\((x, y)\)</span> son aproximadamente <span class="math inline">\((1.196, 2.627)\)</span> y <span class="math inline">\((-2.196, 2.627)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059481069" value="2" data-correct="true" > Las soluciones reales del sistema para <span class="math inline">\((x, y)\)</span> son aproximadamente <span class="math inline">\((1.196, 2.627)\)</span> y <span class="math inline">\((-2.196, 2.627)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034119345" value="3" data-correct="false" > El sistema no posee ninguna solución en el conjunto de los reales.</label>
+<label><input type="checkbox" name="q17796553059481069" value="3" data-correct="false" > El sistema no posee ninguna solución en el conjunto de los reales.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034119345" value="4" data-correct="false" > Las únicas soluciones reales exactas del sistema son <span class="math inline">\((1, 2)\)</span> y <span class="math inline">\((-2, 2)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059481069" value="4" data-correct="false" > Las únicas soluciones reales exactas del sistema son <span class="math inline">\((1, 2)\)</span> y <span class="math inline">\((-2, 2)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034119345" value="5" data-correct="false" > La única solución real es el origen <span class="math inline">\((0,0)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059481069" value="5" data-correct="false" > La única solución real es el origen <span class="math inline">\((0,0)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513034119345&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553059481069&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2156,31 +2219,31 @@ true
 <div id="pregunta-24-sistema-no-lineal---multiplicadores-de-lagrange" class="section level3 hasAnchor" number="11.3.10">
 <h3><span class="header-section-number">11.3.10</span> Pregunta 24 (Sistema No Lineal - Multiplicadores de Lagrange)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-24-sistema-no-lineal---multiplicadores-de-lagrange" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513034187710" class="learnr-question-box">
+<div id="q17796553059567615" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución del sistema no lineal (estructura típica de optimización por multiplicadores de Lagrange), si existe:<br><span class="math display">\[\left\{ \begin{array}{clrrr} 2x &amp; + &amp; \lambda &amp; =0 &amp; (1) \\\\ 2y &amp; + &amp; \lambda &amp; =0 &amp; (2) \\\\ yx &amp; - &amp; 3  &amp; =0 &amp; (3) \end{array} \right.\]</span><br>Seleccione las afirmaciones que son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034187710" value="1" data-correct="true" > Las dos soluciones reales para <span class="math inline">\((x, y, \lambda)\)</span> son <span class="math inline">\((\sqrt{3}, \sqrt{3}, -2\sqrt{3})\)</span> y <span class="math inline">\((-\sqrt{3}, -\sqrt{3}, 2\sqrt{3})\)</span>.</label>
+<label><input type="checkbox" name="q17796553059567615" value="1" data-correct="true" > Las dos soluciones reales para <span class="math inline">\((x, y, \lambda)\)</span> son <span class="math inline">\((\sqrt{3}, \sqrt{3}, -2\sqrt{3})\)</span> y <span class="math inline">\((-\sqrt{3}, -\sqrt{3}, 2\sqrt{3})\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034187710" value="2" data-correct="true" > El sistema posee exactamente dos soluciones en el conjunto de los reales.</label>
+<label><input type="checkbox" name="q17796553059567615" value="2" data-correct="true" > El sistema posee exactamente dos soluciones en el conjunto de los reales.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034187710" value="3" data-correct="true" > El valor absoluto del multiplicador <span class="math inline">\(\lambda\)</span> en las soluciones es igual a <span class="math inline">\(2\sqrt{3}\)</span> (es decir, <span class="math inline">\(|\lambda| = 2\sqrt{3}\)</span>).</label>
+<label><input type="checkbox" name="q17796553059567615" value="3" data-correct="true" > El valor absoluto del multiplicador <span class="math inline">\(\lambda\)</span> en las soluciones es igual a <span class="math inline">\(2\sqrt{3}\)</span> (es decir, <span class="math inline">\(|\lambda| = 2\sqrt{3}\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034187710" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((3, 1, -2)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059567615" value="4" data-correct="false" > La solución única del sistema es <span class="math inline">\((3, 1, -2)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034187710" value="5" data-correct="false" > El sistema no tiene solución en los reales.</label>
+<label><input type="checkbox" name="q17796553059567615" value="5" data-correct="false" > El sistema no tiene solución en los reales.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034187710" value="6" data-correct="false" > Las soluciones reales del sistema son <span class="math inline">\((3, 1, 2)\)</span> y <span class="math inline">\((-3, -1, -2)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059567615" value="6" data-correct="false" > Las soluciones reales del sistema son <span class="math inline">\((3, 1, 2)\)</span> y <span class="math inline">\((-3, -1, -2)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513034187710&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553059567615&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2203,31 +2266,31 @@ true
 <div id="pregunta-25-sistema-no-lineal---multiplicadores-de-lagrange" class="section level3 hasAnchor" number="11.3.11">
 <h3><span class="header-section-number">11.3.11</span> Pregunta 25 (Sistema No Lineal - Multiplicadores de Lagrange)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-25-sistema-no-lineal---multiplicadores-de-lagrange" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513034269203" class="learnr-question-box">
+<div id="q17796553059645109" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución del sistema no lineal, si existe:<br><span class="math display">\[\left\{ \begin{array}{clrrr} -2x &amp; + &amp; \lambda &amp; =0 &amp; (1) \\\\ y &amp; - &amp; y\lambda &amp; =0 &amp; (2) \\\\ y^2 &amp; - &amp; x  &amp; =0 &amp; (3) \end{array} \right.\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034269203" value="1" data-correct="true" > Las tres soluciones reales para <span class="math inline">\((x, y, \lambda)\)</span> son <span class="math inline">\((0, 0, 0)\)</span>, <span class="math inline">\((0.5, \frac{\sqrt{2}}{2}, 1)\)</span> y <span class="math inline">\((0.5, -\frac{\sqrt{2}}{2}, 1)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059645109" value="1" data-correct="true" > Las tres soluciones reales para <span class="math inline">\((x, y, \lambda)\)</span> son <span class="math inline">\((0, 0, 0)\)</span>, <span class="math inline">\((0.5, \frac{\sqrt{2}}{2}, 1)\)</span> y <span class="math inline">\((0.5, -\frac{\sqrt{2}}{2}, 1)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034269203" value="2" data-correct="true" > Si <span class="math inline">\(y = 0\)</span>, las variables toman los valores <span class="math inline">\(x = 0\)</span> y <span class="math inline">\(\lambda = 0\)</span>.</label>
+<label><input type="checkbox" name="q17796553059645109" value="2" data-correct="true" > Si <span class="math inline">\(y = 0\)</span>, las variables toman los valores <span class="math inline">\(x = 0\)</span> y <span class="math inline">\(\lambda = 0\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034269203" value="3" data-correct="true" > Si <span class="math inline">\(\lambda = 1\)</span>, las variables toman los valores <span class="math inline">\(x = 0.5\)</span> y <span class="math inline">\(y = \pm\frac{\sqrt{2}}{2}\)</span>.</label>
+<label><input type="checkbox" name="q17796553059645109" value="3" data-correct="true" > Si <span class="math inline">\(\lambda = 1\)</span>, las variables toman los valores <span class="math inline">\(x = 0.5\)</span> y <span class="math inline">\(y = \pm\frac{\sqrt{2}}{2}\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034269203" value="4" data-correct="false" > El sistema solo tiene soluciones en los números complejos.</label>
+<label><input type="checkbox" name="q17796553059645109" value="4" data-correct="false" > El sistema solo tiene soluciones en los números complejos.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034269203" value="5" data-correct="false" > La solución única del sistema es <span class="math inline">\((1, 1, 2)\)</span>.</label>
+<label><input type="checkbox" name="q17796553059645109" value="5" data-correct="false" > La solución única del sistema es <span class="math inline">\((1, 1, 2)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034269203" value="6" data-correct="false" > El sistema tiene exactamente cuatro soluciones reales distintas.</label>
+<label><input type="checkbox" name="q17796553059645109" value="6" data-correct="false" > El sistema tiene exactamente cuatro soluciones reales distintas.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513034269203&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553059645109&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2250,28 +2313,28 @@ true
 <div id="pregunta-26-sistema-no-lineal---multiplicadores-de-lagrange" class="section level3 hasAnchor" number="11.3.12">
 <h3><span class="header-section-number">11.3.12</span> Pregunta 26 (Sistema No Lineal - Multiplicadores de Lagrange)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-26-sistema-no-lineal---multiplicadores-de-lagrange" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513034349375" class="learnr-question-box">
+<div id="q17796553059721732" class="learnr-question-box">
 <div class="learnr-question-text">
 Obtener la solución del sistema no lineal, si existe:<br><span class="math display">\[\left\{ \begin{array}{clrrr} y^2 &amp; - &amp; 2x\lambda &amp; =0 &amp; (1) \\\\ 2xy &amp; - &amp; 2y\lambda &amp; =0 &amp; (2) \\\\ x^2 &amp; + &amp; y^2 &amp; =1 &amp; (3) \end{array} \right.\]</span><br>Seleccione cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034349375" value="1" data-correct="true" > El sistema posee exactamente 6 soluciones reales para <span class="math inline">\((x, y, \lambda)\)</span>: <span class="math inline">\((\pm 1, 0, 0)\)</span>, <span class="math inline">\((\frac{\sqrt{3}}{3}, \frac{\sqrt{6}}{3}, \frac{\sqrt{3}}{3})\)</span>, <span class="math inline">\((\frac{\sqrt{3}}{3}, -\frac{\sqrt{6}}{3}, \frac{\sqrt{3}}{3})\)</span>, <span class="math inline">\((-\frac{\sqrt{3}}{3}, \frac{\sqrt{6}}{3}, -\frac{\sqrt{3}}{3})\)</span> y <span class="math inline">\((-\frac{\sqrt{3}}{3}, -\frac{\sqrt{6}}{3}, -\frac{\sqrt{3}}{3})\)</span>.</label>
+<label><input type="checkbox" name="q17796553059721732" value="1" data-correct="true" > El sistema posee exactamente 6 soluciones reales para <span class="math inline">\((x, y, \lambda)\)</span>: <span class="math inline">\((\pm 1, 0, 0)\)</span>, <span class="math inline">\((\frac{\sqrt{3}}{3}, \frac{\sqrt{6}}{3}, \frac{\sqrt{3}}{3})\)</span>, <span class="math inline">\((\frac{\sqrt{3}}{3}, -\frac{\sqrt{6}}{3}, \frac{\sqrt{3}}{3})\)</span>, <span class="math inline">\((-\frac{\sqrt{3}}{3}, \frac{\sqrt{6}}{3}, -\frac{\sqrt{3}}{3})\)</span> y <span class="math inline">\((-\frac{\sqrt{3}}{3}, -\frac{\sqrt{6}}{3}, -\frac{\sqrt{3}}{3})\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034349375" value="2" data-correct="true" > Si <span class="math inline">\(y = 0\)</span>, los puntos en la circunferencia unitaria son <span class="math inline">\((\pm 1, 0)\)</span> con <span class="math inline">\(\lambda = 0\)</span>.</label>
+<label><input type="checkbox" name="q17796553059721732" value="2" data-correct="true" > Si <span class="math inline">\(y = 0\)</span>, los puntos en la circunferencia unitaria son <span class="math inline">\((\pm 1, 0)\)</span> con <span class="math inline">\(\lambda = 0\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034349375" value="3" data-correct="true" > Si <span class="math inline">\(y \neq 0\)</span>, se infiere de la segunda ecuación que <span class="math inline">\(\lambda = x\)</span>, lo que a su vez exige que <span class="math inline">\(y^2 = 2x^2\)</span> en la primera ecuación.</label>
+<label><input type="checkbox" name="q17796553059721732" value="3" data-correct="true" > Si <span class="math inline">\(y \neq 0\)</span>, se infiere de la segunda ecuación que <span class="math inline">\(\lambda = x\)</span>, lo que a su vez exige que <span class="math inline">\(y^2 = 2x^2\)</span> en la primera ecuación.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034349375" value="4" data-correct="false" > El sistema carece de soluciones reales.</label>
+<label><input type="checkbox" name="q17796553059721732" value="4" data-correct="false" > El sistema carece de soluciones reales.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034349375" value="5" data-correct="false" > El sistema tiene únicamente dos soluciones reales distintas.</label>
+<label><input type="checkbox" name="q17796553059721732" value="5" data-correct="false" > El sistema tiene únicamente dos soluciones reales distintas.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513034349375&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553059721732&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2302,31 +2365,31 @@ true
 <p><span class="math display">\[
 \dfrac{2x+1}{(x-1)(x+3)} = \dfrac{A}{x-1} + \dfrac{B}{x+3}
 \]</span></p>
-<div id="q17796513034429289" class="learnr-question-box">
+<div id="q17796553059801248" class="learnr-question-box">
 <div class="learnr-question-text">
 Para la descomposición algebraica del lado izquierdo en fracciones parciales propias simples del lado derecho, se construye el sistema lineal <span class="math inline">\(2 \times 2\)</span>:<br><span class="math display">\[\left\{ \begin{array}{clrr} A &amp; + &amp; B &amp; =2 &amp; (1) \\\\ 3A &amp; - &amp; B &amp; =1 &amp; (2) \end{array} \right.\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034429289" value="1" data-correct="true" > El valor del coeficiente <span class="math inline">\(A\)</span> es <span class="math inline">\(0.75\)</span> (o <span class="math inline">\(3/4\)</span>).</label>
+<label><input type="checkbox" name="q17796553059801248" value="1" data-correct="true" > El valor del coeficiente <span class="math inline">\(A\)</span> es <span class="math inline">\(0.75\)</span> (o <span class="math inline">\(3/4\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034429289" value="2" data-correct="true" > El valor del coeficiente <span class="math inline">\(B\)</span> es <span class="math inline">\(1.25\)</span> (o <span class="math inline">\(5/4\)</span>).</label>
+<label><input type="checkbox" name="q17796553059801248" value="2" data-correct="true" > El valor del coeficiente <span class="math inline">\(B\)</span> es <span class="math inline">\(1.25\)</span> (o <span class="math inline">\(5/4\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034429289" value="3" data-correct="true" > La suma de las dos fracciones parciales obtenidas es efectivamente igual a la expresión original.</label>
+<label><input type="checkbox" name="q17796553059801248" value="3" data-correct="true" > La suma de las dos fracciones parciales obtenidas es efectivamente igual a la expresión original.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034429289" value="4" data-correct="false" > Los coeficientes del sistema son <span class="math inline">\(A = 1\)</span> y <span class="math inline">\(B = 1\)</span>.</label>
+<label><input type="checkbox" name="q17796553059801248" value="4" data-correct="false" > Los coeficientes del sistema son <span class="math inline">\(A = 1\)</span> y <span class="math inline">\(B = 1\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034429289" value="5" data-correct="false" > Los coeficientes del sistema son <span class="math inline">\(A = -0.75\)</span> y <span class="math inline">\(B = -1.25\)</span>.</label>
+<label><input type="checkbox" name="q17796553059801248" value="5" data-correct="false" > Los coeficientes del sistema son <span class="math inline">\(A = -0.75\)</span> y <span class="math inline">\(B = -1.25\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034429289" value="6" data-correct="false" > El sistema lineal <span class="math inline">\(2 \times 2\)</span> resultante es inconsistente y carece de solución.</label>
+<label><input type="checkbox" name="q17796553059801248" value="6" data-correct="false" > El sistema lineal <span class="math inline">\(2 \times 2\)</span> resultante es inconsistente y carece de solución.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513034429289&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553059801248&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2352,31 +2415,31 @@ true
 <p><span class="math display">\[
 \dfrac{4x^{2}-x+1}{(x-1)(x+3)(x-6)} = \dfrac{A}{x-1} + \dfrac{B}{x+3} + \dfrac{C}{x-6}
 \]</span></p>
-<div id="q17796513034502727" class="learnr-question-box">
+<div id="q17796553059889605" class="learnr-question-box">
 <div class="learnr-question-text">
 Al realizar la suma de fracciones del lado derecho e igualar los polinomios del numerador, se obtiene el sistema lineal <span class="math inline">\(3 \times 3\)</span>:<br><span class="math display">\[\left\{ \begin{array}{clrrr} A &amp; + &amp; B &amp; + &amp; C &amp; =4 &amp; (1) \\\\ -3A &amp; - &amp; 7B &amp; + &amp; 2C &amp; =-1 &amp; (2) \\\\ -18A &amp; + &amp; 6B &amp; - &amp; 3C &amp; =1 &amp; (3) \end{array} \right.\]</span><br>Seleccione cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034502727" value="1" data-correct="true" > El coeficiente <span class="math inline">\(A\)</span> tiene el valor exacto de <span class="math inline">\(-0.2\)</span> (o <span class="math inline">\(-1/5\)</span>).</label>
+<label><input type="checkbox" name="q17796553059889605" value="1" data-correct="true" > El coeficiente <span class="math inline">\(A\)</span> tiene el valor exacto de <span class="math inline">\(-0.2\)</span> (o <span class="math inline">\(-1/5\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034502727" value="2" data-correct="true" > El coeficiente <span class="math inline">\(B\)</span> tiene el valor exacto de <span class="math inline">\(\frac{10}{9}\)</span> (o aproximadamente <span class="math inline">\(1.111\)</span>).</label>
+<label><input type="checkbox" name="q17796553059889605" value="2" data-correct="true" > El coeficiente <span class="math inline">\(B\)</span> tiene el valor exacto de <span class="math inline">\(\frac{10}{9}\)</span> (o aproximadamente <span class="math inline">\(1.111\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034502727" value="3" data-correct="true" > El coeficiente <span class="math inline">\(C\)</span> tiene el valor exacto de <span class="math inline">\(\frac{139}{45}\)</span> (o aproximadamente <span class="math inline">\(3.089\)</span>).</label>
+<label><input type="checkbox" name="q17796553059889605" value="3" data-correct="true" > El coeficiente <span class="math inline">\(C\)</span> tiene el valor exacto de <span class="math inline">\(\frac{139}{45}\)</span> (o aproximadamente <span class="math inline">\(3.089\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034502727" value="4" data-correct="true" > La suma de los tres coeficientes es exactamente <span class="math inline">\(A + B + C = 4\)</span>.</label>
+<label><input type="checkbox" name="q17796553059889605" value="4" data-correct="true" > La suma de los tres coeficientes es exactamente <span class="math inline">\(A + B + C = 4\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034502727" value="5" data-correct="false" > El coeficiente <span class="math inline">\(A\)</span> es nulo (<span class="math inline">\(A = 0\)</span>).</label>
+<label><input type="checkbox" name="q17796553059889605" value="5" data-correct="false" > El coeficiente <span class="math inline">\(A\)</span> es nulo (<span class="math inline">\(A = 0\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034502727" value="6" data-correct="false" > Los coeficientes resultantes del sistema son todos números enteros.</label>
+<label><input type="checkbox" name="q17796553059889605" value="6" data-correct="false" > Los coeficientes resultantes del sistema son todos números enteros.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513034502727&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553059889605&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2399,31 +2462,31 @@ true
 <div id="pregunta-29-enunciados-de-fracciones-parciales-propias" class="section level3 hasAnchor" number="11.4.3">
 <h3><span class="header-section-number">11.4.3</span> Pregunta 29 (Enunciados de Fracciones Parciales Propias)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-29-enunciados-de-fracciones-parciales-propias" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513034609547" class="learnr-question-box">
+<div id="q17796553059964940" class="learnr-question-box">
 <div class="learnr-question-text">
 Adaptando los enunciados del taller sobre fracciones parciales propias, determine cuáles de las siguientes afirmaciones son totalmente <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034609547" value="1" data-correct="true" > Para la fracción <span class="math inline">\(\dfrac{1}{x(x+2)}\)</span>, la descomposición da como resultado <span class="math inline">\(A = 0.5\)</span> y <span class="math inline">\(B = -0.5\)</span> (es decir, <span class="math inline">\(\frac{0.5}{x} - \frac{0.5}{x+2}\)</span>).</label>
+<label><input type="checkbox" name="q17796553059964940" value="1" data-correct="true" > Para la fracción <span class="math inline">\(\dfrac{1}{x(x+2)}\)</span>, la descomposición da como resultado <span class="math inline">\(A = 0.5\)</span> y <span class="math inline">\(B = -0.5\)</span> (es decir, <span class="math inline">\(\frac{0.5}{x} - \frac{0.5}{x+2}\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034609547" value="2" data-correct="true" > Para la fracción <span class="math inline">\(\dfrac{-9x+27}{x^{2}-4x-5}\)</span>, tras factorizar el denominador como <span class="math inline">\((x-5)(x+1)\)</span>, la descomposición da como resultado <span class="math inline">\(A = -3\)</span> (para el término <span class="math inline">\(x-5\)</span>) y <span class="math inline">\(B = -6\)</span> (para el término <span class="math inline">\(x+1\)</span>).</label>
+<label><input type="checkbox" name="q17796553059964940" value="2" data-correct="true" > Para la fracción <span class="math inline">\(\dfrac{-9x+27}{x^{2}-4x-5}\)</span>, tras factorizar el denominador como <span class="math inline">\((x-5)(x+1)\)</span>, la descomposición da como resultado <span class="math inline">\(A = -3\)</span> (para el término <span class="math inline">\(x-5\)</span>) y <span class="math inline">\(B = -6\)</span> (para el término <span class="math inline">\(x+1\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034609547" value="3" data-correct="true" > Para la fracción <span class="math inline">\(\dfrac{2x^{2}-x}{(x+1)(x+2)(x+3)}\)</span>, los coeficientes correspondientes son <span class="math inline">\(A = 1.5\)</span>, <span class="math inline">\(B = -10\)</span> y <span class="math inline">\(C = 10.5\)</span>.</label>
+<label><input type="checkbox" name="q17796553059964940" value="3" data-correct="true" > Para la fracción <span class="math inline">\(\dfrac{2x^{2}-x}{(x+1)(x+2)(x+3)}\)</span>, los coeficientes correspondientes son <span class="math inline">\(A = 1.5\)</span>, <span class="math inline">\(B = -10\)</span> y <span class="math inline">\(C = 10.5\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034609547" value="4" data-correct="true" > Una fracción o expresión racional se dice propia si y solo si el grado del polinomio en el numerador es estrictamente menor que el grado del polinomio en el denominador (y no ponen factores comunes).</label>
+<label><input type="checkbox" name="q17796553059964940" value="4" data-correct="true" > Una fracción o expresión racional se dice propia si y solo si el grado del polinomio en el numerador es estrictamente menor que el grado del polinomio en el denominador (y no ponen factores comunes).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034609547" value="5" data-correct="false" > La fracción <span class="math inline">\(\dfrac{x^4+3x}{x^2+2x+1}\)</span> es una fracción propia ya que sus polinomios son de diferente grado.</label>
+<label><input type="checkbox" name="q17796553059964940" value="5" data-correct="false" > La fracción <span class="math inline">\(\dfrac{x^4+3x}{x^2+2x+1}\)</span> es una fracción propia ya que sus polinomios son de diferente grado.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034609547" value="6" data-correct="false" > Para la fracción <span class="math inline">\(\dfrac{1}{x(x+2)}\)</span>, la descomposición da coeficientes idénticos y positivos <span class="math inline">\(A=1\)</span> y <span class="math inline">\(B=1\)</span>.</label>
+<label><input type="checkbox" name="q17796553059964940" value="6" data-correct="false" > Para la fracción <span class="math inline">\(\dfrac{1}{x(x+2)}\)</span>, la descomposición da coeficientes idénticos y positivos <span class="math inline">\(A=1\)</span> y <span class="math inline">\(B=1\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513034609547&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553059964940&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2449,31 +2512,31 @@ true
 <p><span class="math display">\[
 xC_{2}H_{6} + yO_{2} \rightarrow zCO_{2} + wH_{2}O
 \]</span></p>
-<div id="q17796513034693627" class="learnr-question-box">
+<div id="q17796553060042551" class="learnr-question-box">
 <div class="learnr-question-text">
 Utilizando el ejemplo de balanceo químico (donde se busca los enteros positivos mínimos <span class="math inline">\(x, y, z, w\)</span> mediante un sistema lineal homogéneo):<br><span class="math display">\[\left\{ \begin{array}{clrrr} 2x &amp; + &amp; 0y - &amp; 1z + &amp; 0w  =0 &amp; (1) \\\\ 6x &amp; + &amp; 0y + &amp; 0z - &amp; 2w  =0 &amp; (2) \\\\ 0x &amp; + &amp; 2y - &amp; 2z - &amp; 1w  =0 &amp; (3)  \end{array} \right.\]</span><br>determine cuáles de las siguientes soluciones de balanceo propuestas son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034693627" value="1" data-correct="true" > Para <span class="math inline">\(Na + H_{2}O \rightarrow NaOH + H_{2}\)</span>, la ecuación balanceada es <span class="math inline">\(2Na + 2H_{2}O \rightarrow 2NaOH + H_{2}\)</span> (coeficientes balanceados: <span class="math inline">\(2, 2, 2, 1\)</span>).</label>
+<label><input type="checkbox" name="q17796553060042551" value="1" data-correct="true" > Para <span class="math inline">\(Na + H_{2}O \rightarrow NaOH + H_{2}\)</span>, la ecuación balanceada es <span class="math inline">\(2Na + 2H_{2}O \rightarrow 2NaOH + H_{2}\)</span> (coeficientes balanceados: <span class="math inline">\(2, 2, 2, 1\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034693627" value="2" data-correct="true" > Para <span class="math inline">\(KClO_{3} \rightarrow KCl + O_{2}\)</span>, la ecuación balanceada es <span class="math inline">\(2KClO_{3} \rightarrow 2KCl + 3O_{2}\)</span> (coeficientes balanceados: <span class="math inline">\(2, 2, 3\)</span>).</label>
+<label><input type="checkbox" name="q17796553060042551" value="2" data-correct="true" > Para <span class="math inline">\(KClO_{3} \rightarrow KCl + O_{2}\)</span>, la ecuación balanceada es <span class="math inline">\(2KClO_{3} \rightarrow 2KCl + 3O_{2}\)</span> (coeficientes balanceados: <span class="math inline">\(2, 2, 3\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034693627" value="3" data-correct="true" > Para <span class="math inline">\(Fe_{3}O_{4} + C \rightarrow Fe + CO\)</span>, la ecuación balanceada es <span class="math inline">\(Fe_{3}O_{4} + 4C \rightarrow 3Fe + 4CO\)</span> (coeficientes balanceados: <span class="math inline">\(1, 4, 3, 4\)</span>).</label>
+<label><input type="checkbox" name="q17796553060042551" value="3" data-correct="true" > Para <span class="math inline">\(Fe_{3}O_{4} + C \rightarrow Fe + CO\)</span>, la ecuación balanceada es <span class="math inline">\(Fe_{3}O_{4} + 4C \rightarrow 3Fe + 4CO\)</span> (coeficientes balanceados: <span class="math inline">\(1, 4, 3, 4\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034693627" value="4" data-correct="true" > Para <span class="math inline">\(C_{5}H_{8} + O_{2} \rightarrow CO_{2} + H_{2}O\)</span>, la ecuación balanceada es <span class="math inline">\(C_{5}H_{8} + 7O_{2} \rightarrow 5CO_{2} + 4H_{2}O\)</span> (coeficientes balanceados: <span class="math inline">\(1, 7, 5, 4\)</span>).</label>
+<label><input type="checkbox" name="q17796553060042551" value="4" data-correct="true" > Para <span class="math inline">\(C_{5}H_{8} + O_{2} \rightarrow CO_{2} + H_{2}O\)</span>, la ecuación balanceada es <span class="math inline">\(C_{5}H_{8} + 7O_{2} \rightarrow 5CO_{2} + 4H_{2}O\)</span> (coeficientes balanceados: <span class="math inline">\(1, 7, 5, 4\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034693627" value="5" data-correct="false" > Para <span class="math inline">\(Na + H_{2}O \rightarrow NaOH + H_{2}\)</span>, la ecuación balanceada es <span class="math inline">\(Na + H_{2}O \rightarrow NaOH + H_{2}\)</span> (coeficientes balanceados: <span class="math inline">\(1, 1, 1, 1\)</span>).</label>
+<label><input type="checkbox" name="q17796553060042551" value="5" data-correct="false" > Para <span class="math inline">\(Na + H_{2}O \rightarrow NaOH + H_{2}\)</span>, la ecuación balanceada es <span class="math inline">\(Na + H_{2}O \rightarrow NaOH + H_{2}\)</span> (coeficientes balanceados: <span class="math inline">\(1, 1, 1, 1\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034693627" value="6" data-correct="false" > Para <span class="math inline">\(C_{5}H_{8} + O_{2} \rightarrow CO_{2} + H_{2}O\)</span>, los coeficientes balanceados mínimos son <span class="math inline">\(2, 14, 10, 8\)</span>.</label>
+<label><input type="checkbox" name="q17796553060042551" value="6" data-correct="false" > Para <span class="math inline">\(C_{5}H_{8} + O_{2} \rightarrow CO_{2} + H_{2}O\)</span>, los coeficientes balanceados mínimos son <span class="math inline">\(2, 14, 10, 8\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513034693627&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553060042551&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2496,31 +2559,31 @@ true
 <div id="pregunta-31-ajuste-de-función-cuadrática" class="section level3 hasAnchor" number="11.4.5">
 <h3><span class="header-section-number">11.4.5</span> Pregunta 31 (Ajuste de Función Cuadrática)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-31-ajuste-de-funci%C3%B3n-cuadr%C3%A1tica" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513034808714" class="learnr-question-box">
+<div id="q17796553060151390" class="learnr-question-box">
 <div class="learnr-question-text">
 Encuentre una función cuadrática <span class="math inline">\(f(x)=ax^{2}+bx+c\)</span> cuya gráfica pasa por los puntos <span class="math inline">\((1,8)\)</span>, <span class="math inline">\((-1,-4)\)</span>, y <span class="math inline">\((3,4)\)</span>. Seleccione las afirmaciones que son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034808714" value="1" data-correct="true" > La función cuadrática buscada es <span class="math inline">\(f(x) = -2x^2 + 6x + 4\)</span>.</label>
+<label><input type="checkbox" name="q17796553060151390" value="1" data-correct="true" > La función cuadrática buscada es <span class="math inline">\(f(x) = -2x^2 + 6x + 4\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034808714" value="2" data-correct="true" > El coeficiente principal es <span class="math inline">\(a = -2\)</span>, indicando que la parábola abre hacia abajo.</label>
+<label><input type="checkbox" name="q17796553060151390" value="2" data-correct="true" > El coeficiente principal es <span class="math inline">\(a = -2\)</span>, indicando que la parábola abre hacia abajo.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034808714" value="3" data-correct="true" > El término independiente es <span class="math inline">\(c = 4\)</span>, que corresponde a la intersección de la gráfica con el eje <span class="math inline">\(Y\)</span> en <span class="math inline">\((0, 4)\)</span>.</label>
+<label><input type="checkbox" name="q17796553060151390" value="3" data-correct="true" > El término independiente es <span class="math inline">\(c = 4\)</span>, que corresponde a la intersección de la gráfica con el eje <span class="math inline">\(Y\)</span> en <span class="math inline">\((0, 4)\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034808714" value="4" data-correct="true" > El vértice de esta parábola se encuentra exactamente en <span class="math inline">\(x = 1.5\)</span>.</label>
+<label><input type="checkbox" name="q17796553060151390" value="4" data-correct="true" > El vértice de esta parábola se encuentra exactamente en <span class="math inline">\(x = 1.5\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034808714" value="5" data-correct="false" > La función cuadrática es <span class="math inline">\(f(x) = 2x^2 - 6x - 4\)</span>.</label>
+<label><input type="checkbox" name="q17796553060151390" value="5" data-correct="false" > La función cuadrática es <span class="math inline">\(f(x) = 2x^2 - 6x - 4\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034808714" value="6" data-correct="false" > La parábola pasa por el origen de coordenadas <span class="math inline">\((0,0)\)</span>.</label>
+<label><input type="checkbox" name="q17796553060151390" value="6" data-correct="false" > La parábola pasa por el origen de coordenadas <span class="math inline">\((0,0)\)</span>.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513034808714&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553060151390&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2543,31 +2606,31 @@ true
 <div id="pregunta-32-ajuste-de-coeficientes-de-un-plano" class="section level3 hasAnchor" number="11.4.6">
 <h3><span class="header-section-number">11.4.6</span> Pregunta 32 (Ajuste de Coeficientes de un Plano)<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#pregunta-32-ajuste-de-coeficientes-de-un-plano" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p><span class="badge-true">✓ Seleccionar afirmaciones VERDADERAS</span></p>
-<div id="q17796513034886495" class="learnr-question-box">
+<div id="q17796553060247068" class="learnr-question-box">
 <div class="learnr-question-text">
 Encuentre los coeficientes <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, y <span class="math inline">\(c\)</span> de modo que los puntos tridimensionales <span class="math inline">\((1,1,-1)\)</span>, <span class="math inline">\((-2,-3,3)\)</span>, y <span class="math inline">\((1,2,-1.5)\)</span> sean soluciones de la ecuación:<br><span class="math display">\[ax+by+cz=1\]</span><br>Identifique cuáles de las siguientes afirmaciones son <strong>verdaderas</strong>:
 </div>
 <div class="learnr-answers">
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034886495" value="1" data-correct="true" > Los coeficientes buscados son <span class="math inline">\(a = 4\)</span>, <span class="math inline">\(b = 3\)</span> y <span class="math inline">\(c = 6\)</span> (es decir, la ecuación es <span class="math inline">\(4x + 3y + 6z = 1\)</span>).</label>
+<label><input type="checkbox" name="q17796553060247068" value="1" data-correct="true" > Los coeficientes buscados son <span class="math inline">\(a = 4\)</span>, <span class="math inline">\(b = 3\)</span> y <span class="math inline">\(c = 6\)</span> (es decir, la ecuación es <span class="math inline">\(4x + 3y + 6z = 1\)</span>).</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034886495" value="2" data-correct="true" > La suma de los tres coeficientes encontrados es <span class="math inline">\(a + b + c = 13\)</span>.</label>
+<label><input type="checkbox" name="q17796553060247068" value="2" data-correct="true" > La suma de los tres coeficientes encontrados es <span class="math inline">\(a + b + c = 13\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034886495" value="3" data-correct="true" > Al evaluar el punto <span class="math inline">\((1, 1, -1)\)</span> en la ecuación resultante se obtiene <span class="math inline">\(4(1) + 3(1) + 6(-1) = 1\)</span>, lo cual confirma la exactitud de los coeficientes.</label>
+<label><input type="checkbox" name="q17796553060247068" value="3" data-correct="true" > Al evaluar el punto <span class="math inline">\((1, 1, -1)\)</span> en la ecuación resultante se obtiene <span class="math inline">\(4(1) + 3(1) + 6(-1) = 1\)</span>, lo cual confirma la exactitud de los coeficientes.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034886495" value="4" data-correct="false" > Los coeficientes son <span class="math inline">\(a = -4\)</span>, <span class="math inline">\(b = -3\)</span> y <span class="math inline">\(c = -6\)</span>.</label>
+<label><input type="checkbox" name="q17796553060247068" value="4" data-correct="false" > Los coeficientes son <span class="math inline">\(a = -4\)</span>, <span class="math inline">\(b = -3\)</span> y <span class="math inline">\(c = -6\)</span>.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034886495" value="5" data-correct="false" > El sistema lineal <span class="math inline">\(3 \times 3\)</span> resultante es inconsistente y carece de soluciones.</label>
+<label><input type="checkbox" name="q17796553060247068" value="5" data-correct="false" > El sistema lineal <span class="math inline">\(3 \times 3\)</span> resultante es inconsistente y carece de soluciones.</label>
 </div>
 <div class="learnr-option">
-<label><input type="checkbox" name="q17796513034886495" value="6" data-correct="false" > Los coeficientes buscados son todos números racionales no enteros.</label>
+<label><input type="checkbox" name="q17796553060247068" value="6" data-correct="false" > Los coeficientes buscados son todos números racionales no enteros.</label>
 </div>
 </div>
-<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796513034886495&#39;)">
+<button type="button" class="learnr-submit-btn" onclick="checkLearnrQuestion(&#39;q17796553060247068&#39;)">
 Enviar Respuesta
 </button>
 <div class="learnr-feedback" style="display:none;">
@@ -2592,10 +2655,10 @@ true
 <div id="reporte-final-de-calificación" class="section level2 hasAnchor" number="11.5">
 <h2><span class="header-section-number">11.5</span> Reporte Final de Calificación<a href="evaluación-de-álgebra-sistemas-de-ecuaciones-ev_sistemasec1.html#reporte-final-de-calificaci%C3%B3n" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Para ver el análisis de tu desempeño en esta prueba, haz clic en el siguiente botón. El sistema evaluará tus respuestas y te proporcionará recomendaciones personalizadas.</p>
-<button type="button" class="learnr-submit-btn" style="margin-bottom:1rem;" onclick="showScoreReport(&#39;sr17796513035079477&#39;, 32, &#39;&lt;strong&gt;¡Espectacular!&lt;/strong&gt; Tienes un dominio sobresaliente y sumamente robusto en la resolución y clasificación de sistemas de ecuaciones lineales y no lineales, descomposición en fracciones parciales propias, balanceo de reacciones químicas y modelado de curvas. ¡Sigue así, estás más que preparado para desafíos matemáticos avanzados!&#39;, &#39;&lt;strong&gt;¡Buen trabajo!&lt;/strong&gt; Has aprobado la evaluación con éxito, pero aún hay ciertos conceptos que puedes pulir, especialmente en los sistemas no lineales de segundo y tercer grado (incluyendo multiplicadores de Lagrange) o la descomposición en fracciones parciales. Te recomendamos revisar estos puntos y realizar más ejercicios prácticos para alcanzar la excelencia.&#39;, &#39;&lt;strong&gt;Se sugiere más práctica.&lt;/strong&gt; Has tenido varias respuestas incorrectas o preguntas sin responder. Te sugerimos repasar los métodos analíticos de resolución lineal (eliminación Gaussiana, sustitución y Regla de Cramer), las propiedades de las funciones cuadráticas y la factorización de polinomios antes de volver a intentarlo. ¡No te rindas, con estudio y práctica constante dominarás la materia!&#39;)">
+<button type="button" class="learnr-submit-btn" style="margin-bottom:1rem;" onclick="showScoreReport(&#39;sr17796553060435149&#39;, 32, &#39;&lt;strong&gt;¡Espectacular!&lt;/strong&gt; Tienes un dominio sobresaliente y sumamente robusto en la resolución y clasificación de sistemas de ecuaciones lineales y no lineales, descomposición en fracciones parciales propias, balanceo de reacciones químicas y modelado de curvas. ¡Sigue así, estás más que preparado para desafíos matemáticos avanzados!&#39;, &#39;&lt;strong&gt;¡Buen trabajo!&lt;/strong&gt; Has aprobado la evaluación con éxito, pero aún hay ciertos conceptos que puedes pulir, especialmente en los sistemas no lineales de segundo y tercer grado (incluyendo multiplicadores de Lagrange) o la descomposición en fracciones parciales. Te recomendamos revisar estos puntos y realizar más ejercicios prácticos para alcanzar la excelencia.&#39;, &#39;&lt;strong&gt;Se sugiere más práctica.&lt;/strong&gt; Has tenido varias respuestas incorrectas o preguntas sin responder. Te sugerimos repasar los métodos analíticos de resolución lineal (eliminación Gaussiana, sustitución y Regla de Cramer), las propiedades de las funciones cuadráticas y la factorización de polinomios antes de volver a intentarlo. ¡No te rindas, con estudio y práctica constante dominarás la materia!&#39;)">
 🏆 Obtener Mi Reporte de Resultados
 </button>
-<div id="sr17796513035079477">
+<div id="sr17796553060435149">
 
 </div>
 
