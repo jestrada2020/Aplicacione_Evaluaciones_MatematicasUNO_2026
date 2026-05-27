@@ -392,3 +392,9 @@ teoría-de-conjuntos-2-videos
 google-colab-y-ciencia-de-datos-8-videos
 guías-académicas-y-módulos-de-cursos-7-videos
 otros-temas-de-matemáticas-y-ciencias-61-videos
+caja-herramientas
+aplicación-interactiva
+ejecución-local
+requisitos
+estructura-de-archivos-necesaria
+despliegue-en-shinyapps.io
